@@ -2,6 +2,7 @@
 let targetWord = ""; 
 let phase1Answers = [];
 let validWordsSet = new Set();
+let commonWordsSet = new Set(); // NEW: Used for the Obscurity Bonus
 
 let currentRow = 0;
 let currentTile = 0;
@@ -22,6 +23,7 @@ async function loadDictionaries() {
         const fullArray = textFull.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
         
         validWordsSet = new Set([...phase1Answers, ...fullArray]);
+        commonWordsSet = new Set(phase1Answers); // Store the common words separately
 
         targetWord = phase1Answers[Math.floor(Math.random() * phase1Answers.length)];
         
@@ -56,7 +58,6 @@ if (skipPhase1Btn) {
                 updateKeyboardColor(targetArr[c], "correct"); 
             }
         }
-
         endPhase1();
     });
 }
@@ -113,7 +114,6 @@ document.addEventListener("keydown", (e) => {
     if (!isPhase1Active) return; 
     
     const key = e.key.toUpperCase();
-    
     if (key === "ENTER") {
         submitGuess();
     } else if (key === "BACKSPACE") {
@@ -148,14 +148,12 @@ function submitGuess() {
     if (currentTile !== 5) return; 
     
     const guess = guesses[currentRow].join("");
-    
     if (!validWordsSet.has(guess)) {
         const rowDiv = document.getElementById(`row-${currentRow}`);
         rowDiv.classList.add("shake");
         setTimeout(() => rowDiv.classList.remove("shake"), 400);
         return;
     }
-    
     checkWinCondition(guess);
 }
 
@@ -216,7 +214,9 @@ function endPhase1() {
 
 // --- 6. Phase 2 State & Setup ---
 const targetPools = {}; 
-let score = 0;
+let baseScore = 0;
+let bonusScore = 0;
+let totalScore = 0;
 let timerInterval;
 let timeLeft = 300; 
 let phase2Active = false;
@@ -231,7 +231,7 @@ const foundWordsContainer = document.getElementById("found-words-container");
 const timerDisplay = document.getElementById("timer");
 const scoreDisplay = document.getElementById("score");
 const hud = document.getElementById("hud");
-const penaltyNotification = document.getElementById("penalty-notification");
+const actionNotification = document.getElementById("action-notification"); // NEW
 
 const gameOverModal = document.getElementById("game-over-modal");
 const finalScoreText = document.getElementById("final-score");
@@ -254,14 +254,13 @@ if (startTimerBtn) {
     });
 }
 
-// --- 8. Phase 2 Generation Logic (Spaced Rows) ---
+// --- 8. Phase 2 Generation Logic ---
 function generatePhase2Board() {
     const letters = targetWord.split("");
     const reverseLetters = [...letters].reverse();
     
     phase2Board.innerHTML = ""; 
     
-    // 1. Identify Targets and Merge Duplicates FIRST (By Row)
     for (let r = 0; r < 5; r++) {
         const startL = letters[r];
         const endL = reverseLetters[r];
@@ -280,7 +279,6 @@ function generatePhase2Board() {
         }
     }
 
-    // 2. Build the Spaced Rows UI
     for (let r = 0; r < 5; r++) {
         const startL = letters[r];
         const endL = reverseLetters[r];
@@ -325,17 +323,15 @@ function generatePhase2Board() {
         phase2Board.appendChild(rowWrapper);
     }
 
-    // 3. Auto-populate Phase 1 Target Word in Row 1 (No points awarded)
+    // Auto-populate Phase 1 Target Word in Row 1 (No points awarded)
     const row1Key = `${targetWord[0]}${targetWord[4]}`;
     const row1Pool = targetPools[row1Key];
     
     if (row1Pool && !row1Pool.foundWords.includes(targetWord)) {
         row1Pool.foundWords.push(targetWord);
         
-        // Update the visual tracker
         document.getElementById(`prog-row-${row1Pool.rows[0]}`).textContent = `${row1Pool.foundWords.length} / ${row1Pool.validWords.length} Words Found`;
 
-        // Render the card immediately
         const card = document.createElement("div");
         card.className = `word-card ${row1Pool.baseColorClass}`;
         card.textContent = targetWord;
@@ -356,11 +352,10 @@ if (omniBox) {
         const startL = guess[0];
         const endL = guess[4];
         const key = `${startL}${endL}`;
-        
         const pool = targetPools[key];
 
         if (!pool || pool.validWords.length === 0) {
-            applyPenalty(5, "Missing Constraint: -5s");
+            showAction("Missing Constraint: -5s", -5, "penalty");
             shakeInput();
             return;
         }
@@ -371,25 +366,43 @@ if (omniBox) {
         }
 
         if (!pool.validWords.includes(guess)) {
-            applyPenalty(10, "Fake Word: -10s");
+            showAction("Fake Word: -10s", -10, "penalty");
             shakeInput();
             return;
         }
 
+        // Check for Obscurity Bonus before adding
+        const isObscure = !commonWordsSet.has(guess);
+        
         pool.foundWords.push(guess);
         
-        // --- SCORE SCALING UPDATE ---
-        // 1000 points max per row pool instead of 100
+        // Apply Base Points
         const points = Math.round(1000 / pool.validWords.length);
-        score += points;
-        if (score > 5000) score = 5000; // Cap at 5000
-        scoreDisplay.textContent = `Score: ${score}`;
+        baseScore += points;
+
+        // Apply Bonus Points
+        if (isObscure) {
+            bonusScore += 50;
+            showAction("Rare Word! +50 pts", 0, "bonus");
+        }
+        
+        // Update Total
+        totalScore = baseScore + bonusScore;
+        scoreDisplay.textContent = `Base: ${baseScore} | Bonus: ${bonusScore} | Total: ${totalScore}`;
 
         document.getElementById(`prog-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length} / ${pool.validWords.length} Words Found`;
 
+        // Render the Found Word Card with optional Flair
         const card = document.createElement("div");
         card.className = `word-card ${pool.baseColorClass}`;
-        card.textContent = guess;
+        
+        if (isObscure) {
+            card.classList.add("obscure-word");
+            card.textContent = guess + " ✨";
+        } else {
+            card.textContent = guess;
+        }
+        
         foundWordsContainer.appendChild(card);
     });
 }
@@ -399,13 +412,16 @@ function shakeInput() {
     setTimeout(() => omniBox.classList.remove("shake"), 400);
 }
 
-function applyPenalty(seconds, message) {
-    timeLeft -= seconds;
+// Consolidated Notification & Time Function
+function showAction(message, secondsChange, type) {
+    timeLeft += secondsChange; // Note: secondsChange is negative for penalties
     if (timeLeft < 0) timeLeft = 0;
     
-    penaltyNotification.textContent = message;
-    penaltyNotification.classList.remove("hidden");
-    setTimeout(() => penaltyNotification.classList.add("hidden"), 1500);
+    actionNotification.textContent = message;
+    actionNotification.className = type === "penalty" ? "action-penalty" : "action-bonus";
+    actionNotification.classList.remove("hidden");
+    
+    setTimeout(() => actionNotification.classList.add("hidden"), 1500);
     
     updateTimerDisplay();
 }
@@ -434,7 +450,9 @@ function endPhase2() {
     phase2Active = false;
     omniBox.disabled = true;
     
-    finalScoreText.textContent = `Total Score: ${score} / 5000`;
+    // Final UI Updates
+    finalScoreText.textContent = `Total Score: ${totalScore}`;
+    document.getElementById("score-breakdown").textContent = `Base: ${baseScore} | Bonus: ${bonusScore}`;
     
     Object.keys(targetPools).forEach(key => {
         const pool = targetPools[key];
