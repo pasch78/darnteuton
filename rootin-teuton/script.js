@@ -2,7 +2,7 @@
 let targetWord = ""; 
 let phase1Answers = [];
 let validWordsSet = new Set();
-let commonWordsSet = new Set(); // Tracks common words for the Obscurity Bonus
+let commonWordsSet = new Set(); 
 
 let currentRow = 0;
 let currentTile = 0;
@@ -23,7 +23,7 @@ async function loadDictionaries() {
         const fullArray = textFull.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
         
         validWordsSet = new Set([...phase1Answers, ...fullArray]);
-        commonWordsSet = new Set(phase1Answers); // Store the common words separately
+        commonWordsSet = new Set(phase1Answers); 
 
         targetWord = phase1Answers[Math.floor(Math.random() * phase1Answers.length)];
         
@@ -228,8 +228,11 @@ const startTimerBtn = document.getElementById("start-timer-btn");
 const phase2Board = document.getElementById("phase2-board"); 
 const omniBox = document.getElementById("omni-box");
 const foundWordsContainer = document.getElementById("found-words-container");
+
 const timerDisplay = document.getElementById("timer");
-const scoreDisplay = document.getElementById("score");
+const scoreTotalDisplay = document.getElementById("score-total-display"); // UPDATED
+const scoreBreakdownDisplay = document.getElementById("score-breakdown-display"); // UPDATED
+
 const hud = document.getElementById("hud");
 const actionNotification = document.getElementById("action-notification"); 
 
@@ -323,7 +326,7 @@ function generatePhase2Board() {
         phase2Board.appendChild(rowWrapper);
     }
 
-    // Auto-populate Phase 1 Target Word in Row 1 (No points awarded)
+    // Auto-populate Phase 1 Target Word
     const row1Key = `${targetWord[0]}${targetWord[4]}`;
     const row1Pool = targetPools[row1Key];
     
@@ -371,28 +374,25 @@ if (omniBox) {
             return;
         }
 
-        // Check for Obscurity Bonus before adding
         const isObscure = !commonWordsSet.has(guess);
-        
         pool.foundWords.push(guess);
         
-        // Apply Base Points
         const points = Math.round(1000 / pool.validWords.length);
         baseScore += points;
 
-        // Apply Bonus Points
         if (isObscure) {
             bonusScore += 50;
             showAction("Rare Word! +50 pts", 0, "bonus");
         }
         
-        // Update Total
         totalScore = baseScore + bonusScore;
-        scoreDisplay.textContent = `Base: ${baseScore} | Bonus: ${bonusScore} | Total: ${totalScore}`;
+        
+        // Updates separated UI Elements
+        scoreTotalDisplay.textContent = `Total: ${totalScore}`;
+        scoreBreakdownDisplay.textContent = `Base: ${baseScore} | Bonus: ${bonusScore}`;
 
         document.getElementById(`prog-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length} / ${pool.validWords.length} Words Found`;
 
-        // Render the Found Word Card with optional Flair
         const card = document.createElement("div");
         card.className = `word-card ${pool.baseColorClass}`;
         
@@ -412,9 +412,8 @@ function shakeInput() {
     setTimeout(() => omniBox.classList.remove("shake"), 400);
 }
 
-// Consolidated Notification & Time Function
 function showAction(message, secondsChange, type) {
-    timeLeft += secondsChange; // Note: secondsChange is negative for penalties
+    timeLeft += secondsChange; 
     if (timeLeft < 0) timeLeft = 0;
     
     actionNotification.textContent = message;
@@ -450,7 +449,6 @@ function endPhase2() {
     phase2Active = false;
     omniBox.disabled = true;
     
-    // Final UI Updates
     finalScoreText.textContent = `Total Score: ${totalScore}`;
     document.getElementById("score-breakdown").textContent = `Base: ${baseScore} | Bonus: ${bonusScore}`;
     
