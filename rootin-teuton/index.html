@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wordle 5x5</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Wordle 5x5</h1>
+        <div id="hud" class="hidden">
+            <span id="timer">05:00</span>
+            <span id="score">Score: 0</span>
+        </div>
+    </header>
+    
+    <main id="phase1-container">
+        <div id="wordle-grid"></div>
+        
+        <!-- The New Visual Keyboard Tracker -->
+        <div id="keyboard-visual"></div>
+        
+        <button id="skip-phase1-btn" style="width: 100%; background-color: var(--col5);">Reveal & Skip to Phase 2</button>
+    </main>
+
+    <div id="transition-overlay" class="hidden">
+        <h2>Phase 2 Unlocked!</h2>
+        <p>Find the vertical words. Duplicate columns share a pool.</p>
+        <button id="start-timer-btn">Start 5-Minute Timer</button>
+    </div>
+
+    <main id="phase2-container" class="hidden">
+        <div id="board-area">
+            <div id="grid-5x5"></div>
+            <div id="stats-area">
+                <div id="target-row"></div>
+                <div id="progress-row"></div>
+            </div>
+        </div>
+
+        <div id="input-zone">
+            <input type="text" id="omni-box" placeholder="Type a word..." maxlength="5" autocomplete="off" disabled>
+            <div id="penalty-notification" class="hidden"></div>
+        </div>
+
+        <div id="found-words-container"></div>
+        
+        <button id="dev-end-phase2-btn" style="width: 100%; background-color: var(--col5); margin-top: 2rem;">Dev Cheat: End Phase 2 Now</button>
+    </main>
+
+    <div id="game-over-modal" class="hidden">
+        <h2>Time's Up!</h2>
+        <h3 id="final-score">Total Score: 0</h3>
+        <div id="missed-words-area">
+            <h4>Words You Missed:</h4>
+            <div id="missed-words-list"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
