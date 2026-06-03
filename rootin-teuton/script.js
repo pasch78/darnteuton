@@ -2,7 +2,7 @@
 let targetWord = ""; 
 let phase1Answers = [];
 let validWordsSet = new Set();
-let commonWordsSet = new Set(); // NEW: Used for the Obscurity Bonus
+let commonWordsSet = new Set(); // Tracks common words for the Obscurity Bonus
 
 let currentRow = 0;
 let currentTile = 0;
@@ -231,7 +231,7 @@ const foundWordsContainer = document.getElementById("found-words-container");
 const timerDisplay = document.getElementById("timer");
 const scoreDisplay = document.getElementById("score");
 const hud = document.getElementById("hud");
-const actionNotification = document.getElementById("action-notification"); // NEW
+const actionNotification = document.getElementById("action-notification"); 
 
 const gameOverModal = document.getElementById("game-over-modal");
 const finalScoreText = document.getElementById("final-score");
