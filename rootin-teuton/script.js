@@ -8,7 +8,6 @@ let currentTile = 0;
 let guesses = [[], [], [], [], [], []];
 let isPhase1Active = false; 
 
-// Correct GitHub GIST raw URLs for the official lists
 const answersURL = "https://gist.githubusercontent.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b/raw/wordle-answers-alphabetical.txt"; 
 const fullDictURL = "https://gist.githubusercontent.com/cfreshman/cdcdf777450c5b5301e439061d29694c/raw/wordle-allowed-guesses.txt"; 
 
@@ -74,7 +73,6 @@ if (devEndPhase2Btn) {
 
 // --- 2. Build the Phase 1 Board & Keyboard ---
 function initPhase1() {
-    // Build Grid
     wordleGrid.innerHTML = "";
     for (let r = 0; r < 6; r++) {
         const rowDiv = document.createElement("div");
@@ -89,7 +87,6 @@ function initPhase1() {
         wordleGrid.appendChild(rowDiv);
     }
 
-    // Build Visual Keyboard
     const keyboardRows = [
         ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
         ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
@@ -162,12 +159,10 @@ function submitGuess() {
     checkWinCondition(guess);
 }
 
-// Helper: Update Keyboard visual states
 function updateKeyboardColor(letter, status) {
     const keyElement = document.getElementById(`key-${letter}`);
     if (!keyElement) return;
     
-    // Prevent downgrading a green/yellow key
     if (keyElement.classList.contains("correct")) return;
     if (keyElement.classList.contains("present") && status === "absent") return;
     
@@ -180,7 +175,6 @@ function checkWinCondition(guess) {
     const guessArr = guess.split("");
     const tileElements = document.getElementById(`row-${currentRow}`).childNodes;
     
-    // First Pass: Green
     guessArr.forEach((letter, i) => {
         if (letter === targetArr[i]) {
             tileElements[i].classList.add("correct");
@@ -190,7 +184,6 @@ function checkWinCondition(guess) {
         }
     });
     
-    // Second Pass: Yellow/Gray
     guessArr.forEach((letter, i) => {
         if (letter !== null) {
             if (targetArr.includes(letter)) {
@@ -204,7 +197,6 @@ function checkWinCondition(guess) {
         }
     });
     
-    // Check End State
     if (guess === targetWord) {
         endPhase1();
     } else {
@@ -217,7 +209,6 @@ function checkWinCondition(guess) {
 // --- 5. Transition to Phase 2 ---
 function endPhase1() {
     isPhase1Active = false;
-    
     setTimeout(() => {
         transitionOverlay.classList.remove("hidden");
     }, 1500);
@@ -234,9 +225,7 @@ let phase2Active = false;
 const phase1Container = document.getElementById("phase1-container");
 const phase2Container = document.getElementById("phase2-container");
 const startTimerBtn = document.getElementById("start-timer-btn");
-const grid5x5 = document.getElementById("grid-5x5");
-const targetRow = document.getElementById("target-row");
-const progressRow = document.getElementById("progress-row");
+const phase2Board = document.getElementById("phase2-board"); // NEW
 const omniBox = document.getElementById("omni-box");
 const foundWordsContainer = document.getElementById("found-words-container");
 const timerDisplay = document.getElementById("timer");
@@ -244,7 +233,6 @@ const scoreDisplay = document.getElementById("score");
 const hud = document.getElementById("hud");
 const penaltyNotification = document.getElementById("penalty-notification");
 
-// Modal Elements
 const gameOverModal = document.getElementById("game-over-modal");
 const finalScoreText = document.getElementById("final-score");
 const missedWordsList = document.getElementById("missed-words-list");
@@ -266,12 +254,14 @@ if (startTimerBtn) {
     });
 }
 
-// --- 8. Phase 2 Generation Logic ---
+// --- 8. Phase 2 Generation Logic (Spaced Rows) ---
 function generatePhase2Board() {
     const letters = targetWord.split("");
     const reverseLetters = [...letters].reverse();
     
-    // 1. Identify Targets and Merge Duplicates FIRST (Now by Row)
+    phase2Board.innerHTML = ""; 
+    
+    // 1. Identify Targets and Merge Duplicates FIRST (By Row)
     for (let r = 0; r < 5; r++) {
         const startL = letters[r];
         const endL = reverseLetters[r];
@@ -281,83 +271,61 @@ function generatePhase2Board() {
             targetPools[key] = {
                 validWords: Array.from(validWordsSet).filter(w => w.startsWith(startL) && w.endsWith(endL)),
                 foundWords: [],
-                rows: [r + 1], // Track primary row instead of column
-                baseColorClass: `text-col${r + 1}` // Reusing the color CSS classes
+                rows: [r + 1], // Track primary row
+                baseColorClass: `text-col${r + 1}`,
+                bgColorClass: `bg-col${r + 1}`
             };
         } else {
-            // Duplicate row found!
             targetPools[key].rows.push(r + 1);
         }
     }
 
-    // 2. Create the 5x5 Grid UI (Rotated Horizontal)
-    for (let r = 0; r < 5; r++) {
-        for (let c = 0; c < 5; c++) {
-            const tile = document.createElement("div");
-            tile.className = `tile`;
-            
-            const startL = letters[r];
-            const endL = reverseLetters[r];
-            const key = `${startL}${endL}`;
-            const pool = targetPools[key];
-            const isDuplicate = pool.rows[0] !== (r + 1);
-
-            // Populate Left (c=0) and Right (c=4) instead of Top and Bottom
-            if (c === 0) {
-                tile.textContent = startL;
-                if (isDuplicate) {
-                    tile.style.backgroundColor = `var(--grayed-out)`;
-                    tile.style.borderColor = `var(--grayed-out)`;
-                    tile.style.color = "#f6f0e2";
-                } else {
-                    tile.style.backgroundColor = `var(--col${r+1})`;
-                    tile.style.borderColor = `var(--col${r+1})`;
-                    tile.style.color = "#f6f0e2";
-                }
-            } else if (c === 4) {
-                tile.textContent = endL;
-                if (isDuplicate) {
-                    tile.style.backgroundColor = `var(--grayed-out)`;
-                    tile.style.borderColor = `var(--grayed-out)`;
-                    tile.style.color = "#f6f0e2";
-                } else {
-                    tile.style.backgroundColor = `var(--col${r+1})`;
-                    tile.style.borderColor = `var(--col${r+1})`;
-                    tile.style.color = "#f6f0e2";
-                }
-            }
-            grid5x5.appendChild(tile);
-        }
-    }
-
-    // 3. Build the Target and Progress UI
+    // 2. Build the Spaced Rows UI
     for (let r = 0; r < 5; r++) {
         const startL = letters[r];
         const endL = reverseLetters[r];
         const key = `${startL}${endL}`;
         const pool = targetPools[key];
-        const isDuplicate = pool.rows[0] !== (r + 1);
-        
-        const targetDiv = document.createElement("div");
+        const isDuplicate = pool.rows[0] !== (r + 1); 
+
+        // Wrapper for the row and its "stuffing"
+        const rowWrapper = document.createElement("div");
+        rowWrapper.className = "phase2-row-wrapper";
+
+        // The 5 grid tiles
+        const tilesDiv = document.createElement("div");
+        tilesDiv.className = "phase2-row-tiles";
+
+        for (let c = 0; c < 5; c++) {
+            const tile = document.createElement("div");
+            tile.className = "tile";
+            
+            if (c === 0) {
+                tile.textContent = startL;
+                tile.classList.add(isDuplicate ? "bg-gray" : pool.bgColorClass);
+            } else if (c === 4) {
+                tile.textContent = endL;
+                tile.classList.add(isDuplicate ? "bg-gray" : pool.bgColorClass);
+            }
+            tilesDiv.appendChild(tile);
+        }
+        rowWrapper.appendChild(tilesDiv);
+
+        // The Progress / Stuffing Text
         const progressDiv = document.createElement("div");
+        progressDiv.className = "phase2-progress";
         progressDiv.id = `prog-row-${r+1}`;
         
         if (isDuplicate) {
-            targetDiv.textContent = "-";
-            targetDiv.style.color = "var(--grayed-out)";
-            progressDiv.textContent = "-";
+            progressDiv.textContent = `Merged with Row ${pool.rows[0]}`;
             progressDiv.style.color = "var(--grayed-out)";
-        } else if (pool.validWords.length === 0) {
-            targetDiv.textContent = "0";
-            progressDiv.textContent = "0";
         } else {
-            targetDiv.textContent = pool.validWords.length;
-            progressDiv.textContent = "0";
-            progressDiv.className = pool.baseColorClass;
+            progressDiv.textContent = `0 / ${pool.validWords.length} Words Found`;
+            progressDiv.classList.add(pool.baseColorClass);
         }
         
-        targetRow.appendChild(targetDiv);
-        progressRow.appendChild(progressDiv);
+        rowWrapper.appendChild(progressDiv);
+        phase2Board.appendChild(rowWrapper);
     }
 }
 
@@ -400,9 +368,9 @@ if (omniBox) {
         score += points;
         if (score > 500) score = 500; 
         scoreDisplay.textContent = `Score: ${score}`;
-        
-    // Update Progress UI (Only target the primary row)
-        document.getElementById(`prog-row-${pool.rows[0]}`).textContent = pool.foundWords.length;
+
+        // Explicitly update the text to show the exact fraction found
+        document.getElementById(`prog-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length} / ${pool.validWords.length} Words Found`;
 
         const card = document.createElement("div");
         card.className = `word-card ${pool.baseColorClass}`;
