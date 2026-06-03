@@ -11,27 +11,83 @@
             background-color: #f6f0e2; /* Matches the warm vintage cream frame of the image */
             display: flex; 
             justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            overflow: hidden; 
+            align-items: flex-start; /* Aligns to top so page can scroll naturally if needed */
+            min-height: 100vh; 
+            font-family: 'Helvetica Neue', Arial, sans-serif;
         }
+        
         .cover-container { 
             text-align: center; 
-            max-width: 95%; 
-            max-height: 95%; 
+            max-width: 600px; /* Prevents the layout from getting uncomfortably wide on desktop */
+            width: 90%;
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem; /* Evenly spaces the image, title, and button */
         }
+        
         img { 
             max-width: 100%; 
-            max-height: 90vh; 
+            max-height: 70vh; /* Scaled down slightly to guarantee room for the button underneath */
+            height: auto;
             border-radius: 4px; 
             /* A soft shadow keeps the image crisp while letting the borders blend seamlessly */
             box-shadow: 0 8px 24px rgba(0,0,0,0.12); 
+        }
+
+        .game-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .game-title {
+            font-size: 2rem;
+            color: #111827;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .game-tagline {
+            font-size: 1rem;
+            color: #4b5563;
+            margin: 0;
+        }
+
+        .play-button {
+            display: inline-block;
+            padding: 0.8rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffffff;
+            background-color: #10b981; /* Using your signature Phase 2 Green */
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .play-button:hover {
+            background-color: #0d9668;
+            transform: translateY(-1px);
+        }
+
+        .play-button:active {
+            transform: translateY(1px);
         }
     </style>
 </head>
 <body>
     <div class="cover-container">
         <img src="darnteuton.png" alt="Lederhosen Lawman">
+        
+        <div class="game-info">
+            <h1 class="game-title">Wordle 5x5</h1>
+            <p class="game-tagline">Solve the puzzle. Outrun the 5-minute clock.</p>
+            <a href="wordle5x5/index.html" class="play-button">Play Now</a>
+        </div>
     </div>
 </body>
 </html>
