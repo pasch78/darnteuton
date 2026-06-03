@@ -271,71 +271,76 @@ function generatePhase2Board() {
     const letters = targetWord.split("");
     const reverseLetters = [...letters].reverse();
     
-    for (let c = 0; c < 5; c++) {
-        const startL = letters[c];
-        const endL = reverseLetters[c];
+    // 1. Identify Targets and Merge Duplicates FIRST (Now by Row)
+    for (let r = 0; r < 5; r++) {
+        const startL = letters[r];
+        const endL = reverseLetters[r];
         const key = `${startL}${endL}`; 
         
         if (!targetPools[key]) {
             targetPools[key] = {
                 validWords: Array.from(validWordsSet).filter(w => w.startsWith(startL) && w.endsWith(endL)),
                 foundWords: [],
-                columns: [c + 1], 
-                baseColorClass: `text-col${c + 1}` 
+                rows: [r + 1], // Track primary row instead of column
+                baseColorClass: `text-col${r + 1}` // Reusing the color CSS classes
             };
         } else {
-            targetPools[key].columns.push(c + 1);
+            // Duplicate row found!
+            targetPools[key].rows.push(r + 1);
         }
     }
 
+    // 2. Create the 5x5 Grid UI (Rotated Horizontal)
     for (let r = 0; r < 5; r++) {
         for (let c = 0; c < 5; c++) {
             const tile = document.createElement("div");
-            tile.className = `tile col-${c+1}`;
+            tile.className = `tile`;
             
-            const startL = letters[c];
-            const endL = reverseLetters[c];
+            const startL = letters[r];
+            const endL = reverseLetters[r];
             const key = `${startL}${endL}`;
             const pool = targetPools[key];
-            const isDuplicate = pool.columns[0] !== (c + 1); 
+            const isDuplicate = pool.rows[0] !== (r + 1);
 
-            if (r === 0) {
+            // Populate Left (c=0) and Right (c=4) instead of Top and Bottom
+            if (c === 0) {
                 tile.textContent = startL;
                 if (isDuplicate) {
                     tile.style.backgroundColor = `var(--grayed-out)`;
                     tile.style.borderColor = `var(--grayed-out)`;
-                    tile.style.color = "white";
+                    tile.style.color = "#f6f0e2";
                 } else {
-                    tile.style.backgroundColor = `var(--col${c+1})`;
-                    tile.style.borderColor = `var(--col${c+1})`;
-                    tile.style.color = "white";
+                    tile.style.backgroundColor = `var(--col${r+1})`;
+                    tile.style.borderColor = `var(--col${r+1})`;
+                    tile.style.color = "#f6f0e2";
                 }
-            } else if (r === 4) {
+            } else if (c === 4) {
                 tile.textContent = endL;
                 if (isDuplicate) {
                     tile.style.backgroundColor = `var(--grayed-out)`;
                     tile.style.borderColor = `var(--grayed-out)`;
-                    tile.style.color = "white";
+                    tile.style.color = "#f6f0e2";
                 } else {
-                    tile.style.backgroundColor = `var(--col${c+1})`;
-                    tile.style.borderColor = `var(--col${c+1})`;
-                    tile.style.color = "white";
+                    tile.style.backgroundColor = `var(--col${r+1})`;
+                    tile.style.borderColor = `var(--col${r+1})`;
+                    tile.style.color = "#f6f0e2";
                 }
             }
             grid5x5.appendChild(tile);
         }
     }
 
-    for (let c = 0; c < 5; c++) {
-        const startL = letters[c];
-        const endL = reverseLetters[c];
+    // 3. Build the Target and Progress UI
+    for (let r = 0; r < 5; r++) {
+        const startL = letters[r];
+        const endL = reverseLetters[r];
         const key = `${startL}${endL}`;
         const pool = targetPools[key];
-        const isDuplicate = pool.columns[0] !== (c + 1);
+        const isDuplicate = pool.rows[0] !== (r + 1);
         
         const targetDiv = document.createElement("div");
         const progressDiv = document.createElement("div");
-        progressDiv.id = `prog-col-${c+1}`;
+        progressDiv.id = `prog-row-${r+1}`;
         
         if (isDuplicate) {
             targetDiv.textContent = "-";
@@ -395,8 +400,9 @@ if (omniBox) {
         score += points;
         if (score > 500) score = 500; 
         scoreDisplay.textContent = `Score: ${score}`;
-
-        document.getElementById(`prog-col-${pool.columns[0]}`).textContent = pool.foundWords.length;
+        
+    // Update Progress UI (Only target the primary row)
+        document.getElementById(`prog-row-${pool.rows[0]}`).textContent = pool.foundWords.length;
 
         const card = document.createElement("div");
         card.className = `word-card ${pool.baseColorClass}`;
