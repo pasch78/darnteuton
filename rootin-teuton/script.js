@@ -225,7 +225,7 @@ let phase2Active = false;
 const phase1Container = document.getElementById("phase1-container");
 const phase2Container = document.getElementById("phase2-container");
 const startTimerBtn = document.getElementById("start-timer-btn");
-const phase2Board = document.getElementById("phase2-board"); // NEW
+const phase2Board = document.getElementById("phase2-board"); 
 const omniBox = document.getElementById("omni-box");
 const foundWordsContainer = document.getElementById("found-words-container");
 const timerDisplay = document.getElementById("timer");
@@ -271,7 +271,7 @@ function generatePhase2Board() {
             targetPools[key] = {
                 validWords: Array.from(validWordsSet).filter(w => w.startsWith(startL) && w.endsWith(endL)),
                 foundWords: [],
-                rows: [r + 1], // Track primary row
+                rows: [r + 1], 
                 baseColorClass: `text-col${r + 1}`,
                 bgColorClass: `bg-col${r + 1}`
             };
@@ -288,11 +288,9 @@ function generatePhase2Board() {
         const pool = targetPools[key];
         const isDuplicate = pool.rows[0] !== (r + 1); 
 
-        // Wrapper for the row and its "stuffing"
         const rowWrapper = document.createElement("div");
         rowWrapper.className = "phase2-row-wrapper";
 
-        // The 5 grid tiles
         const tilesDiv = document.createElement("div");
         tilesDiv.className = "phase2-row-tiles";
 
@@ -311,7 +309,6 @@ function generatePhase2Board() {
         }
         rowWrapper.appendChild(tilesDiv);
 
-        // The Progress / Stuffing Text
         const progressDiv = document.createElement("div");
         progressDiv.className = "phase2-progress";
         progressDiv.id = `prog-row-${r+1}`;
@@ -326,6 +323,23 @@ function generatePhase2Board() {
         
         rowWrapper.appendChild(progressDiv);
         phase2Board.appendChild(rowWrapper);
+    }
+
+    // 3. Auto-populate Phase 1 Target Word in Row 1 (No points awarded)
+    const row1Key = `${targetWord[0]}${targetWord[4]}`;
+    const row1Pool = targetPools[row1Key];
+    
+    if (row1Pool && !row1Pool.foundWords.includes(targetWord)) {
+        row1Pool.foundWords.push(targetWord);
+        
+        // Update the visual tracker
+        document.getElementById(`prog-row-${row1Pool.rows[0]}`).textContent = `${row1Pool.foundWords.length} / ${row1Pool.validWords.length} Words Found`;
+
+        // Render the card immediately
+        const card = document.createElement("div");
+        card.className = `word-card ${row1Pool.baseColorClass}`;
+        card.textContent = targetWord;
+        foundWordsContainer.appendChild(card);
     }
 }
 
@@ -364,12 +378,13 @@ if (omniBox) {
 
         pool.foundWords.push(guess);
         
-        const points = Math.round(100 / pool.validWords.length);
+        // --- SCORE SCALING UPDATE ---
+        // 1000 points max per row pool instead of 100
+        const points = Math.round(1000 / pool.validWords.length);
         score += points;
-        if (score > 500) score = 500; 
+        if (score > 5000) score = 5000; // Cap at 5000
         scoreDisplay.textContent = `Score: ${score}`;
 
-        // Explicitly update the text to show the exact fraction found
         document.getElementById(`prog-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length} / ${pool.validWords.length} Words Found`;
 
         const card = document.createElement("div");
@@ -419,7 +434,7 @@ function endPhase2() {
     phase2Active = false;
     omniBox.disabled = true;
     
-    finalScoreText.textContent = `Total Score: ${score} / 500`;
+    finalScoreText.textContent = `Total Score: ${score} / 5000`;
     
     Object.keys(targetPools).forEach(key => {
         const pool = targetPools[key];
