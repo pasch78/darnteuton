@@ -1,6 +1,5 @@
 /* --- Global Variables & Reset --- */
 :root {
-    /* Rustic / Vintage Color Palette */
     --col1: #4a7c8c; /* Faded Denim */
     --col2: #c86b3c; /* Rusty Orange */
     --col3: #5c8262; /* Vintage Green */
@@ -51,7 +50,7 @@ header {
     display: flex;
     gap: 1rem;
     font-weight: bold;
-    font-size: 1.2rem;
+    font-size: 1rem; /* Slightly reduced to fit all the scores cleanly */
 }
 
 /* --- Phase 1: Setup Grid --- */
@@ -143,7 +142,7 @@ header {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem; /* The "stuffed" space between rows */
+    gap: 1.5rem;
 }
 
 .phase2-row-wrapper {
@@ -162,13 +161,13 @@ header {
     text-align: center;
     font-weight: bold;
     font-size: 1rem;
-    background-color: #e5dac1; /* Subtle background for the progress bar */
+    background-color: #e5dac1; 
     padding: 6px 0;
     border-radius: 4px;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
 
-/* Background Color Utilities for Phase 2 Anchors */
+/* Background & Text Color Utilities */
 .bg-col1 { background-color: var(--col1); color: #f6f0e2; border-color: var(--col1); }
 .bg-col2 { background-color: var(--col2); color: #f6f0e2; border-color: var(--col2); }
 .bg-col3 { background-color: var(--col3); color: #f6f0e2; border-color: var(--col3); }
@@ -176,7 +175,6 @@ header {
 .bg-col5 { background-color: var(--col5); color: #f6f0e2; border-color: var(--col5); }
 .bg-gray { background-color: var(--grayed-out); color: #f6f0e2; border-color: var(--grayed-out); }
 
-/* Text Color Utilities */
 .text-col1 { color: var(--col1); }
 .text-col2 { color: var(--col2); }
 .text-col3 { color: var(--col3); }
@@ -205,16 +203,19 @@ header {
 
 #omni-box:focus { border-color: var(--col3); }
 
-#penalty-notification {
+/* Action Notifications (Penalties & Bonuses) */
+#action-notification {
     position: absolute;
     top: -25px;
     width: 100%;
     text-align: center;
-    color: var(--col5);
     font-weight: bold;
+    font-size: 1.1rem;
 }
 
-/* Shake Animation */
+.action-penalty { color: var(--col5); }
+.action-bonus { color: #d1b058; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+
 .shake { animation: shake-animation 0.4s; }
 
 @keyframes shake-animation {
@@ -238,13 +239,22 @@ header {
     font-weight: bold;
     font-size: 1.1rem;
     text-transform: uppercase;
+    border: 2px solid transparent; /* Keeps layout stable for obscure borders */
 }
 
-.word-card.text-col1 { background-color: var(--col1); color: #f6f0e2; border: none; }
-.word-card.text-col2 { background-color: var(--col2); color: #f6f0e2; border: none; }
-.word-card.text-col3 { background-color: var(--col3); color: #f6f0e2; border: none; }
-.word-card.text-col4 { background-color: var(--col4); color: #f6f0e2; border: none; }
-.word-card.text-col5 { background-color: var(--col5); color: #f6f0e2; border: none; }
+/* Base Card Colors */
+.word-card.text-col1 { background-color: var(--col1); color: #f6f0e2; }
+.word-card.text-col2 { background-color: var(--col2); color: #f6f0e2; }
+.word-card.text-col3 { background-color: var(--col3); color: #f6f0e2; }
+.word-card.text-col4 { background-color: var(--col4); color: #f6f0e2; }
+.word-card.text-col5 { background-color: var(--col5); color: #f6f0e2; }
+
+/* The Obscurity Bonus Flair */
+.word-card.obscure-word {
+    border-color: #d1b058 !important; /* Gold border */
+    font-style: italic;
+    box-shadow: 0 0 8px rgba(209, 176, 88, 0.4);
+}
 
 /* --- Modals / Overlays --- */
 #transition-overlay, #game-over-modal {
@@ -258,6 +268,12 @@ header {
     z-index: 100;
     text-align: center;
     padding: 2rem;
+}
+
+#score-breakdown {
+    color: #8c7e70;
+    margin-top: 0.5rem;
+    font-size: 1rem;
 }
 
 button {
