@@ -11,7 +11,7 @@
         <h1>Rootin' Teuton</h1>
         <div id="hud" class="hidden">
             <span id="timer">05:00</span>
-            <span id="score">Score: 0</span>
+            <span id="score">Base: 0 | Bonus: 0 | Total: 0</span>
         </div>
     </header>
     
@@ -29,13 +29,12 @@
 
     <main id="phase2-container" class="hidden">
         <div id="board-area">
-            <!-- New Stuffed Rows Container -->
             <div id="phase2-board"></div> 
         </div>
 
         <div id="input-zone">
             <input type="text" id="omni-box" placeholder="Type a word..." maxlength="5" autocomplete="off" disabled>
-            <div id="penalty-notification" class="hidden"></div>
+            <div id="action-notification" class="hidden"></div>
         </div>
 
         <div id="found-words-container"></div>
@@ -46,6 +45,7 @@
     <div id="game-over-modal" class="hidden">
         <h2>Time's Up!</h2>
         <h3 id="final-score">Total Score: 0</h3>
+        <h4 id="score-breakdown">Base: 0 | Bonus: 0</h4>
         <div id="missed-words-area">
             <h4>Words You Missed:</h4>
             <div id="missed-words-list"></div>
