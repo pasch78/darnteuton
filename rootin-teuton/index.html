@@ -17,26 +17,20 @@
     
     <main id="phase1-container">
         <div id="wordle-grid"></div>
-        
         <div id="keyboard-visual"></div>
-        
         <button id="skip-phase1-btn" style="width: 100%; background-color: var(--col5);">Reveal & Skip to Phase 2</button>
     </main>
 
     <div id="transition-overlay" class="hidden">
         <h2>Phase 2 Unlocked!</h2>
-        <!-- Update this line below: -->
-        <p>Find the horizontal words. Duplicate rows share a pool.</p> 
+        <p>Find the horizontal words. Duplicate rows share a pool.</p>
         <button id="start-timer-btn">Start 5-Minute Timer</button>
     </div>
 
     <main id="phase2-container" class="hidden">
         <div id="board-area">
-            <div id="grid-5x5"></div>
-            <div id="stats-area">
-                <div id="target-row"></div>
-                <div id="progress-row"></div>
-            </div>
+            <!-- New Stuffed Rows Container -->
+            <div id="phase2-board"></div> 
         </div>
 
         <div id="input-zone">
