@@ -1,0 +1,290 @@
+/* --- Global Variables & Reset --- */
+:root {
+    /* Rustic / Vintage Color Palette */
+    --col1: #4a7c8c; /* Faded Denim */
+    --col2: #c86b3c; /* Rusty Orange */
+    --col3: #5c8262; /* Vintage Green */
+    --col4: #8a6a82; /* Muted Plum */
+    --col5: #a84646; /* Barn Red */
+    
+    --bg-color: #f6f0e2; /* Warm vintage cream */
+    --text-color: #3e3128; /* Dark leather brown */
+    --border-color: #c9bda5; /* Soft, warm tan border */
+    --grayed-out: #a39b8b; /* Warm gray for absent/duplicate elements */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding-bottom: 2rem;
+}
+
+/* --- Utilities --- */
+.hidden {
+    display: none !important;
+}
+
+/* --- Header & HUD --- */
+header {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+#hud {
+    display: flex;
+    gap: 1rem;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* --- Phase 1: Setup Grid --- */
+#phase1-container {
+    width: 100%;
+    max-width: 350px; 
+}
+
+#wordle-grid {
+    width: 100%; 
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    gap: 5px;
+    margin-bottom: 1rem;
+}
+
+.wordle-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+}
+
+/* --- Visual Keyboard Tracker --- */
+#keyboard-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+.key {
+    background-color: #e5dac1; /* Slightly darker cream for unpressed keys */
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 12px 8px;
+    border-radius: 4px;
+    text-align: center;
+    text-transform: uppercase;
+    flex: 1; 
+    max-width: 35px;
+}
+
+.key.correct { background-color: #6a9c68; color: #f6f0e2; } /* Muted green */
+.key.present { background-color: #d1b058; color: #f6f0e2; } /* Muted gold */
+.key.absent  { background-color: var(--grayed-out); color: #f6f0e2; }
+
+/* --- Phase 2: 5x5 Grid & Stats --- */
+#phase2-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+}
+
+#board-area {
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+#grid-5x5 {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+/* Shared Tile Styling */
+.tile {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 2px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    background-color: transparent;
+}
+
+.tile.filled {
+    border-color: #8c7e70; /* Darker warm gray when typed in */
+}
+
+/* Phase 1 specific colors */
+.tile.correct { background-color: #6a9c68; color: #f6f0e2; border-color: #6a9c68; }
+.tile.present { background-color: #d1b058; color: #f6f0e2; border-color: #d1b058; }
+.tile.absent  { background-color: var(--grayed-out); color: #f6f0e2; border-color: var(--grayed-out); }
+
+/* Stats Area */
+#stats-area {
+    width: 100%;
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+#target-row, #progress-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+#target-row div, #progress-row div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Omni-Box Input --- */
+#input-zone {
+    width: 100%;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+#omni-box {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.5rem;
+    text-align: center;
+    text-transform: uppercase;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    outline: none;
+    background-color: transparent;
+    color: var(--text-color);
+}
+
+#omni-box:focus {
+    border-color: var(--col3);
+}
+
+#penalty-notification {
+    position: absolute;
+    top: -25px;
+    width: 100%;
+    text-align: center;
+    color: var(--col5);
+    font-weight: bold;
+}
+
+/* Shake Animation for Penalty */
+.shake {
+    animation: shake-animation 0.4s;
+}
+
+@keyframes shake-animation {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+/* --- Found Words & Missed Words Cards --- */
+#found-words-container, #missed-words-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    width: 100%;
+}
+
+.word-card {
+    background-color: #e5dac1; /* Matches unpressed keyboard keys */
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+}
+
+/* Column Colors (Applied dynamically via JS) */
+.text-col1 { color: var(--col1); }
+.text-col2 { color: var(--col2); }
+.text-col3 { color: var(--col3); }
+.text-col4 { color: var(--col4); }
+.text-col5 { color: var(--col5); }
+.grayed-out { color: var(--grayed-out); border-color: var(--border-color) !important; }
+
+/* Make the Phase 2 Found Word Cards solid colors */
+.word-card.text-col1 { background-color: var(--col1); color: #f6f0e2; border: none; }
+.word-card.text-col2 { background-color: var(--col2); color: #f6f0e2; border: none; }
+.word-card.text-col3 { background-color: var(--col3); color: #f6f0e2; border: none; }
+.word-card.text-col4 { background-color: var(--col4); color: #f6f0e2; border: none; }
+.word-card.text-col5 { background-color: var(--col5); color: #f6f0e2; border: none; }
+
+/* --- Modals / Overlays --- */
+#transition-overlay, #game-over-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    /* Same as background cream, but slightly transparent */
+    background-color: rgba(246, 240, 226, 0.95); 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    text-align: center;
+    padding: 2rem;
+}
+
+button {
+    margin-top: 1.5rem;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #f6f0e2;
+    background-color: var(--col3);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+button:hover { background-color: #46664b; transform: translateY(-1px); }
+button:active { transform: translateY(1px); }
+
+#missed-words-area {
+    margin-top: 2rem;
+    max-width: 400px;
+}
