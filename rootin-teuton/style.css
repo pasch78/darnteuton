@@ -37,20 +37,47 @@ body {
 /* --- Header & HUD --- */
 header {
     width: 100%;
-    max-width: 500px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    letter-spacing: -1px;
 }
 
 #hud {
     display: flex;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 90%;
+    max-width: 400px;
+    background-color: var(--text-color);
+    color: var(--bg-color);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+#timer {
+    font-size: 2.8rem;
     font-weight: bold;
-    font-size: 1rem; /* Slightly reduced to fit all the scores cleanly */
+    color: var(--col2); 
+    line-height: 1;
+    letter-spacing: 2px;
+}
+
+#score {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #d1b058; 
+    text-align: center;
 }
 
 /* --- Phase 1: Setup Grid --- */
@@ -239,7 +266,7 @@ header {
     font-weight: bold;
     font-size: 1.1rem;
     text-transform: uppercase;
-    border: 2px solid transparent; /* Keeps layout stable for obscure borders */
+    border: 2px solid transparent; 
 }
 
 /* Base Card Colors */
@@ -251,7 +278,7 @@ header {
 
 /* The Obscurity Bonus Flair */
 .word-card.obscure-word {
-    border-color: #d1b058 !important; /* Gold border */
+    border-color: #d1b058 !important; 
     font-style: italic;
     box-shadow: 0 0 8px rgba(209, 176, 88, 0.4);
 }
