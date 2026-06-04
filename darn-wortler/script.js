@@ -89,12 +89,10 @@ startGameBtn.addEventListener("click", () => {
 playAgainBtn.addEventListener("click", () => {
     baseScore = 0;
     bonusScore = 0;
-    totalScore = 0;
+    updateScoreUI();
     timeLeft = 300;
     targetPools = {}; 
     
-    scoreTotalDisplay.textContent = `Total: 0`;
-    scoreBreakdownDisplay.textContent = `Base: 0 | Bonus: 0`;
     foundWordsContainer.innerHTML = "";
     omniBox.value = "";
     gameOverSection.classList.add("hidden");
@@ -110,6 +108,13 @@ playAgainBtn.addEventListener("click", () => {
     omniBox.disabled = false;
     omniBox.focus();
 });
+
+// --- Helper function for DRY score updates ---
+function updateScoreUI() {
+    totalScore = baseScore + bonusScore;
+    scoreTotalDisplay.textContent = `Total: ${totalScore}`;
+    scoreBreakdownDisplay.textContent = `Base: ${baseScore} | Bonus: ${bonusScore}`;
+}
 
 // --- 4. Board Generation Logic ---
 function generateBoard() {
@@ -162,12 +167,11 @@ function generateBoard() {
         const pool = targetPools[key];
         
         const isDuplicate = pool.rows[0] !== (r + 1); 
-        const isDead = pool.validWords.length === 0; // Check for dead rows
+        const isDead = pool.validWords.length === 0;
 
         const rowWrapper = document.createElement("div");
         rowWrapper.className = "row-wrapper";
         
-        // Apply the ghost effect only if the row is dead
         if (isDead) {
             rowWrapper.classList.add("dead-row");
         }
@@ -194,7 +198,6 @@ function generateBoard() {
         progressDiv.className = "row-progress";
         progressDiv.id = `prog-row-${r+1}`;
         
-        // Handle progress text for dead vs duplicate vs active
         if (isDead) {
             progressDiv.textContent = `0 Possible Words`;
             progressDiv.style.color = "var(--grayed-out)";
@@ -210,7 +213,7 @@ function generateBoard() {
         gameBoard.appendChild(rowWrapper);
     }
 
-    // Auto-populate the Seed Word in the target pools
+    // Auto-populate the Seed Word
     const row1Key = `${targetWord[0]}${targetWord[4]}`;
     const row1Pool = targetPools[row1Key];
     
@@ -240,38 +243,42 @@ if (omniBox) {
         const key = `${startL}${endL}`;
         const pool = targetPools[key];
 
+        // Typo / Missing Constraint (0 point penalty, just shake)
         if (!pool || pool.validWords.length === 0) {
-            showAction("Missing Constraint: -5s", -5, "penalty");
             shakeInput();
             return;
         }
 
+        // Already Found
         if (pool.foundWords.includes(guess)) {
             shakeInput();
             return;
         }
 
+        // Fake Word (-10 point penalty)
         if (!pool.validWords.includes(guess)) {
-            showAction("Fake Word: -10s", -10, "penalty");
+            baseScore -= 10;
+            updateScoreUI();
+            showAction("-10 pts (Fake Word)", "penalty");
             shakeInput();
             return;
         }
 
+        // Valid Word Logic
         const isObscure = !commonWordsSet.has(guess);
         pool.foundWords.push(guess);
         
-        const points = Math.round(1000 / pool.validWords.length);
+        // NEW: The Shared Pool Multiplier
+        const multiplier = pool.rows.length;
+        const points = Math.round(1000 / pool.validWords.length) * multiplier;
         baseScore += points;
 
         if (isObscure) {
-            bonusScore += 50;
-            showAction("Rare Word! +50 pts", 0, "bonus");
+            bonusScore += 50; // The Flat Bonus
+            showAction("+50 pts (Rare Word!)", "bonus");
         }
         
-        totalScore = baseScore + bonusScore;
-        
-        scoreTotalDisplay.textContent = `Total: ${totalScore}`;
-        scoreBreakdownDisplay.textContent = `Base: ${baseScore} | Bonus: ${bonusScore}`;
+        updateScoreUI();
 
         document.getElementById(`prog-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length} / ${pool.validWords.length} Words Found`;
 
@@ -294,17 +301,13 @@ function shakeInput() {
     setTimeout(() => omniBox.classList.remove("shake"), 400);
 }
 
-function showAction(message, secondsChange, type) {
-    timeLeft += secondsChange; 
-    if (timeLeft < 0) timeLeft = 0;
-    
+// NEW: Updated to only handle CSS visual feedback, removing time manipulation
+function showAction(message, type) {
     actionNotification.textContent = message;
     actionNotification.className = type === "penalty" ? "action-penalty" : "action-bonus";
     actionNotification.classList.remove("hidden");
     
     setTimeout(() => actionNotification.classList.add("hidden"), 1500);
-    
-    updateTimerDisplay();
 }
 
 // --- 6. The Timer & Game Over Logic ---
