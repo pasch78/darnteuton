@@ -31,6 +31,7 @@
         <button id="start-timer-btn">Start 5-Minute Timer</button>
     </div>
 
+    <!-- Phase 2 Container now holds everything including the Game Over screen -->
     <main id="phase2-container" class="hidden">
         <div id="board-area">
             <div id="phase2-board"></div> 
@@ -44,17 +45,20 @@
         <div id="found-words-container"></div>
         
         <button id="dev-end-phase2-btn" style="width: 100%; background-color: var(--col5); margin-top: 2rem;">Dev Cheat: End Phase 2 Now</button>
-    </main>
 
-    <div id="game-over-modal" class="hidden">
-        <h2>Time's Up!</h2>
-        <h3 id="final-score">Total Score: 0</h3>
-        <h4 id="score-breakdown">Base: 0 | Bonus: 0</h4>
-        <div id="missed-words-area">
-            <h4>Words You Missed:</h4>
-            <div id="missed-words-list"></div>
+        <!-- NEW: Inline Game Over Section -->
+        <div id="game-over-section" class="hidden">
+            <h2>Time's Up!</h2>
+            <h3 id="final-score">Total Score: 0</h3>
+            <h4 id="final-score-breakdown">Base: 0 | Bonus: 0</h4>
+            
+            <div id="all-solutions-area">
+                <h4>All Possible Solutions:</h4>
+                <p class="legend"><span style="text-decoration: line-through; opacity: 0.6;">Strikethrough</span> = Found | <span>✨ Italic Gold</span> = Rare Word Bonus</p>
+                <div id="all-solutions-list"></div>
+            </div>
         </div>
-    </div>
+    </main>
 
     <script src="script.js"></script>
 </body>
