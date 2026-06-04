@@ -8,14 +8,17 @@
 </head>
 <body>
     <header>
-        <h1>Darn Wortler</h1>
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <h1>Darn Wortler</h1>
+            <div id="mode-indicator" class="hidden">Loading...</div>
+        </div>
     </header>
 
     <div id="hud" class="hidden">
         <div id="timer">05:00</div>
         <div id="score-wrapper">
             <div id="score-total-display">Total: 0</div>
-            <div id="score-breakdown-display">Base: 0 | Bonus: 0</div>
+            <div id="score-breakdown-display">Base: 0 | Bonus: 0 | Penalty: 0</div>
         </div>
     </div>
     
@@ -42,7 +45,7 @@
         <div id="game-over-section" class="hidden">
             <h2>Time's Up!</h2>
             <h3 id="final-score">Total Score: 0</h3>
-            <h4 id="final-score-breakdown">Base: 0 | Bonus: 0</h4>
+            <h4 id="final-score-breakdown">Base: 0 | Bonus: 0 | Penalty: 0</h4>
             
             <button id="play-again-btn" style="margin-bottom: 2rem;">Play Again</button>
 
