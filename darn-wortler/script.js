@@ -118,7 +118,7 @@ function generateBoard() {
     
     gameBoard.innerHTML = ""; 
 
-    // --- NEW: Display the Seed Word at the Top ---
+    // Display the Seed Word at the Top
     const seedWrapper = document.createElement("div");
     seedWrapper.className = "row-wrapper seed-row-wrapper";
     
@@ -127,7 +127,7 @@ function generateBoard() {
 
     for (let i = 0; i < 5; i++) {
         const tile = document.createElement("div");
-        tile.className = "tile bg-col1"; // Same styling as Row 1
+        tile.className = "tile bg-col1"; 
         tile.textContent = letters[i];
         seedTilesDiv.appendChild(tile);
     }
@@ -160,10 +160,17 @@ function generateBoard() {
         const endL = reverseLetters[r];
         const key = `${startL}${endL}`;
         const pool = targetPools[key];
+        
         const isDuplicate = pool.rows[0] !== (r + 1); 
+        const isDead = pool.validWords.length === 0; // Check for dead rows
 
         const rowWrapper = document.createElement("div");
         rowWrapper.className = "row-wrapper";
+        
+        // Apply the ghost effect only if the row is dead
+        if (isDead) {
+            rowWrapper.classList.add("dead-row");
+        }
 
         const tilesDiv = document.createElement("div");
         tilesDiv.className = "row-tiles";
@@ -174,10 +181,10 @@ function generateBoard() {
             
             if (c === 0) {
                 tile.textContent = startL;
-                tile.classList.add(isDuplicate ? "bg-gray" : pool.bgColorClass);
+                tile.classList.add((isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass);
             } else if (c === 4) {
                 tile.textContent = endL;
-                tile.classList.add(isDuplicate ? "bg-gray" : pool.bgColorClass);
+                tile.classList.add((isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass);
             }
             tilesDiv.appendChild(tile);
         }
@@ -187,7 +194,11 @@ function generateBoard() {
         progressDiv.className = "row-progress";
         progressDiv.id = `prog-row-${r+1}`;
         
-        if (isDuplicate) {
+        // Handle progress text for dead vs duplicate vs active
+        if (isDead) {
+            progressDiv.textContent = `0 Possible Words`;
+            progressDiv.style.color = "var(--grayed-out)";
+        } else if (isDuplicate) {
             progressDiv.textContent = `Merged with Row ${pool.rows[0]}`;
             progressDiv.style.color = "var(--grayed-out)";
         } else {
