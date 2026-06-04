@@ -21,14 +21,14 @@ let currentDailyID = Math.floor(Date.now() / 86400000);
 const commonDictURL = "https://gist.githubusercontent.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b/raw/wordle-answers-alphabetical.txt"; 
 const fullDictURL = "https://gist.githubusercontent.com/cfreshman/cdcdf777450c5b5301e439061d29694c/raw/wordle-allowed-guesses.txt"; 
 
-// --- DOM Elements ---
+// --- DOM Elements (Strict ID Matching) ---
 const startScreen = document.getElementById("start-screen");
 const startGameBtn = document.getElementById("start-game-btn");
 const gameContainer = document.getElementById("game-container");
 const gameBoard = document.getElementById("game-board"); 
 const omniBox = document.getElementById("omni-box");
 const foundWordsContainer = document.getElementById("found-words-container");
-const endEarlyBtn = document.getElementById("end-early-btn"); // UPDATED
+const endEarlyBtn = document.getElementById("end-early-btn"); 
 
 const timerDisplay = document.getElementById("timer");
 const scoreTotalDisplay = document.getElementById("score-total-display"); 
@@ -42,6 +42,27 @@ const finalScoreText = document.getElementById("final-score");
 const finalScoreBreakdown = document.getElementById("final-score-breakdown");
 const allSolutionsList = document.getElementById("all-solutions-list");
 const playAgainBtn = document.getElementById("play-again-btn");
+
+// --- Centralized DOM Validation ---
+// This guarantees we fail fast and loud if the HTML and JS ever fall out of sync.
+const criticalUIElements = {
+    "start-screen": startScreen,
+    "start-game-btn": startGameBtn,
+    "game-container": gameContainer,
+    "game-board": gameBoard,
+    "omni-box": omniBox,
+    "end-early-btn": endEarlyBtn,
+    "hud": hud,
+    "mode-indicator": modeIndicator,
+    "game-over-section": gameOverSection,
+    "play-again-btn": playAgainBtn
+};
+
+for (const [id, element] of Object.entries(criticalUIElements)) {
+    if (!element) {
+        console.error(`[UI Validation Error] Critical element missing from DOM: id="${id}"`);
+    }
+}
 
 // --- 2. Initialization ---
 async function loadDictionaries() {
@@ -84,7 +105,7 @@ async function loadDictionaries() {
 
 loadDictionaries();
 
-// UPDATED: Now an official player feature
+// --- 3. Core Engine Functions ---
 if (endEarlyBtn) {
     endEarlyBtn.addEventListener("click", () => {
         if (!gameActive) return;
@@ -94,7 +115,6 @@ if (endEarlyBtn) {
     });
 }
 
-// --- 3. Core Engine Functions ---
 function updateScoreUI() {
     totalScore = baseScore + bonusScore - penaltyScore;
     scoreTotalDisplay.textContent = `Total: ${totalScore}`;
@@ -125,7 +145,8 @@ playAgainBtn.addEventListener("click", () => {
     foundWordsContainer.innerHTML = "";
     omniBox.value = "";
     gameOverSection.classList.add("hidden");
-    endEarlyBtn.classList.remove("hidden"); // UPDATED
+    
+    if (endEarlyBtn) endEarlyBtn.classList.remove("hidden"); 
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -385,7 +406,8 @@ function endGame() {
     clearInterval(timerInterval);
     gameActive = false;
     omniBox.disabled = true;
-    if (endEarlyBtn) endEarlyBtn.classList.add("hidden"); // UPDATED
+    
+    if (endEarlyBtn) endEarlyBtn.classList.add("hidden"); 
     
     if (isDailyMode) {
         localStorage.setItem("darnWortlerLastDaily", currentDailyID);
