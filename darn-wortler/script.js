@@ -3,7 +3,7 @@ let targetWord = "";
 let commonWordsList = [];
 let validWordsSet = new Set();
 let commonWordsSet = new Set(); 
-let bonusBarrierSet = new Set(); // NEW: The 5,757 word Expanded Dictionary
+let bonusBarrierSet = new Set(); 
 
 let targetPools = {}; 
 let baseScore = 0;
@@ -23,25 +23,22 @@ let streakCount = 0;
 let isStreakActive = false;
 let lastWordTime = 0; 
 
-// The Three Dictionaries
 const commonDictURL = "https://gist.githubusercontent.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b/raw/wordle-answers-alphabetical.txt"; 
 const fullDictURL = "https://gist.githubusercontent.com/cfreshman/cdcdf777450c5b5301e439061d29694c/raw/wordle-allowed-guesses.txt"; 
-const expandedDictURL = "https://raw.githubusercontent.com/charlesreid1/five-letter-words/master/sgb-words.txt"; // NEW: Stanford GraphBase List
+const expandedDictURL = "https://raw.githubusercontent.com/charlesreid1/five-letter-words/master/sgb-words.txt"; 
 
-// --- DOM Elements (Strict ID Matching) ---
+// --- DOM Elements (Cleaned Up) ---
 const startScreen = document.getElementById("start-screen");
 const startGameBtn = document.getElementById("start-game-btn");
 const gameContainer = document.getElementById("game-container");
 const gameBoard = document.getElementById("game-board"); 
 const omniBox = document.getElementById("omni-box");
-const foundWordsContainer = document.getElementById("found-words-container");
+const inputContainer = document.getElementById("input-container");
 const endEarlyBtn = document.getElementById("end-early-btn"); 
 
 const timerDisplay = document.getElementById("timer");
 const scoreTotalDisplay = document.getElementById("score-total-display"); 
 const scoreBreakdownDisplay = document.getElementById("score-breakdown-display"); 
-const hud = document.getElementById("hud");
-const actionNotification = document.getElementById("action-notification"); 
 const streakIndicator = document.getElementById("streak-indicator");
 const modeIndicator = document.getElementById("mode-indicator"); 
 
@@ -53,51 +50,32 @@ const playAgainBtn = document.getElementById("play-again-btn");
 
 // --- Centralized DOM Validation ---
 const criticalUIElements = {
-    "start-screen": startScreen,
-    "start-game-btn": startGameBtn,
-    "game-container": gameContainer,
-    "game-board": gameBoard,
-    "omni-box": omniBox,
-    "end-early-btn": endEarlyBtn,
-    "hud": hud,
-    "mode-indicator": modeIndicator,
-    "streak-indicator": streakIndicator,
-    "game-over-section": gameOverSection,
-    "play-again-btn": playAgainBtn
+    "start-screen": startScreen, "start-game-btn": startGameBtn, "game-container": gameContainer,
+    "game-board": gameBoard, "omni-box": omniBox, "input-container": inputContainer,
+    "end-early-btn": endEarlyBtn, "mode-indicator": modeIndicator, "streak-indicator": streakIndicator,
+    "game-over-section": gameOverSection, "play-again-btn": playAgainBtn
 };
 
 for (const [id, element] of Object.entries(criticalUIElements)) {
-    if (!element) {
-        console.error(`[UI Validation Error] Critical element missing from DOM: id="${id}"`);
-    }
+    if (!element) console.error(`[UI Validation Error] Critical element missing: id="${id}"`);
 }
 
 // --- 2. Initialization ---
 async function loadDictionaries() {
     try {
-        // 1. Load the Wordle Answers (Seed Words)
         const resCommon = await fetch(commonDictURL);
-        const textCommon = await resCommon.text();
-        commonWordsList = textCommon.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+        commonWordsList = (await resCommon.text()).split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
 
-        // 2. Load the Wordle Valid Guesses (The 13,000 word infinite playground)
         const resFull = await fetch(fullDictURL);
-        const textFull = await resFull.text();
-        const fullArray = textFull.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+        const fullArray = (await resFull.text()).split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
         
-        // 3. Load the Stanford GraphBase (The Bonus Barrier)
         const resExpanded = await fetch(expandedDictURL);
-        const textExpanded = await resExpanded.text();
-        const expandedArray = textExpanded.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+        const expandedArray = (await resExpanded.text()).split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
 
-        // Build the Sets
         validWordsSet = new Set([...commonWordsList, ...fullArray]);
         commonWordsSet = new Set(commonWordsList); 
-        
-        // NEW: The unified 5,757-word barrier that blocks Plural Farming
         bonusBarrierSet = new Set([...commonWordsList, ...expandedArray]);
 
-        // Daily Challenge Check
         const lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily");
         if (lastPlayedDaily != currentDailyID) {
             isDailyMode = true;
@@ -115,7 +93,6 @@ async function loadDictionaries() {
         
         modeIndicator.classList.remove("hidden");
         startGameBtn.disabled = false;
-        
     } catch (error) {
         console.error("Dictionary fetch failed.", error);
         alert("Failed to load dictionaries. Please refresh the page.");
@@ -124,14 +101,24 @@ async function loadDictionaries() {
 
 loadDictionaries();
 
-// --- 3. Core Engine Functions ---
+// --- 3. FCT & Engine Logic ---
 if (endEarlyBtn) {
     endEarlyBtn.addEventListener("click", () => {
         if (!gameActive) return;
-        timeLeft = 0; 
-        updateTimerDisplay(); 
-        endGame(); 
+        timeLeft = 0; updateTimerDisplay(); endGame(); 
     });
+}
+
+function spawnFCT(text, type) {
+    const fct = document.createElement("span");
+    fct.textContent = text;
+    fct.className = `fct fct-${type}`;
+    const randomX = (Math.random() - 0.5) * 60; // Spread between -30px and 30px
+    fct.style.setProperty('--x-offset', `${randomX}px`);
+    inputContainer.appendChild(fct);
+    
+    // Garbage collection
+    setTimeout(() => { fct.remove(); }, 1000);
 }
 
 function updateScoreUI() {
@@ -150,32 +137,14 @@ function resetStreak() {
 startGameBtn.addEventListener("click", () => {
     startScreen.classList.add("hidden");
     gameContainer.classList.remove("hidden");
-    hud.classList.remove("hidden");
-    
-    generateBoard();
-    startTimer();
-    
-    gameActive = true;
-    omniBox.disabled = false;
-    omniBox.focus();
+    generateBoard(); startTimer();
+    gameActive = true; omniBox.disabled = false; omniBox.focus();
 });
 
 playAgainBtn.addEventListener("click", () => {
-    baseScore = 0;
-    bonusScore = 0;
-    penaltyScore = 0; 
-    timeLeft = 300;
-    targetPools = {}; 
-    
-    resetStreak(); 
-    lastWordTime = 0;
-    
-    updateScoreUI();
-    foundWordsContainer.innerHTML = "";
-    omniBox.value = "";
-    gameOverSection.classList.add("hidden");
-    endEarlyBtn.classList.remove("hidden"); 
-    
+    baseScore = 0; bonusScore = 0; penaltyScore = 0; timeLeft = 300; targetPools = {}; 
+    resetStreak(); lastWordTime = 0; updateScoreUI();
+    omniBox.value = ""; gameOverSection.classList.add("hidden"); endEarlyBtn.classList.remove("hidden"); 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     isDailyMode = false;
@@ -183,48 +152,41 @@ playAgainBtn.addEventListener("click", () => {
     modeIndicator.className = "mode-practice";
     targetWord = commonWordsList[Math.floor(Math.random() * commonWordsList.length)];
     
-    generateBoard();
-    startTimer();
-    gameActive = true;
-    omniBox.disabled = false;
-    omniBox.focus();
+    generateBoard(); startTimer();
+    gameActive = true; omniBox.disabled = false; omniBox.focus();
 });
 
-// --- 4. Board Generation Logic ---
+// --- 4. Board Generation (Inline Updates) ---
 function generateBoard() {
     const letters = targetWord.split("");
     const reverseLetters = [...letters].reverse();
-    
     gameBoard.innerHTML = ""; 
 
     const seedWrapper = document.createElement("div");
     seedWrapper.className = "row-wrapper seed-row-wrapper";
+    seedWrapper.dataset.startLetter = letters[0];
     
     const seedTilesDiv = document.createElement("div");
     seedTilesDiv.className = "row-tiles";
 
     for (let i = 0; i < 5; i++) {
         const tile = document.createElement("div");
-        tile.className = "tile bg-col1"; 
-        tile.textContent = letters[i];
+        tile.className = "tile bg-col1"; tile.textContent = letters[i];
         seedTilesDiv.appendChild(tile);
     }
     
-    seedWrapper.appendChild(seedTilesDiv);
+    const seedMain = document.createElement("div");
+    seedMain.className = "row-main";
+    seedMain.appendChild(seedTilesDiv);
+    seedWrapper.appendChild(seedMain);
     gameBoard.appendChild(seedWrapper);
     
     for (let r = 0; r < 5; r++) {
-        const startL = letters[r];
-        const endL = reverseLetters[r];
-        const key = `${startL}${endL}`; 
-        
+        const startL = letters[r]; const endL = reverseLetters[r]; const key = `${startL}${endL}`; 
         if (!targetPools[key]) {
             targetPools[key] = {
                 validWords: Array.from(validWordsSet).filter(w => w.startsWith(startL) && w.endsWith(endL)),
-                foundWords: [],
-                rows: [r + 1], 
-                baseColorClass: `text-col${r + 1}`,
-                bgColorClass: `bg-col${r + 1}`
+                foundWords: [], rows: [r + 1], baseColorClass: `text-col${r + 1}`, bgColorClass: `bg-col${r + 1}`
             };
         } else {
             targetPools[key].rows.push(r + 1);
@@ -232,103 +194,93 @@ function generateBoard() {
     }
 
     for (let r = 0; r < 5; r++) {
-        const startL = letters[r];
-        const endL = reverseLetters[r];
-        const key = `${startL}${endL}`;
+        const startL = letters[r]; const endL = reverseLetters[r]; const key = `${startL}${endL}`;
         const pool = targetPools[key];
-        
-        const isDuplicate = pool.rows[0] !== (r + 1); 
-        const isDead = pool.validWords.length === 0;
+        const isDuplicate = pool.rows[0] !== (r + 1); const isDead = pool.validWords.length === 0;
 
         const rowWrapper = document.createElement("div");
         rowWrapper.className = "row-wrapper";
-        
-        if (isDead) {
-            rowWrapper.classList.add("dead-row");
-        }
+        rowWrapper.dataset.startLetter = startL;
+        if (isDead) rowWrapper.classList.add("dead-row");
+
+        const rowMain = document.createElement("div");
+        rowMain.className = "row-main";
 
         const tilesDiv = document.createElement("div");
         tilesDiv.className = "row-tiles";
 
         for (let c = 0; c < 5; c++) {
-            const tile = document.createElement("div");
-            tile.className = "tile";
-            
+            const tile = document.createElement("div"); tile.className = "tile";
             if (c === 0) {
-                tile.textContent = startL;
-                tile.classList.add((isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass);
+                tile.textContent = startL; tile.classList.add((isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass);
             } else if (c === 4) {
-                tile.textContent = endL;
-                tile.classList.add((isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass);
+                tile.textContent = endL; tile.classList.add((isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass);
             } else {
-                tile.classList.add("middle-tile");
-                tile.id = `play-tile-${r}-${c}`;
-                
-                if (!isDead) {
-                    tile.dataset.startLetter = startL;
-                }
+                tile.classList.add("middle-tile"); tile.id = `play-tile-${r}-${c}`;
+                if (!isDead) tile.dataset.startLetter = startL;
             }
             tilesDiv.appendChild(tile);
         }
-        rowWrapper.appendChild(tilesDiv);
+        
+        rowMain.appendChild(tilesDiv);
 
-        const progressDiv = document.createElement("div");
-        progressDiv.className = "row-progress";
-        progressDiv.id = `prog-row-${r+1}`;
-        
+        // NEW: Inline counter instead of massive block
+        const counterDiv = document.createElement("div");
+        counterDiv.className = "row-counter";
+        counterDiv.id = `counter-row-${r+1}`;
         if (isDead) {
-            progressDiv.textContent = `0 Possible Words`;
-            progressDiv.style.color = "var(--grayed-out)";
+            counterDiv.textContent = `-`;
         } else if (isDuplicate) {
-            progressDiv.textContent = `Merged with Row ${pool.rows[0]}`;
-            progressDiv.style.color = "var(--grayed-out)";
+            counterDiv.textContent = `🔗 ${pool.rows[0]}`;
         } else {
-            progressDiv.textContent = `0 / ${pool.validWords.length} Words Found`;
-            progressDiv.classList.add(pool.baseColorClass);
+            counterDiv.textContent = `0/${pool.validWords.length}`;
+            counterDiv.classList.add(pool.baseColorClass);
         }
-        
-        rowWrapper.appendChild(progressDiv);
+        rowMain.appendChild(counterDiv);
+        rowWrapper.appendChild(rowMain);
+
+        // NEW: Inline Words container
+        const inlineWordsDiv = document.createElement("div");
+        inlineWordsDiv.className = "inline-words";
+        inlineWordsDiv.id = `inline-words-${r+1}`;
+        rowWrapper.appendChild(inlineWordsDiv);
+
         gameBoard.appendChild(rowWrapper);
     }
 
     cachedMiddleTiles = Array.from(document.querySelectorAll(".middle-tile"));
-
-    const row1Key = `${targetWord[0]}${targetWord[4]}`;
-    const row1Pool = targetPools[row1Key];
-    
-    if (row1Pool && !row1Pool.foundWords.includes(targetWord)) {
-        row1Pool.foundWords.push(targetWord);
-        document.getElementById(`prog-row-${row1Pool.rows[0]}`).textContent = `${row1Pool.foundWords.length} / ${row1Pool.validWords.length} Words Found`;
-
-        const card = document.createElement("div");
-        card.className = `word-card ${row1Pool.baseColorClass}`;
-        card.textContent = targetWord;
-        foundWordsContainer.appendChild(card);
-    }
 }
 
-// --- 5. Omni-Box Input Logic ---
+// --- 5. Omni-Box Input & Spotlight Logic ---
 if (omniBox) {
     omniBox.addEventListener("input", () => {
         if (!gameActive) return;
         const guess = omniBox.value.toUpperCase().trim();
         
-        cachedMiddleTiles.forEach(tile => {
-            tile.textContent = "";
-            tile.classList.remove("active-typing"); 
-        });
+        // Wipe cached typing tiles
+        cachedMiddleTiles.forEach(tile => { tile.textContent = ""; tile.classList.remove("active-typing"); });
         
+        // NEW: Spotlight Effect Logic
+        const allRows = document.querySelectorAll('.row-wrapper');
         if (guess.length > 0) {
-            const firstLetter = guess[0];
+            const firstL = guess[0];
             cachedMiddleTiles.forEach(tile => {
-                if (tile.dataset.startLetter === firstLetter) {
+                if (tile.dataset.startLetter === firstL) {
                     const colIndex = parseInt(tile.id.split('-')[3]); 
                     if (guess[colIndex]) {
-                        tile.textContent = guess[colIndex];
-                        tile.classList.add("active-typing"); 
+                        tile.textContent = guess[colIndex]; tile.classList.add("active-typing"); 
                     }
                 }
             });
+            allRows.forEach(row => {
+                if (row.dataset.startLetter === firstL || row.classList.contains('dead-row') || row.classList.contains('seed-row-wrapper')) {
+                    row.classList.remove('dimmed');
+                } else {
+                    row.classList.add('dimmed');
+                }
+            });
+        } else {
+            allRows.forEach(row => row.classList.remove('dimmed'));
         }
     });
 
@@ -336,128 +288,84 @@ if (omniBox) {
         if (!gameActive || e.key !== "Enter") return;
         
         const guess = omniBox.value.toUpperCase().trim();
-        
         omniBox.value = ""; 
-        cachedMiddleTiles.forEach(tile => {
-            tile.textContent = "";
-            tile.classList.remove("active-typing"); 
-        });
+        cachedMiddleTiles.forEach(tile => { tile.textContent = ""; tile.classList.remove("active-typing"); });
+        document.querySelectorAll('.row-wrapper').forEach(row => row.classList.remove('dimmed'));
 
         if (guess.length !== 5) return;
 
-        const startL = guess[0];
-        const endL = guess[4];
-        const key = `${startL}${endL}`;
-        const pool = targetPools[key];
+        const startL = guess[0]; const endL = guess[4]; const key = `${startL}${endL}`; const pool = targetPools[key];
 
         if (!pool || pool.validWords.length === 0 || pool.foundWords.includes(guess)) {
-            shakeInput();
-            return;
+            omniBox.classList.add("shake"); setTimeout(() => omniBox.classList.remove("shake"), 400); return;
         }
 
         if (!pool.validWords.includes(guess)) {
-            resetStreak(); 
-            penaltyScore += 10; 
-            updateScoreUI();
-            showAction("-10 pts (Fake Word)", "penalty");
-            shakeInput();
-            return;
+            resetStreak(); penaltyScore += 10; updateScoreUI();
+            spawnFCT("-10", "penalty");
+            omniBox.classList.add("shake"); setTimeout(() => omniBox.classList.remove("shake"), 400); return;
         }
 
-        // --- VALID WORD LOGIC ---
+        // Valid Word Math
         const now = Date.now();
         const timeSinceLast = now - lastWordTime;
         
         if (!isStreakActive) {
-            if (lastWordTime > 0 && timeSinceLast <= 6000) {
-                streakCount++;
-            } else {
-                streakCount = 1; 
-            }
+            if (lastWordTime > 0 && timeSinceLast <= 6000) streakCount++; else streakCount = 1; 
         }
-        
         lastWordTime = now;
 
         if (streakCount >= 3 && !isStreakActive) {
-            isStreakActive = true;
-            omniBox.classList.add("streak-active-box");
-            streakIndicator.classList.remove("hidden");
+            isStreakActive = true; omniBox.classList.add("streak-active-box"); streakIndicator.classList.remove("hidden");
         }
 
         pool.foundWords.push(guess);
-        
-        const multiplier = pool.rows.length;
-        const points = Math.round(1000 / pool.validWords.length) * multiplier;
+        const multiplier = pool.rows.length; const points = Math.round(1000 / pool.validWords.length) * multiplier;
         baseScore += points;
 
-        // NEW: Evaluates Obscurity against the new 5,757 word Expanded Dictionary
         const isObscure = !bonusBarrierSet.has(guess); 
-        let actionMessage = `+${points} pts`;
+        
+        // NEW: Fountain FCT Spawning
+        spawnFCT(`+${points}`, "base");
         
         if (isObscure) {
             bonusScore += 50; 
-            actionMessage = "+50 pts (Rare Word!)";
+            setTimeout(() => spawnFCT("+50 ✨", "obscure"), 100); // Slight delay for fountain effect
         }
-        
         if (isStreakActive) {
             bonusScore += 5;
-            if (!isObscure) actionMessage = "+5 pts (Streak Bonus!)"; 
+            setTimeout(() => spawnFCT("+5 🔥", "streak"), 200);
         }
 
-        showAction(actionMessage, "bonus");
         updateScoreUI();
 
-        document.getElementById(`prog-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length} / ${pool.validWords.length} Words Found`;
+        // Update Inline UI
+        document.getElementById(`counter-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length}/${pool.validWords.length}`;
 
-        const card = document.createElement("div");
-        card.className = `word-card ${pool.baseColorClass}`;
-        
+        const inlineCard = document.createElement("div");
+        inlineCard.className = `inline-word-card ${pool.baseColorClass}`;
         if (isObscure) {
-            card.classList.add("obscure-word");
-            card.textContent = guess + " ✨";
+            inlineCard.classList.add("obscure-word"); inlineCard.textContent = guess + " ✨";
         } else {
-            card.textContent = guess;
+            inlineCard.textContent = guess;
         }
         
-        foundWordsContainer.appendChild(card);
+        // Append to the specific row's inline container
+        document.getElementById(`inline-words-${pool.rows[0]}`).appendChild(inlineCard);
     });
 }
 
-function shakeInput() {
-    omniBox.classList.add("shake");
-    setTimeout(() => omniBox.classList.remove("shake"), 400);
-}
-
-function showAction(message, type) {
-    actionNotification.textContent = message;
-    actionNotification.className = type === "penalty" ? "action-penalty" : "action-bonus";
-    actionNotification.classList.remove("hidden");
-    
-    setTimeout(() => actionNotification.classList.add("hidden"), 1500);
-}
-
-// --- 6. The Timer & Game Over Logic ---
+// --- 6. Timer & Game Over ---
 function startTimer() {
     updateTimerDisplay();
     timerInterval = setInterval(() => {
         timeLeft--;
-        
         const timeSinceLast = Date.now() - lastWordTime;
         
-        if (isStreakActive) {
-            if (timeSinceLast > 12000) {
-                resetStreak();
-            }
-        } else if (streakCount > 0) {
-            if (timeSinceLast > 6000) {
-                resetStreak();
-            }
-        }
+        if (isStreakActive) { if (timeSinceLast > 12000) resetStreak(); } 
+        else if (streakCount > 0) { if (timeSinceLast > 6000) resetStreak(); }
 
-        if (timeLeft <= 0) {
-            timeLeft = 0;
-            endGame();
-        }
+        if (timeLeft <= 0) { timeLeft = 0; endGame(); }
         updateTimerDisplay();
     }, 1000);
 }
@@ -469,47 +377,25 @@ function updateTimerDisplay() {
 }
 
 function endGame() {
-    clearInterval(timerInterval);
-    gameActive = false;
-    omniBox.disabled = true;
-    
-    resetStreak(); 
-    
+    clearInterval(timerInterval); gameActive = false; omniBox.disabled = true; resetStreak(); 
     if (endEarlyBtn) endEarlyBtn.classList.add("hidden"); 
-    
-    if (isDailyMode) {
-        localStorage.setItem("darnWortlerLastDaily", currentDailyID);
-    }
+    if (isDailyMode) localStorage.setItem("darnWortlerLastDaily", currentDailyID);
     
     finalScoreText.textContent = `Total Score: ${totalScore}`;
     finalScoreBreakdown.textContent = `Base: ${baseScore} | Bonus: ${bonusScore} | Penalty: -${penaltyScore}`;
-    
     allSolutionsList.innerHTML = ""; 
 
     Object.keys(targetPools).forEach(key => {
         const pool = targetPools[key];
-        
         pool.validWords.forEach(word => {
-            const card = document.createElement("div");
-            card.className = `word-card ${pool.baseColorClass}`;
-            
-            const isFound = pool.foundWords.includes(word);
-            // NEW: Updated Endgame rendering to use the expanded dictionary for the Gold Sparkles
-            const isObscure = !bonusBarrierSet.has(word);
-
+            const card = document.createElement("div"); card.className = `word-card ${pool.baseColorClass}`;
+            const isFound = pool.foundWords.includes(word); const isObscure = !bonusBarrierSet.has(word);
             if (isFound) card.classList.add("strikethrough");
-            
-            if (isObscure) {
-                card.classList.add("obscure-word");
-                card.textContent = word + " ✨";
-            } else {
-                card.textContent = word;
-            }
-            
+            if (isObscure) { card.classList.add("obscure-word"); card.textContent = word + " ✨"; } 
+            else { card.textContent = word; }
             allSolutionsList.appendChild(card);
         });
     });
     
-    gameOverSection.classList.remove("hidden");
-    gameOverSection.scrollIntoView({ behavior: 'smooth' });
+    gameOverSection.classList.remove("hidden"); gameOverSection.scrollIntoView({ behavior: 'smooth' });
 }
