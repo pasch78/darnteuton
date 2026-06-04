@@ -62,8 +62,40 @@
     </main>
 
     <div id="start-screen" role="dialog" aria-labelledby="start-heading" aria-modal="true">
-        <h2 id="start-heading">Ready to Play?</h2>
-        <p>Find the horizontal words using the outer letters. Duplicate rows share a pool.</p>
+        <h2 id="start-heading">Darn Wortler</h2>
+        <p class="subtitle">Inspired by the German word game <em>"Gefüllte Kalbsbrust"</em></p>
+        
+        <div class="onboarding-steps">
+            <div class="step-group-title">The Objective</div>
+            <div class="step">
+                <span class="step-icon">⏱️</span>
+                <p>Score as many points as possible before the <strong>5-minute timer</strong> expires.</p>
+            </div>
+            
+            <div class="step-group-title">How to Play</div>
+            <div class="step">
+                <span class="step-icon">🌱</span>
+                <p><strong>Top Row:</strong> A random five-letter seed word for this puzzle round.</p>
+            </div>
+            <div class="step">
+                <span class="step-icon">🥪</span>
+                <p><strong>Game Grid:</strong> Guess five-letter words that fit between the given outer letters. The left column is your seed word; the right column is the seed word in reverse.</p>
+            </div>
+            <div class="step">
+                <span class="step-icon">📊</span>
+                <p><strong>Row Difficulty:</strong> Some rows are much tougher than others with few valid solutions. The tougher the row, the higher the score!</p>
+            </div>
+            
+            <div class="step-group-title">Bonus Points</div>
+            <div class="step">
+                <span class="step-icon">✨</span>
+                <p><strong>Great Vocabulary:</strong> Earn <strong>+50 points</strong> for each obscure but valid word.</p>
+            </div>
+            <div class="step">
+                <span class="step-icon">🔥</span>
+                <p><strong>Speed Streak:</strong> Type 3 valid words within 15s to unlock a persistent <strong>+5 point bonus</strong> per answer.</p>
+            </div>
+        </div>
         <button id="start-game-btn" disabled aria-live="polite">Loading Dictionary...</button>
     </div>
 
