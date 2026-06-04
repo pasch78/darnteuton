@@ -116,6 +116,13 @@ header h1 {
     gap: 6px;
 }
 
+/* NEW: Separates the seed word from the puzzle rows */
+.seed-row-wrapper {
+    margin-bottom: 1rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px dashed var(--border-color);
+}
+
 .row-tiles {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
