@@ -3,60 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Darn Wortler - A daily word puzzle game. Find horizontal words using outer letters.">
     <title>Darn Wortler</title>
-    <link rel="stylesheet" href="style.css?v=3.5">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css?v=4.2.0">
 </head>
 <body>
     <header>
-        <div style="display: flex; flex-direction: column; align-items: center;">
+        <div class="header-container">
             <h1>Darn Wortler</h1>
-            <div id="mode-indicator" class="hidden">Loading...</div>
+            <div id="mode-indicator" class="hidden" aria-live="polite">Loading...</div>
         </div>
     </header>
 
-    <div id="start-screen">
-        <h2>Ready to Play?</h2>
-        <p>Find the horizontal words using the outer letters. Duplicate rows share a pool.</p>
-        <button id="start-game-btn" disabled>Loading Dictionary...</button>
-    </div>
-
     <main id="game-container" class="hidden">
-        <div id="board-area">
+        <section id="board-area" aria-label="Game Board">
             <div id="game-board"></div> 
-        </div>
+        </section>
 
-        <div id="action-zone">
+        <section id="action-zone" aria-label="Game Controls and Stats">
             <div class="action-stats">
-                <div id="timer">05:00</div>
+                <div id="timer" role="timer" aria-label="Time remaining">05:00</div>
                 <div id="score-wrapper">
                     <div id="score-total-display">Total: 0</div>
-                    <div id="score-breakdown-display">Base: 0 | Bonus: 0 | Penalty: 0</div>
+                    <div id="score-breakdown-display">Base: 0 | Bonus: 0</div>
                 </div>
             </div>
             
             <div id="input-container">
-                <div id="streak-indicator" class="hidden">🔥 STREAK ACTIVE! (+5)</div>
-                <input type="text" id="omni-box" placeholder="Type a word..." maxlength="5" autocomplete="off" disabled>
+                <div id="streak-indicator" class="hidden" aria-live="polite">🔥 STREAK ACTIVE! (+5)</div>
+                <input type="text" id="omni-box" placeholder="GUESS..." maxlength="5" autocomplete="off" aria-label="Word input box" disabled>
+                <button id="hint-btn" aria-label="Use Hint" title="Reveal a letter (3 left)" disabled>💡 3</button>
             </div>
-        </div>
+        </section>
         
-        <button id="end-early-btn" style="width: 100%; background-color: var(--col5); margin-top: 1rem;">End Game & Reveal Answers</button>
+        <button id="end-early-btn" class="end-game-btn">Reveal Answers</button>
 
-        <div id="game-over-section" class="hidden">
-            <h2>Time's Up!</h2>
+        <section id="game-over-section" class="hidden" aria-labelledby="game-over-heading">
+            <h2 id="game-over-heading">Time's Up!</h2>
             <h3 id="final-score">Total Score: 0</h3>
-            <h4 id="final-score-breakdown">Base: 0 | Bonus: 0 | Penalty: 0</h4>
+            <h4 id="final-score-breakdown">Base: 0 | Bonus: 0</h4>
             
-            <button id="play-again-btn" style="margin-bottom: 2rem;">Play Practice Mode</button>
+            <button id="play-again-btn" class="play-again-btn">Play Practice Mode</button>
 
             <div id="all-solutions-area">
                 <h4>All Possible Solutions:</h4>
-                <p class="legend"><span style="text-decoration: line-through; opacity: 0.6;">Strikethrough</span> = Found | <span>✨ Italic Gold</span> = Rare Word Bonus</p>
+                <p class="legend">
+                    <span class="legend-strikethrough">Strikethrough</span> = Found | 
+                    <span class="legend-obscure">✨ Italic Gold</span> = Rare Word
+                </p>
                 <div id="all-solutions-list"></div>
             </div>
-        </div>
+        </section>
     </main>
 
-    <script src="script.js?v=3.5"></script>
+    <div id="start-screen" role="dialog" aria-labelledby="start-heading" aria-modal="true">
+        <h2 id="start-heading">Ready to Play?</h2>
+        <p>Find the horizontal words using the outer letters. Duplicate rows share a pool.</p>
+        <button id="start-game-btn" disabled aria-live="polite">Loading Dictionary...</button>
+    </div>
+
+    <script src="script.js?v=4.2.0"></script>
 </body>
 </html>
