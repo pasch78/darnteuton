@@ -18,6 +18,11 @@ let cachedMiddleTiles = [];
 let isDailyMode = false;
 let currentDailyID = Math.floor(Date.now() / 86400000); 
 
+// Streak State Variables
+let streakCount = 0;
+let isStreakActive = false;
+let lastWordTime = 0; 
+
 const commonDictURL = "https://gist.githubusercontent.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b/raw/wordle-answers-alphabetical.txt"; 
 const fullDictURL = "https://gist.githubusercontent.com/cfreshman/cdcdf777450c5b5301e439061d29694c/raw/wordle-allowed-guesses.txt"; 
 
@@ -35,6 +40,7 @@ const scoreTotalDisplay = document.getElementById("score-total-display");
 const scoreBreakdownDisplay = document.getElementById("score-breakdown-display"); 
 const hud = document.getElementById("hud");
 const actionNotification = document.getElementById("action-notification"); 
+const streakIndicator = document.getElementById("streak-indicator");
 const modeIndicator = document.getElementById("mode-indicator"); 
 
 const gameOverSection = document.getElementById("game-over-section");
@@ -44,7 +50,6 @@ const allSolutionsList = document.getElementById("all-solutions-list");
 const playAgainBtn = document.getElementById("play-again-btn");
 
 // --- Centralized DOM Validation ---
-// This guarantees we fail fast and loud if the HTML and JS ever fall out of sync.
 const criticalUIElements = {
     "start-screen": startScreen,
     "start-game-btn": startGameBtn,
@@ -54,6 +59,7 @@ const criticalUIElements = {
     "end-early-btn": endEarlyBtn,
     "hud": hud,
     "mode-indicator": modeIndicator,
+    "streak-indicator": streakIndicator,
     "game-over-section": gameOverSection,
     "play-again-btn": playAgainBtn
 };
@@ -121,6 +127,13 @@ function updateScoreUI() {
     scoreBreakdownDisplay.textContent = `Base: ${baseScore} | Bonus: ${bonusScore} | Penalty: -${penaltyScore}`;
 }
 
+function resetStreak() {
+    streakCount = 0;
+    isStreakActive = false;
+    omniBox.classList.remove("streak-active-box");
+    streakIndicator.classList.add("hidden");
+}
+
 startGameBtn.addEventListener("click", () => {
     startScreen.classList.add("hidden");
     gameContainer.classList.remove("hidden");
@@ -141,12 +154,14 @@ playAgainBtn.addEventListener("click", () => {
     timeLeft = 300;
     targetPools = {}; 
     
+    resetStreak(); 
+    lastWordTime = 0;
+    
     updateScoreUI();
     foundWordsContainer.innerHTML = "";
     omniBox.value = "";
     gameOverSection.classList.add("hidden");
-    
-    if (endEarlyBtn) endEarlyBtn.classList.remove("hidden"); 
+    endEarlyBtn.classList.remove("hidden"); 
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -322,17 +337,13 @@ if (omniBox) {
         const key = `${startL}${endL}`;
         const pool = targetPools[key];
 
-        if (!pool || pool.validWords.length === 0) {
-            shakeInput();
-            return;
-        }
-
-        if (pool.foundWords.includes(guess)) {
+        if (!pool || pool.validWords.length === 0 || pool.foundWords.includes(guess)) {
             shakeInput();
             return;
         }
 
         if (!pool.validWords.includes(guess)) {
+            resetStreak(); 
             penaltyScore += 10; 
             updateScoreUI();
             showAction("-10 pts (Fake Word)", "penalty");
@@ -340,18 +351,47 @@ if (omniBox) {
             return;
         }
 
-        const isObscure = !commonWordsSet.has(guess);
+        // --- VALID WORD: Dynamically Tuned Timers ---
+        const now = Date.now();
+        const timeSinceLast = now - lastWordTime;
+        
+        if (!isStreakActive) {
+            // Memory Dump logic: Max 6 seconds between words to build the streak
+            if (lastWordTime > 0 && timeSinceLast <= 6000) {
+                streakCount++;
+            } else {
+                streakCount = 1; 
+            }
+        }
+        
+        lastWordTime = now;
+
+        if (streakCount >= 3 && !isStreakActive) {
+            isStreakActive = true;
+            omniBox.classList.add("streak-active-box");
+            streakIndicator.classList.remove("hidden");
+        }
+
         pool.foundWords.push(guess);
         
         const multiplier = pool.rows.length;
         const points = Math.round(1000 / pool.validWords.length) * multiplier;
         baseScore += points;
 
+        const isObscure = !commonWordsSet.has(guess);
+        let actionMessage = `+${points} pts`;
+        
         if (isObscure) {
             bonusScore += 50; 
-            showAction("+50 pts (Rare Word!)", "bonus");
+            actionMessage = "+50 pts (Rare Word!)";
         }
         
+        if (isStreakActive) {
+            bonusScore += 5;
+            if (!isObscure) actionMessage = "+5 pts (Streak Bonus!)"; 
+        }
+
+        showAction(actionMessage, "bonus");
         updateScoreUI();
 
         document.getElementById(`prog-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length} / ${pool.validWords.length} Words Found`;
@@ -388,6 +428,21 @@ function startTimer() {
     updateTimerDisplay();
     timerInterval = setInterval(() => {
         timeLeft--;
+        
+        const timeSinceLast = Date.now() - lastWordTime;
+        
+        if (isStreakActive) {
+            // Cognitive Loop logic: Max 12 seconds to find the next word while streak is hot
+            if (timeSinceLast > 12000) {
+                resetStreak();
+            }
+        } else if (streakCount > 0) {
+            // Memory Dump logic: Drops the building streak if they pause longer than 6 seconds
+            if (timeSinceLast > 6000) {
+                resetStreak();
+            }
+        }
+
         if (timeLeft <= 0) {
             timeLeft = 0;
             endGame();
@@ -406,6 +461,8 @@ function endGame() {
     clearInterval(timerInterval);
     gameActive = false;
     omniBox.disabled = true;
+    
+    resetStreak(); 
     
     if (endEarlyBtn) endEarlyBtn.classList.add("hidden"); 
     
