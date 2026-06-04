@@ -19,21 +19,15 @@
         </div>
     </div>
     
-    <main id="phase1-container">
-        <div id="wordle-grid"></div>
-        <div id="keyboard-visual"></div>
-        <button id="skip-phase1-btn" style="width: 100%; background-color: var(--col5);">Reveal & Skip to Phase 2</button>
-    </main>
-
-    <div id="transition-overlay" class="hidden">
-        <h2>Phase 2 Unlocked!</h2>
-        <p>Find the horizontal words. Duplicate rows share a pool.</p>
-        <button id="start-timer-btn">Start 5-Minute Timer</button>
+    <div id="start-screen">
+        <h2>Ready to Play?</h2>
+        <p>Find the horizontal words using the outer letters. Duplicate rows share a pool.</p>
+        <button id="start-game-btn" disabled>Loading Dictionary...</button>
     </div>
 
-    <main id="phase2-container" class="hidden">
+    <main id="game-container" class="hidden">
         <div id="board-area">
-            <div id="phase2-board"></div> 
+            <div id="game-board"></div> 
         </div>
 
         <div id="input-zone">
@@ -43,13 +37,15 @@
 
         <div id="found-words-container"></div>
         
-        <button id="dev-end-phase2-btn" style="width: 100%; background-color: var(--col5); margin-top: 2rem;">Dev Cheat: End Phase 2 Now</button>
+        <button id="dev-end-game-btn" style="width: 100%; background-color: var(--col5); margin-top: 2rem;">Dev Cheat: End Game Now</button>
 
         <div id="game-over-section" class="hidden">
             <h2>Time's Up!</h2>
             <h3 id="final-score">Total Score: 0</h3>
             <h4 id="final-score-breakdown">Base: 0 | Bonus: 0</h4>
             
+            <button id="play-again-btn" style="margin-bottom: 2rem;">Play Again</button>
+
             <div id="all-solutions-area">
                 <h4>All Possible Solutions:</h4>
                 <p class="legend"><span style="text-decoration: line-through; opacity: 0.6;">Strikethrough</span> = Found | <span>✨ Italic Gold</span> = Rare Word Bonus</p>
