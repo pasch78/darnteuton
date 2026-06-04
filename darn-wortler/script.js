@@ -7,16 +7,14 @@ let commonWordsSet = new Set();
 let targetPools = {}; 
 let baseScore = 0;
 let bonusScore = 0;
-let penaltyScore = 0; // NEW: Explicit penalty tracking
+let penaltyScore = 0; 
 let totalScore = 0;
 let timerInterval;
 let timeLeft = 300; 
 let gameActive = false;
 
-// Caching variables for performance optimization
 let cachedMiddleTiles = []; 
 
-// Daily Challenge Variables
 let isDailyMode = false;
 let currentDailyID = Math.floor(Date.now() / 86400000); 
 
@@ -30,7 +28,7 @@ const gameContainer = document.getElementById("game-container");
 const gameBoard = document.getElementById("game-board"); 
 const omniBox = document.getElementById("omni-box");
 const foundWordsContainer = document.getElementById("found-words-container");
-const devEndGameBtn = document.getElementById("dev-end-game-btn");
+const endEarlyBtn = document.getElementById("end-early-btn"); // UPDATED
 
 const timerDisplay = document.getElementById("timer");
 const scoreTotalDisplay = document.getElementById("score-total-display"); 
@@ -86,8 +84,9 @@ async function loadDictionaries() {
 
 loadDictionaries();
 
-if (devEndGameBtn) {
-    devEndGameBtn.addEventListener("click", () => {
+// UPDATED: Now an official player feature
+if (endEarlyBtn) {
+    endEarlyBtn.addEventListener("click", () => {
         if (!gameActive) return;
         timeLeft = 0; 
         updateTimerDisplay(); 
@@ -97,7 +96,6 @@ if (devEndGameBtn) {
 
 // --- 3. Core Engine Functions ---
 function updateScoreUI() {
-    // NEW: Transparent mathematical formula
     totalScore = baseScore + bonusScore - penaltyScore;
     scoreTotalDisplay.textContent = `Total: ${totalScore}`;
     scoreBreakdownDisplay.textContent = `Base: ${baseScore} | Bonus: ${bonusScore} | Penalty: -${penaltyScore}`;
@@ -117,7 +115,6 @@ startGameBtn.addEventListener("click", () => {
 });
 
 playAgainBtn.addEventListener("click", () => {
-    // Clean Reset Architecture
     baseScore = 0;
     bonusScore = 0;
     penaltyScore = 0; 
@@ -128,7 +125,7 @@ playAgainBtn.addEventListener("click", () => {
     foundWordsContainer.innerHTML = "";
     omniBox.value = "";
     gameOverSection.classList.add("hidden");
-    devEndGameBtn.classList.remove("hidden");
+    endEarlyBtn.classList.remove("hidden"); // UPDATED
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -245,7 +242,6 @@ function generateBoard() {
         gameBoard.appendChild(rowWrapper);
     }
 
-    // NEW: Cache the middle tiles in memory for high-performance live typing
     cachedMiddleTiles = Array.from(document.querySelectorAll(".middle-tile"));
 
     const row1Key = `${targetWord[0]}${targetWord[4]}`;
@@ -268,7 +264,6 @@ if (omniBox) {
         if (!gameActive) return;
         const guess = omniBox.value.toUpperCase().trim();
         
-        // Wipe cached tiles instantly
         cachedMiddleTiles.forEach(tile => {
             tile.textContent = "";
             tile.classList.remove("active-typing"); 
@@ -317,7 +312,7 @@ if (omniBox) {
         }
 
         if (!pool.validWords.includes(guess)) {
-            penaltyScore += 10; // NEW: Apply to explicit penalty tracker
+            penaltyScore += 10; 
             updateScoreUI();
             showAction("-10 pts (Fake Word)", "penalty");
             shakeInput();
@@ -390,7 +385,7 @@ function endGame() {
     clearInterval(timerInterval);
     gameActive = false;
     omniBox.disabled = true;
-    if (devEndGameBtn) devEndGameBtn.classList.add("hidden");
+    if (endEarlyBtn) endEarlyBtn.classList.add("hidden"); // UPDATED
     
     if (isDailyMode) {
         localStorage.setItem("darnWortlerLastDaily", currentDailyID);
