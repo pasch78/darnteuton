@@ -6,26 +6,19 @@ let commonWordsSet = new Set();
 let bonusBarrierSet = new Set(); 
 
 let targetPools = {}; 
-let baseScore = 0;
-let bonusScore = 0;
-let penaltyScore = 0; 
-let totalScore = 0;
-let timerInterval;
-let timeLeft = 300; 
-let gameActive = false;
+let baseScore = 0; let bonusScore = 0; let penaltyScore = 0; let totalScore = 0;
+let timerInterval; let timeLeft = 300; let gameActive = false;
 
 let cachedMiddleTiles = []; 
-
 let isDailyMode = false;
 let currentDailyID = Math.floor(Date.now() / 86400000); 
 
-let streakCount = 0;
-let isStreakActive = false;
-let lastWordTime = 0; 
+let streakCount = 0; let isStreakActive = false; let lastWordTime = 0; 
 
-const commonDictURL = "https://gist.githubusercontent.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b/raw/wordle-answers-alphabetical.txt"; 
-const fullDictURL = "https://gist.githubusercontent.com/cfreshman/cdcdf777450c5b5301e439061d29694c/raw/wordle-allowed-guesses.txt"; 
-const expandedDictURL = "https://raw.githubusercontent.com/charlesreid1/five-letter-words/master/sgb-words.txt"; 
+// NEW: Local relative paths for dictionaries
+const commonDictURL = "./common.txt"; 
+const fullDictURL = "./full.txt"; 
+const expandedDictURL = "./expanded.txt"; 
 
 // --- DOM Elements ---
 const startScreen = document.getElementById("start-screen");
@@ -60,23 +53,54 @@ for (const [id, element] of Object.entries(criticalUIElements)) {
     if (!element) console.error(`[UI Validation Error] Critical element missing: id="${id}"`);
 }
 
-// --- 2. Initialization ---
+// --- 2. Initialization (Bulletproof Network & Storage) ---
 async function loadDictionaries() {
     try {
-        const resCommon = await fetch(commonDictURL);
-        commonWordsList = (await resCommon.text()).split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+        // Fetch in parallel locally. 
+        const [resCommon, resFull, resExpanded] = await Promise.all([
+            fetch(commonDictURL).catch(e => ({ error: true, msg: e.message })),
+            fetch(fullDictURL).catch(e => ({ error: true, msg: e.message })),
+            fetch(expandedDictURL).catch(e => ({ error: true, msg: e.message }))
+        ]);
 
-        const resFull = await fetch(fullDictURL);
-        const fullArray = (await resFull.text()).split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+        // Explicit Check 1: Did the fetch fail entirely?
+        if (resCommon.error || resFull.error) {
+            throw new Error("Failed to load local dictionaries.");
+        }
+
+        // Explicit Check 2: Did the server return a 404 Not Found?
+        if (!resCommon.ok || !resFull.ok) {
+            throw new Error(`Server returned status: ${resCommon.status}. Ensure TXT files are in the directory.`);
+        }
+
+        const textCommon = await resCommon.text();
+        commonWordsList = textCommon.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+        if (commonWordsList.length === 0) throw new Error("Parsed dictionary is empty.");
+
+        const textFull = await resFull.text();
+        const fullArray = textFull.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
         
-        const resExpanded = await fetch(expandedDictURL);
-        const expandedArray = (await resExpanded.text()).split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
-
         validWordsSet = new Set([...commonWordsList, ...fullArray]);
         commonWordsSet = new Set(commonWordsList); 
-        bonusBarrierSet = new Set([...commonWordsList, ...expandedArray]);
 
-        const lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily");
+        // Check if the expanded dictionary was found
+        if (!resExpanded.error && resExpanded.ok) {
+            const textExpanded = await resExpanded.text();
+            const expandedArray = textExpanded.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+            bonusBarrierSet = new Set([...commonWordsList, ...expandedArray]);
+        } else {
+            console.warn("Expanded dictionary failed. Falling back to base dictionary for scoring.");
+            bonusBarrierSet = new Set(commonWordsList);
+        }
+
+        // Safe Local Storage Check
+        let lastPlayedDaily = null;
+        try {
+            lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily");
+        } catch (e) {
+            console.warn("LocalStorage blocked (likely strict privacy settings or Incognito mode).");
+        }
+
         if (lastPlayedDaily != currentDailyID) {
             isDailyMode = true;
             modeIndicator.textContent = "★ Daily Challenge";
@@ -93,9 +117,15 @@ async function loadDictionaries() {
         
         modeIndicator.classList.remove("hidden");
         startGameBtn.disabled = false;
+
     } catch (error) {
-        console.error("Dictionary fetch failed.", error);
-        alert("Failed to load dictionaries. Please refresh the page.");
+        // Direct UI Error Reporting
+        console.error("Initialization Failed:", error);
+        startGameBtn.textContent = "Error: Missing Files. Tap to Retry.";
+        startGameBtn.style.backgroundColor = "var(--col5)"; 
+        startGameBtn.disabled = false;
+        
+        startGameBtn.addEventListener("click", () => window.location.reload(), {once: true});
     }
 }
 
@@ -114,8 +144,6 @@ function spawnFCT(text, type, trajectory) {
     fct.textContent = text;
     fct.className = `fct fct-${type} fct-traj-${trajectory}`;
     inputContainer.appendChild(fct);
-    
-    // Garbage collection timed to the longest CSS animation
     setTimeout(() => { fct.remove(); }, 1200);
 }
 
@@ -126,13 +154,13 @@ function updateScoreUI() {
 }
 
 function resetStreak() {
-    streakCount = 0;
-    isStreakActive = false;
-    omniBox.classList.remove("streak-active-box");
-    streakIndicator.classList.add("hidden");
+    streakCount = 0; isStreakActive = false;
+    omniBox.classList.remove("streak-active-box"); streakIndicator.classList.add("hidden");
 }
 
-startGameBtn.addEventListener("click", () => {
+startGameBtn.addEventListener("click", (e) => {
+    if (startGameBtn.textContent.includes("Error")) return; 
+    
     startScreen.classList.add("hidden"); gameContainer.classList.remove("hidden");
     generateBoard(); startTimer();
     gameActive = true; omniBox.disabled = false; omniBox.focus();
@@ -174,7 +202,6 @@ function generateBoard() {
     seedMain.className = "row-main";
     seedMain.appendChild(seedTilesDiv);
     
-    // NEW: The Ghost Counter to align the Seed Row perfectly
     const ghostCounter = document.createElement("div");
     ghostCounter.className = "row-counter ghost-counter";
     seedMain.appendChild(ghostCounter);
@@ -189,9 +216,7 @@ function generateBoard() {
                 validWords: Array.from(validWordsSet).filter(w => w.startsWith(startL) && w.endsWith(endL)),
                 foundWords: [], rows: [r + 1], baseColorClass: `text-col${r + 1}`, bgColorClass: `bg-col${r + 1}`
             };
-        } else {
-            targetPools[key].rows.push(r + 1);
-        }
+        } else { targetPools[key].rows.push(r + 1); }
     }
 
     for (let r = 0; r < 5; r++) {
@@ -297,7 +322,6 @@ if (omniBox) {
             omniBox.classList.add("shake"); setTimeout(() => omniBox.classList.remove("shake"), 400); return;
         }
 
-        // Valid Word Logic
         const now = Date.now();
         const timeSinceLast = now - lastWordTime;
         
@@ -316,9 +340,79 @@ if (omniBox) {
 
         const isObscure = !bonusBarrierSet.has(guess); 
         
-        // Spawn Dynamic Base FCT (Shoots Left)
         spawnFCT(`+${points}`, "base", "left");
         
         if (isObscure) {
             bonusScore += 50; 
-            setTimeout(() => spawnF
+            setTimeout(() => spawnFCT("+50 ✨", "obscure", "right"), 100); 
+        }
+        if (isStreakActive) {
+            bonusScore += 5;
+            setTimeout(() => spawnFCT("+5 🔥", "streak", "center"), 200);
+        }
+
+        updateScoreUI();
+
+        document.getElementById(`counter-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length}/${pool.validWords.length}`;
+
+        const inlineCard = document.createElement("div");
+        inlineCard.className = `inline-word-card ${pool.baseColorClass}`;
+        if (isObscure) {
+            inlineCard.classList.add("obscure-word"); inlineCard.textContent = guess + " ✨";
+        } else {
+            inlineCard.textContent = guess;
+        }
+        
+        document.getElementById(`inline-words-${pool.rows[0]}`).appendChild(inlineCard);
+    });
+}
+
+// --- 6. Timer & Game Over ---
+function startTimer() {
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        const timeSinceLast = Date.now() - lastWordTime;
+        
+        if (isStreakActive) { if (timeSinceLast > 12000) resetStreak(); } 
+        else if (streakCount > 0) { if (timeSinceLast > 6000) resetStreak(); }
+
+        if (timeLeft <= 0) { timeLeft = 0; endGame(); }
+        updateTimerDisplay();
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const s = (timeLeft % 60).toString().padStart(2, '0');
+    timerDisplay.textContent = `${m}:${s}`;
+}
+
+function endGame() {
+    clearInterval(timerInterval); gameActive = false; omniBox.disabled = true; resetStreak(); 
+    if (endEarlyBtn) endEarlyBtn.classList.add("hidden"); 
+    
+    try {
+        if (isDailyMode) localStorage.setItem("darnWortlerLastDaily", currentDailyID);
+    } catch (e) {
+        console.warn("Could not save daily status. LocalStorage is blocked.");
+    }
+    
+    finalScoreText.textContent = `Total Score: ${totalScore}`;
+    finalScoreBreakdown.textContent = `Base: ${baseScore} | Bonus: ${bonusScore} | Penalty: -${penaltyScore}`;
+    allSolutionsList.innerHTML = ""; 
+
+    Object.keys(targetPools).forEach(key => {
+        const pool = targetPools[key];
+        pool.validWords.forEach(word => {
+            const card = document.createElement("div"); card.className = `word-card ${pool.baseColorClass}`;
+            const isFound = pool.foundWords.includes(word); const isObscure = !bonusBarrierSet.has(word);
+            if (isFound) card.classList.add("strikethrough");
+            if (isObscure) { card.classList.add("obscure-word"); card.textContent = word + " ✨"; } 
+            else { card.textContent = word; }
+            allSolutionsList.appendChild(card);
+        });
+    });
+    
+    gameOverSection.classList.remove("hidden"); gameOverSection.scrollIntoView({ behavior: 'smooth' });
+}
