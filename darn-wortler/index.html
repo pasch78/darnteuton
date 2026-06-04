@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Darn Wortler</title>
-    <!-- CACHE BUSTING: v3.2 ensures fresh loads -->
-    <link rel="stylesheet" href="style.css?v=3.2">
+    <link rel="stylesheet" href="style.css?v=3.4">
 </head>
 <body>
     <header>
@@ -15,14 +14,6 @@
         </div>
     </header>
 
-    <div id="hud" class="hidden">
-        <div id="timer">05:00</div>
-        <div id="score-wrapper">
-            <div id="score-total-display">Total: 0</div>
-            <div id="score-breakdown-display">Base: 0 | Bonus: 0 | Penalty: 0</div>
-        </div>
-    </div>
-    
     <div id="start-screen">
         <h2>Ready to Play?</h2>
         <p>Find the horizontal words using the outer letters. Duplicate rows share a pool.</p>
@@ -34,17 +25,22 @@
             <div id="game-board"></div> 
         </div>
 
-        <div id="input-zone">
-            <!-- The Visual Streak Badge -->
-            <div id="streak-indicator" class="hidden">🔥 STREAK ACTIVE! (+5 pts/word)</div>
-            <div id="action-notification" class="hidden"></div>
+        <div id="action-zone">
+            <div class="action-stats">
+                <div id="timer">05:00</div>
+                <div id="score-wrapper">
+                    <div id="score-total-display">Total: 0</div>
+                    <div id="score-breakdown-display">Base: 0 | Bonus: 0 | Penalty: 0</div>
+                </div>
+            </div>
             
-            <input type="text" id="omni-box" placeholder="Type a word..." maxlength="5" autocomplete="off" disabled>
+            <div id="input-container">
+                <div id="streak-indicator" class="hidden">🔥 STREAK ACTIVE! (+5)</div>
+                <input type="text" id="omni-box" placeholder="Type a word..." maxlength="5" autocomplete="off" disabled>
+            </div>
         </div>
-
-        <div id="found-words-container"></div>
         
-        <button id="end-early-btn" style="width: 100%; background-color: var(--col5); margin-top: 2rem;">End Game & Reveal Answers</button>
+        <button id="end-early-btn" style="width: 100%; background-color: var(--col5); margin-top: 1rem;">End Game & Reveal Answers</button>
 
         <div id="game-over-section" class="hidden">
             <h2>Time's Up!</h2>
@@ -61,7 +57,6 @@
         </div>
     </main>
 
-    <!-- CACHE BUSTING: v3.2 -->
-    <script src="script.js?v=3.3"></script>
+    <script src="script.js?v=3.4"></script>
 </body>
 </html>
