@@ -26,10 +26,9 @@ body {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding-bottom: 4rem; /* Added extra padding so the user can scroll past the last row */
+    padding-bottom: 4rem; 
 }
 
-/* --- Utilities --- */
 .hidden { display: none !important; }
 
 /* --- Header & HUD --- */
@@ -90,57 +89,38 @@ header h1 {
     opacity: 0.8;
 }
 
-/* --- Phase 1: Setup Grid --- */
-#phase1-container {
+/* --- The Game Board UI --- */
+#game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
-    max-width: 350px; 
+    max-width: 400px;
 }
 
-#wordle-grid {
-    width: 100%; 
-    display: grid;
-    grid-template-rows: repeat(6, 1fr);
-    gap: 5px;
-    margin-bottom: 1rem;
+#board-area {
+    margin-bottom: 1.5rem;
+    width: 100%;
 }
 
-.wordle-row {
+#game-board {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.row-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.row-tiles {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 5px;
 }
-
-/* --- Visual Keyboard Tracker --- */
-#keyboard-visual {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    width: 100%;
-    margin-bottom: 1.5rem;
-}
-
-.keyboard-row {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-}
-
-.key {
-    background-color: #e5dac1; 
-    color: var(--text-color);
-    font-weight: bold;
-    font-size: 1rem;
-    padding: 12px 8px;
-    border-radius: 4px;
-    text-align: center;
-    text-transform: uppercase;
-    flex: 1; 
-    max-width: 35px;
-}
-
-.key.correct { background-color: #6a9c68; color: #f6f0e2; } 
-.key.present { background-color: #d1b058; color: #f6f0e2; } 
-.key.absent  { background-color: var(--grayed-out); color: #f6f0e2; }
 
 .tile {
     width: 100%;
@@ -155,45 +135,7 @@ header h1 {
     background-color: transparent;
 }
 
-.tile.filled { border-color: #8c7e70; }
-.tile.correct { background-color: #6a9c68; color: #f6f0e2; border-color: #6a9c68; }
-.tile.present { background-color: #d1b058; color: #f6f0e2; border-color: #d1b058; }
-.tile.absent  { background-color: var(--grayed-out); color: #f6f0e2; border-color: var(--grayed-out); }
-
-/* --- Phase 2: Spaced Rows UI --- */
-#phase2-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 400px;
-}
-
-#board-area {
-    margin-bottom: 1.5rem;
-    width: 100%;
-}
-
-#phase2-board {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.phase2-row-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.phase2-row-tiles {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
-}
-
-.phase2-progress {
+.row-progress {
     text-align: center;
     font-weight: bold;
     font-size: 1rem;
@@ -203,6 +145,7 @@ header h1 {
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
 
+/* Base Colors */
 .bg-col1 { background-color: var(--col1); color: #f6f0e2; border-color: var(--col1); }
 .bg-col2 { background-color: var(--col2); color: #f6f0e2; border-color: var(--col2); }
 .bg-col3 { background-color: var(--col3); color: #f6f0e2; border-color: var(--col3); }
@@ -282,7 +225,6 @@ header h1 {
 .word-card.text-col4 { background-color: var(--col4); color: #f6f0e2; }
 .word-card.text-col5 { background-color: var(--col5); color: #f6f0e2; }
 
-/* Obscurity Bonus Flair */
 .word-card.obscure-word {
     border-color: #d1b058 !important; 
     font-style: italic;
@@ -312,9 +254,7 @@ header h1 {
     margin-bottom: 2rem;
 }
 
-#all-solutions-area {
-    width: 100%;
-}
+#all-solutions-area { width: 100%; }
 
 .legend {
     font-size: 0.95rem;
@@ -322,14 +262,13 @@ header h1 {
     margin-bottom: 1.5rem;
 }
 
-/* Strikethrough for found words in the end-game list */
 .strikethrough {
     text-decoration: line-through;
     opacity: 0.4;
 }
 
-/* Transition Overlay (Still Fixed) */
-#transition-overlay {
+/* Start Screen Overlay */
+#start-screen {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(246, 240, 226, 0.95); 
@@ -340,6 +279,11 @@ header h1 {
     z-index: 100;
     text-align: center;
     padding: 2rem;
+}
+
+#start-screen p {
+    margin-top: 1rem;
+    max-width: 300px;
 }
 
 button {
@@ -356,5 +300,11 @@ button {
     transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-button:hover { background-color: #46664b; transform: translateY(-1px); }
-button:active { transform: translateY(1px); }
+button:hover:not(:disabled) { background-color: #46664b; transform: translateY(-1px); }
+button:active:not(:disabled) { transform: translateY(1px); }
+
+button:disabled {
+    background-color: var(--grayed-out);
+    cursor: not-allowed;
+    box-shadow: none;
+}
