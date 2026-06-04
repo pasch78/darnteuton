@@ -91,7 +91,7 @@ playAgainBtn.addEventListener("click", () => {
     bonusScore = 0;
     totalScore = 0;
     timeLeft = 300;
-    targetPools = {}; // Clean reset of the tracking object
+    targetPools = {}; 
     
     scoreTotalDisplay.textContent = `Total: 0`;
     scoreBreakdownDisplay.textContent = `Base: 0 | Bonus: 0`;
@@ -117,6 +117,23 @@ function generateBoard() {
     const reverseLetters = [...letters].reverse();
     
     gameBoard.innerHTML = ""; 
+
+    // --- NEW: Display the Seed Word at the Top ---
+    const seedWrapper = document.createElement("div");
+    seedWrapper.className = "row-wrapper seed-row-wrapper";
+    
+    const seedTilesDiv = document.createElement("div");
+    seedTilesDiv.className = "row-tiles";
+
+    for (let i = 0; i < 5; i++) {
+        const tile = document.createElement("div");
+        tile.className = "tile bg-col1"; // Same styling as Row 1
+        tile.textContent = letters[i];
+        seedTilesDiv.appendChild(tile);
+    }
+    
+    seedWrapper.appendChild(seedTilesDiv);
+    gameBoard.appendChild(seedWrapper);
     
     // Parse constraints
     for (let r = 0; r < 5; r++) {
@@ -182,7 +199,7 @@ function generateBoard() {
         gameBoard.appendChild(rowWrapper);
     }
 
-    // Auto-populate the Seed Word
+    // Auto-populate the Seed Word in the target pools
     const row1Key = `${targetWord[0]}${targetWord[4]}`;
     const row1Pool = targetPools[row1Key];
     
