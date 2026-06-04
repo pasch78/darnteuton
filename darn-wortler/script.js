@@ -109,7 +109,6 @@ playAgainBtn.addEventListener("click", () => {
     omniBox.focus();
 });
 
-// --- Helper function for DRY score updates ---
 function updateScoreUI() {
     totalScore = baseScore + bonusScore;
     scoreTotalDisplay.textContent = `Total: ${totalScore}`;
@@ -189,6 +188,15 @@ function generateBoard() {
             } else if (c === 4) {
                 tile.textContent = endL;
                 tile.classList.add((isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass);
+            } else {
+                // NEW: Tagging the middle tiles for Live Typing!
+                tile.classList.add("middle-tile");
+                tile.id = `play-tile-${r}-${c}`;
+                
+                // Only allow live typing to show up on active (non-dead) rows
+                if (!isDead) {
+                    tile.dataset.startLetter = startL;
+                }
             }
             tilesDiv.appendChild(tile);
         }
@@ -230,12 +238,39 @@ function generateBoard() {
 
 // --- 5. Omni-Box Input Logic ---
 if (omniBox) {
+    // NEW: Real-time Live Typing visual feedback
+    omniBox.addEventListener("input", () => {
+        if (!gameActive) return;
+        const guess = omniBox.value.toUpperCase().trim();
+        
+        // Wipe all middle tiles clean on every keystroke
+        const middleTiles = document.querySelectorAll(".middle-tile");
+        middleTiles.forEach(tile => tile.textContent = "");
+        
+        // Repopulate active rows if the first letter matches
+        if (guess.length > 0) {
+            const firstLetter = guess[0];
+            middleTiles.forEach(tile => {
+                if (tile.dataset.startLetter === firstLetter) {
+                    // Extract the column index (1, 2, or 3) from the tile's ID
+                    const colIndex = parseInt(tile.id.split('-')[3]); 
+                    if (guess[colIndex]) {
+                        tile.textContent = guess[colIndex];
+                    }
+                }
+            });
+        }
+    });
+
     omniBox.addEventListener("keydown", (e) => {
         if (!gameActive || e.key !== "Enter") return;
         
         const guess = omniBox.value.toUpperCase().trim();
-        omniBox.value = ""; 
         
+        // NEW: Instantly wipe the board and input box on submit
+        omniBox.value = ""; 
+        document.querySelectorAll(".middle-tile").forEach(tile => tile.textContent = "");
+
         if (guess.length !== 5) return;
 
         const startL = guess[0];
@@ -243,19 +278,16 @@ if (omniBox) {
         const key = `${startL}${endL}`;
         const pool = targetPools[key];
 
-        // Typo / Missing Constraint (0 point penalty, just shake)
         if (!pool || pool.validWords.length === 0) {
             shakeInput();
             return;
         }
 
-        // Already Found
         if (pool.foundWords.includes(guess)) {
             shakeInput();
             return;
         }
 
-        // Fake Word (-10 point penalty)
         if (!pool.validWords.includes(guess)) {
             baseScore -= 10;
             updateScoreUI();
@@ -264,17 +296,15 @@ if (omniBox) {
             return;
         }
 
-        // Valid Word Logic
         const isObscure = !commonWordsSet.has(guess);
         pool.foundWords.push(guess);
         
-        // NEW: The Shared Pool Multiplier
         const multiplier = pool.rows.length;
         const points = Math.round(1000 / pool.validWords.length) * multiplier;
         baseScore += points;
 
         if (isObscure) {
-            bonusScore += 50; // The Flat Bonus
+            bonusScore += 50; 
             showAction("+50 pts (Rare Word!)", "bonus");
         }
         
@@ -301,7 +331,6 @@ function shakeInput() {
     setTimeout(() => omniBox.classList.remove("shake"), 400);
 }
 
-// NEW: Updated to only handle CSS visual feedback, removing time manipulation
 function showAction(message, type) {
     actionNotification.textContent = message;
     actionNotification.className = type === "penalty" ? "action-penalty" : "action-bonus";
