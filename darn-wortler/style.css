@@ -37,12 +37,33 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.5rem; /* Tightened */
+    padding: 0.5rem; 
 }
 
 header h1 {
-    font-size: 2rem; /* Scaled down slightly */
+    font-size: 2rem; 
     letter-spacing: -1px;
+}
+
+#mode-indicator {
+    font-size: 0.85rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    margin-top: 0.2rem;
+}
+
+.mode-daily {
+    background-color: var(--col2);
+    color: #f6f0e2;
+    box-shadow: 0 2px 4px rgba(200, 107, 60, 0.3);
+}
+
+.mode-practice {
+    background-color: var(--border-color);
+    color: var(--text-color);
 }
 
 #hud {
@@ -52,15 +73,15 @@ header h1 {
     width: 90%;
     max-width: 400px; 
     background-color: #e5dac1; 
-    padding: 0.75rem 1.25rem; /* Tightened */
+    padding: 0.75rem 1.25rem; 
     border-radius: 8px;
-    margin-bottom: 1rem; /* Dramatically reduced from 2.5rem */
+    margin-bottom: 1rem; 
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05);
     border: 2px solid var(--border-color);
 }
 
 #timer {
-    font-size: 2rem; /* Scaled down slightly */
+    font-size: 2rem; 
     font-weight: bold;
     color: var(--col5); 
     letter-spacing: 2px;
@@ -80,11 +101,13 @@ header h1 {
     line-height: 1.2;
 }
 
+/* Adjusted for 3-part HUD layout */
 #score-breakdown-display {
-    font-size: 0.85rem;
+    font-size: 0.75rem; 
     font-weight: bold;
     color: var(--text-color);
     opacity: 0.8;
+    white-space: nowrap; 
 }
 
 /* --- The Game Board UI --- */
@@ -93,7 +116,6 @@ header h1 {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    /* NEW: Auto-scales based on available height! */
     max-width: min(400px, 95vw, 55vh); 
 }
 
@@ -106,18 +128,18 @@ header h1 {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem; /* Tightened from 1.5rem */
+    gap: 0.75rem; 
 }
 
 .row-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 4px; /* Tightened */
+    gap: 4px; 
 }
 
 .seed-row-wrapper {
-    margin-bottom: 0.5rem; /* Tightened */
-    padding-bottom: 0.75rem; /* Tightened */
+    margin-bottom: 0.5rem; 
+    padding-bottom: 0.75rem; 
     border-bottom: 2px dashed var(--border-color);
 }
 
@@ -134,7 +156,6 @@ header h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* Uses viewport width/height to ensure text scales down with the boxes */
     font-size: min(1.5rem, 5vmin); 
     font-weight: bold;
     text-transform: uppercase;
@@ -144,11 +165,19 @@ header h1 {
 .row-progress {
     text-align: center;
     font-weight: bold;
-    font-size: 0.9rem; /* Scaled down slightly */
+    font-size: 0.9rem; 
     background-color: #e5dac1; 
-    padding: 4px 0; /* Tightened */
+    padding: 4px 0; 
     border-radius: 4px;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Live Typing Visual Feedback */
+.middle-tile.active-typing {
+    background-color: #e5dac1; 
+    border-color: #8c7e70; 
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    transition: background-color 0.1s ease, border-color 0.1s ease;
 }
 
 /* Base Colors */
@@ -177,12 +206,12 @@ header h1 {
     width: 100%;
     position: relative;
     margin-bottom: 2rem;
-    max-width: 400px; /* Constrain to match max board width */
+    max-width: 400px; 
 }
 
 #omni-box {
     width: 100%;
-    padding: 0.75rem; /* Tightened */
+    padding: 0.75rem; 
     font-size: 1.25rem;
     text-align: center;
     text-transform: uppercase;
@@ -219,14 +248,14 @@ header h1 {
 #found-words-container, #all-solutions-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px; /* Tightened */
+    gap: 8px; 
     justify-content: center;
     width: 100%;
     max-width: 500px;
 }
 
 .word-card {
-    padding: 0.4rem 0.8rem; /* Tightened */
+    padding: 0.4rem 0.8rem; 
     border-radius: 8px;
     font-weight: bold;
     font-size: 1rem;
@@ -267,6 +296,7 @@ header h1 {
 #final-score-breakdown {
     color: var(--grayed-out);
     margin-bottom: 2rem;
+    font-size: 0.9rem;
 }
 
 #all-solutions-area { width: 100%; }
@@ -322,12 +352,4 @@ button:disabled {
     background-color: var(--grayed-out);
     cursor: not-allowed;
     box-shadow: none;
-}
-
-/* --- Live Typing Visual Feedback --- */
-.middle-tile.active-typing {
-    background-color: #e5dac1; 
-    border-color: #8c7e70; 
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-    transition: background-color 0.1s ease, border-color 0.1s ease;
 }
