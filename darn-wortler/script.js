@@ -3,6 +3,7 @@ let targetWord = "";
 let commonWordsList = [];
 let validWordsSet = new Set();
 let commonWordsSet = new Set(); 
+let bonusBarrierSet = new Set(); // NEW: The 5,757 word Expanded Dictionary
 
 let targetPools = {}; 
 let baseScore = 0;
@@ -18,13 +19,14 @@ let cachedMiddleTiles = [];
 let isDailyMode = false;
 let currentDailyID = Math.floor(Date.now() / 86400000); 
 
-// Streak State Variables
 let streakCount = 0;
 let isStreakActive = false;
 let lastWordTime = 0; 
 
+// The Three Dictionaries
 const commonDictURL = "https://gist.githubusercontent.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b/raw/wordle-answers-alphabetical.txt"; 
 const fullDictURL = "https://gist.githubusercontent.com/cfreshman/cdcdf777450c5b5301e439061d29694c/raw/wordle-allowed-guesses.txt"; 
+const expandedDictURL = "https://raw.githubusercontent.com/charlesreid1/five-letter-words/master/sgb-words.txt"; // NEW: Stanford GraphBase List
 
 // --- DOM Elements (Strict ID Matching) ---
 const startScreen = document.getElementById("start-screen");
@@ -73,19 +75,30 @@ for (const [id, element] of Object.entries(criticalUIElements)) {
 // --- 2. Initialization ---
 async function loadDictionaries() {
     try {
+        // 1. Load the Wordle Answers (Seed Words)
         const resCommon = await fetch(commonDictURL);
         const textCommon = await resCommon.text();
         commonWordsList = textCommon.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
 
+        // 2. Load the Wordle Valid Guesses (The 13,000 word infinite playground)
         const resFull = await fetch(fullDictURL);
         const textFull = await resFull.text();
         const fullArray = textFull.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
         
+        // 3. Load the Stanford GraphBase (The Bonus Barrier)
+        const resExpanded = await fetch(expandedDictURL);
+        const textExpanded = await resExpanded.text();
+        const expandedArray = textExpanded.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+
+        // Build the Sets
         validWordsSet = new Set([...commonWordsList, ...fullArray]);
         commonWordsSet = new Set(commonWordsList); 
-
-        const lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily");
         
+        // NEW: The unified 5,757-word barrier that blocks Plural Farming
+        bonusBarrierSet = new Set([...commonWordsList, ...expandedArray]);
+
+        // Daily Challenge Check
+        const lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily");
         if (lastPlayedDaily != currentDailyID) {
             isDailyMode = true;
             modeIndicator.textContent = "★ Daily Challenge";
@@ -351,12 +364,11 @@ if (omniBox) {
             return;
         }
 
-        // --- VALID WORD: Dynamically Tuned Timers ---
+        // --- VALID WORD LOGIC ---
         const now = Date.now();
         const timeSinceLast = now - lastWordTime;
         
         if (!isStreakActive) {
-            // Memory Dump logic: Max 6 seconds between words to build the streak
             if (lastWordTime > 0 && timeSinceLast <= 6000) {
                 streakCount++;
             } else {
@@ -378,7 +390,8 @@ if (omniBox) {
         const points = Math.round(1000 / pool.validWords.length) * multiplier;
         baseScore += points;
 
-        const isObscure = !commonWordsSet.has(guess);
+        // NEW: Evaluates Obscurity against the new 5,757 word Expanded Dictionary
+        const isObscure = !bonusBarrierSet.has(guess); 
         let actionMessage = `+${points} pts`;
         
         if (isObscure) {
@@ -432,12 +445,10 @@ function startTimer() {
         const timeSinceLast = Date.now() - lastWordTime;
         
         if (isStreakActive) {
-            // Cognitive Loop logic: Max 12 seconds to find the next word while streak is hot
             if (timeSinceLast > 12000) {
                 resetStreak();
             }
         } else if (streakCount > 0) {
-            // Memory Dump logic: Drops the building streak if they pause longer than 6 seconds
             if (timeSinceLast > 6000) {
                 resetStreak();
             }
@@ -483,7 +494,8 @@ function endGame() {
             card.className = `word-card ${pool.baseColorClass}`;
             
             const isFound = pool.foundWords.includes(word);
-            const isObscure = !commonWordsSet.has(word);
+            // NEW: Updated Endgame rendering to use the expanded dictionary for the Gold Sparkles
+            const isObscure = !bonusBarrierSet.has(word);
 
             if (isFound) card.classList.add("strikethrough");
             
