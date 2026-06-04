@@ -130,6 +130,7 @@ window.onerror = function (msg, url, line) {
         }
     }
 
+    // --- 3. Core Game Mode Selection ---
     function setupGameMode() {
         let lastPlayedDaily = null;
         try { lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily"); } catch (e) {}
@@ -149,7 +150,7 @@ window.onerror = function (msg, url, line) {
         }
     }
 
-    // --- 3. Core Game & Logic Helpers ---
+    // --- 4. Logic Helpers & Dynamic Combat Text ---
     function spawnFCT(text, type, trajectory) {
         const fct = document.createElement("span");
         fct.textContent = text;
@@ -193,7 +194,7 @@ window.onerror = function (msg, url, line) {
         updateScoreUI();
     }
 
-    // --- 4. Board Generation ---
+    // --- 5. Board Generation ---
     function generateBoard() {
         const letters = state.targetWord.split("");
         const reverseLetters = [...letters].reverse();
@@ -230,7 +231,8 @@ window.onerror = function (msg, url, line) {
             
             if (!state.targetPools[key]) {
                 state.targetPools[key] = {
-                    validWords: cachedValidWords.filter(w => w.startsWith(startL) && w.endsWith(endL)),
+                    // Word filter applied here to systematically exclude the baseline seed word from answer arrays
+                    validWords: cachedValidWords.filter(w => w.startsWith(startL) && w.endsWith(endL) && w !== state.targetWord),
                     foundWords: [], 
                     hintedWords: {}, 
                     rows: [r + 1], 
@@ -308,7 +310,7 @@ window.onerror = function (msg, url, line) {
         state.cachedActiveRows = Array.from(document.querySelectorAll('.row-wrapper:not(.hidden)'));
     }
 
-    // --- 5. Hint System Logic ---
+    // --- 6. Hint System Logic ---
     function useHint() {
         if (!state.active || state.hints.remaining <= 0) return;
 
@@ -363,7 +365,7 @@ window.onerror = function (msg, url, line) {
         hintCard.textContent = formattedMask;
     }
 
-    // --- 6. Input & Interactions ---
+    // --- 7. Input & Event Hooks ---
     function attachEventListeners() {
         ui.hintBtn.addEventListener("click", () => {
             useHint();
@@ -535,7 +537,7 @@ window.onerror = function (msg, url, line) {
         });
     }
 
-    // --- 7. Timers & End Game ---
+    // --- 8. Timers & End Game ---
     function startTimer() {
         if (state.timer.interval) clearInterval(state.timer.interval); 
         
@@ -618,7 +620,7 @@ window.onerror = function (msg, url, line) {
         ui.gameOverSection.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // --- 8. Boot Sequence ---
+    // --- 9. Boot Sequence ---
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", initDOM);
     } else {
