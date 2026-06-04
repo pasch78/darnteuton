@@ -315,3 +315,10 @@ button:disabled {
     cursor: not-allowed;
     box-shadow: none;
 }
+
+/* Fades out rows that have zero valid words in the dictionary */
+.dead-row {
+    opacity: 0.4;
+    filter: grayscale(100%);
+    pointer-events: none; 
+}
