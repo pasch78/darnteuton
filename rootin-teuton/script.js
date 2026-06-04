@@ -44,7 +44,6 @@ const transitionOverlay = document.getElementById("transition-overlay");
 const skipPhase1Btn = document.getElementById("skip-phase1-btn");
 const devEndPhase2Btn = document.getElementById("dev-end-phase2-btn"); 
 
-// --- Dev Cheat: Skip Phase 1 ---
 if (skipPhase1Btn) {
     skipPhase1Btn.addEventListener("click", () => {
         if (!isPhase1Active) return;
@@ -62,7 +61,6 @@ if (skipPhase1Btn) {
     });
 }
 
-// --- Dev Cheat: Skip Phase 2 ---
 if (devEndPhase2Btn) {
     devEndPhase2Btn.addEventListener("click", () => {
         if (!phase2Active) return;
@@ -221,7 +219,6 @@ let timerInterval;
 let timeLeft = 300; 
 let phase2Active = false;
 
-// UI Elements for Phase 2
 const phase1Container = document.getElementById("phase1-container");
 const phase2Container = document.getElementById("phase2-container");
 const startTimerBtn = document.getElementById("start-timer-btn");
@@ -230,15 +227,17 @@ const omniBox = document.getElementById("omni-box");
 const foundWordsContainer = document.getElementById("found-words-container");
 
 const timerDisplay = document.getElementById("timer");
-const scoreTotalDisplay = document.getElementById("score-total-display"); // UPDATED
-const scoreBreakdownDisplay = document.getElementById("score-breakdown-display"); // UPDATED
+const scoreTotalDisplay = document.getElementById("score-total-display"); 
+const scoreBreakdownDisplay = document.getElementById("score-breakdown-display"); 
 
 const hud = document.getElementById("hud");
 const actionNotification = document.getElementById("action-notification"); 
 
-const gameOverModal = document.getElementById("game-over-modal");
+// NEW: End Game Elements
+const gameOverSection = document.getElementById("game-over-section");
 const finalScoreText = document.getElementById("final-score");
-const missedWordsList = document.getElementById("missed-words-list");
+const finalScoreBreakdown = document.getElementById("final-score-breakdown");
+const allSolutionsList = document.getElementById("all-solutions-list");
 
 // --- 7. Transition Logic ---
 if (startTimerBtn) {
@@ -326,13 +325,11 @@ function generatePhase2Board() {
         phase2Board.appendChild(rowWrapper);
     }
 
-    // Auto-populate Phase 1 Target Word
     const row1Key = `${targetWord[0]}${targetWord[4]}`;
     const row1Pool = targetPools[row1Key];
     
     if (row1Pool && !row1Pool.foundWords.includes(targetWord)) {
         row1Pool.foundWords.push(targetWord);
-        
         document.getElementById(`prog-row-${row1Pool.rows[0]}`).textContent = `${row1Pool.foundWords.length} / ${row1Pool.validWords.length} Words Found`;
 
         const card = document.createElement("div");
@@ -387,7 +384,6 @@ if (omniBox) {
         
         totalScore = baseScore + bonusScore;
         
-        // Updates separated UI Elements
         scoreTotalDisplay.textContent = `Total: ${totalScore}`;
         scoreBreakdownDisplay.textContent = `Base: ${baseScore} | Bonus: ${bonusScore}`;
 
@@ -425,7 +421,7 @@ function showAction(message, secondsChange, type) {
     updateTimerDisplay();
 }
 
-// --- 10. The Timer & Game Over ---
+// --- 10. The Timer & Game Over Logic ---
 function startTimer() {
     updateTimerDisplay();
     timerInterval = setInterval(() => {
@@ -448,22 +444,42 @@ function endPhase2() {
     clearInterval(timerInterval);
     phase2Active = false;
     omniBox.disabled = true;
+    if (devEndPhase2Btn) devEndPhase2Btn.classList.add("hidden");
     
+    // Final UI Updates
     finalScoreText.textContent = `Total Score: ${totalScore}`;
-    document.getElementById("score-breakdown").textContent = `Base: ${baseScore} | Bonus: ${bonusScore}`;
+    finalScoreBreakdown.textContent = `Base: ${baseScore} | Bonus: ${bonusScore}`;
     
+    allSolutionsList.innerHTML = ""; // Clear out any old data
+
     Object.keys(targetPools).forEach(key => {
         const pool = targetPools[key];
+        
         pool.validWords.forEach(word => {
-            if (!pool.foundWords.includes(word)) {
-                const card = document.createElement("div");
-                card.className = `word-card ${pool.baseColorClass}`;
-                card.style.opacity = "0.6"; 
-                card.textContent = word;
-                missedWordsList.appendChild(card);
+            const card = document.createElement("div");
+            card.className = `word-card ${pool.baseColorClass}`;
+            
+            const isFound = pool.foundWords.includes(word);
+            const isObscure = !commonWordsSet.has(word);
+
+            // Apply Strikethrough if the player found it
+            if (isFound) {
+                card.classList.add("strikethrough");
             }
+            
+            // Apply Golden Flair if it is a rare word
+            if (isObscure) {
+                card.classList.add("obscure-word");
+                card.textContent = word + " ✨";
+            } else {
+                card.textContent = word;
+            }
+            
+            allSolutionsList.appendChild(card);
         });
     });
     
-    gameOverModal.classList.remove("hidden");
+    // Reveal the section and scroll down to it naturally
+    gameOverSection.classList.remove("hidden");
+    gameOverSection.scrollIntoView({ behavior: 'smooth' });
 }
