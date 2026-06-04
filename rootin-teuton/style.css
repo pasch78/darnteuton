@@ -1,15 +1,15 @@
 /* --- Global Variables & Reset --- */
 :root {
-    --col1: #4a7c8c; /* Faded Denim */
-    --col2: #c86b3c; /* Rusty Orange */
-    --col3: #5c8262; /* Vintage Green */
-    --col4: #8a6a82; /* Muted Plum */
-    --col5: #a84646; /* Barn Red */
+    --col1: #4a7c8c; 
+    --col2: #c86b3c; 
+    --col3: #5c8262; 
+    --col4: #8a6a82; 
+    --col5: #a84646; 
     
-    --bg-color: #f6f0e2; /* Warm vintage cream */
-    --text-color: #3e3128; /* Dark leather brown */
-    --border-color: #c9bda5; /* Soft, warm tan border */
-    --grayed-out: #a39b8b; /* Warm gray */
+    --bg-color: #f6f0e2; 
+    --text-color: #3e3128; 
+    --border-color: #c9bda5; 
+    --grayed-out: #a39b8b; 
 }
 
 * {
@@ -26,13 +26,11 @@ body {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    padding-bottom: 2rem;
+    padding-bottom: 4rem; /* Added extra padding so the user can scroll past the last row */
 }
 
 /* --- Utilities --- */
-.hidden {
-    display: none !important;
-}
+.hidden { display: none !important; }
 
 /* --- Header & HUD --- */
 header {
@@ -54,12 +52,12 @@ header h1 {
     justify-content: space-between;
     align-items: center;
     width: 90%;
-    max-width: 400px; /* Matches the board width perfectly */
-    background-color: #e5dac1; /* Same as the row progress boxes */
+    max-width: 400px; 
+    background-color: #e5dac1; 
     padding: 1rem 1.5rem;
     border-radius: 8px;
     margin-top: 0.5rem;
-    margin-bottom: 2.5rem; /* Forces strong visual separation from the first row */
+    margin-bottom: 2.5rem; 
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05);
     border: 2px solid var(--border-color);
 }
@@ -67,7 +65,7 @@ header h1 {
 #timer {
     font-size: 2.4rem;
     font-weight: bold;
-    color: var(--col5); /* Barn Red to show urgency */
+    color: var(--col5); 
     letter-spacing: 2px;
     line-height: 1;
 }
@@ -81,7 +79,7 @@ header h1 {
 #score-total-display {
     font-size: 1.6rem;
     font-weight: bold;
-    color: var(--col3); /* Vintage Green */
+    color: var(--col3); 
     line-height: 1.2;
 }
 
@@ -144,7 +142,6 @@ header h1 {
 .key.present { background-color: #d1b058; color: #f6f0e2; } 
 .key.absent  { background-color: var(--grayed-out); color: #f6f0e2; }
 
-/* Shared Tile Styling */
 .tile {
     width: 100%;
     aspect-ratio: 1;
@@ -206,7 +203,6 @@ header h1 {
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
 
-/* Background & Text Color Utilities */
 .bg-col1 { background-color: var(--col1); color: #f6f0e2; border-color: var(--col1); }
 .bg-col2 { background-color: var(--col2); color: #f6f0e2; border-color: var(--col2); }
 .bg-col3 { background-color: var(--col3); color: #f6f0e2; border-color: var(--col3); }
@@ -242,7 +238,6 @@ header h1 {
 
 #omni-box:focus { border-color: var(--col3); }
 
-/* Action Notifications (Penalties & Bonuses) */
 #action-notification {
     position: absolute;
     top: -25px;
@@ -263,8 +258,8 @@ header h1 {
     40%, 80% { transform: translateX(5px); }
 }
 
-/* --- Found Words & Missed Words Cards --- */
-#found-words-container, #missed-words-list {
+/* --- Found Words & Solutions Cards --- */
+#found-words-container, #all-solutions-list {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
@@ -281,22 +276,60 @@ header h1 {
     border: 2px solid transparent; 
 }
 
-/* Base Card Colors */
 .word-card.text-col1 { background-color: var(--col1); color: #f6f0e2; }
 .word-card.text-col2 { background-color: var(--col2); color: #f6f0e2; }
 .word-card.text-col3 { background-color: var(--col3); color: #f6f0e2; }
 .word-card.text-col4 { background-color: var(--col4); color: #f6f0e2; }
 .word-card.text-col5 { background-color: var(--col5); color: #f6f0e2; }
 
-/* The Obscurity Bonus Flair */
+/* Obscurity Bonus Flair */
 .word-card.obscure-word {
     border-color: #d1b058 !important; 
     font-style: italic;
     box-shadow: 0 0 8px rgba(209, 176, 88, 0.4);
 }
 
-/* --- Modals / Overlays --- */
-#transition-overlay, #game-over-modal {
+/* --- Inline Game Over Section --- */
+#game-over-section {
+    width: 100%;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px dashed var(--border-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+#final-score {
+    font-size: 1.8rem;
+    color: var(--col3);
+    margin: 1rem 0 0.5rem 0;
+}
+
+#final-score-breakdown {
+    color: var(--grayed-out);
+    margin-bottom: 2rem;
+}
+
+#all-solutions-area {
+    width: 100%;
+}
+
+.legend {
+    font-size: 0.95rem;
+    color: var(--grayed-out);
+    margin-bottom: 1.5rem;
+}
+
+/* Strikethrough for found words in the end-game list */
+.strikethrough {
+    text-decoration: line-through;
+    opacity: 0.4;
+}
+
+/* Transition Overlay (Still Fixed) */
+#transition-overlay {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
     background-color: rgba(246, 240, 226, 0.95); 
@@ -307,12 +340,6 @@ header h1 {
     z-index: 100;
     text-align: center;
     padding: 2rem;
-}
-
-#score-breakdown {
-    color: #8c7e70;
-    margin-top: 0.5rem;
-    font-size: 1rem;
 }
 
 button {
@@ -331,8 +358,3 @@ button {
 
 button:hover { background-color: #46664b; transform: translateY(-1px); }
 button:active { transform: translateY(1px); }
-
-#missed-words-area {
-    margin-top: 2rem;
-    max-width: 400px;
-}
