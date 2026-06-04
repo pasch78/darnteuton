@@ -27,7 +27,7 @@ const commonDictURL = "https://gist.githubusercontent.com/cfreshman/a03ef2cba789
 const fullDictURL = "https://gist.githubusercontent.com/cfreshman/cdcdf777450c5b5301e439061d29694c/raw/wordle-allowed-guesses.txt"; 
 const expandedDictURL = "https://raw.githubusercontent.com/charlesreid1/five-letter-words/master/sgb-words.txt"; 
 
-// --- DOM Elements (Cleaned Up) ---
+// --- DOM Elements ---
 const startScreen = document.getElementById("start-screen");
 const startGameBtn = document.getElementById("start-game-btn");
 const gameContainer = document.getElementById("game-container");
@@ -48,7 +48,7 @@ const finalScoreBreakdown = document.getElementById("final-score-breakdown");
 const allSolutionsList = document.getElementById("all-solutions-list");
 const playAgainBtn = document.getElementById("play-again-btn");
 
-// --- Centralized DOM Validation ---
+// Centralized Validation
 const criticalUIElements = {
     "start-screen": startScreen, "start-game-btn": startGameBtn, "game-container": gameContainer,
     "game-board": gameBoard, "omni-box": omniBox, "input-container": inputContainer,
@@ -109,16 +109,14 @@ if (endEarlyBtn) {
     });
 }
 
-function spawnFCT(text, type) {
+function spawnFCT(text, type, trajectory) {
     const fct = document.createElement("span");
     fct.textContent = text;
-    fct.className = `fct fct-${type}`;
-    const randomX = (Math.random() - 0.5) * 60; // Spread between -30px and 30px
-    fct.style.setProperty('--x-offset', `${randomX}px`);
+    fct.className = `fct fct-${type} fct-traj-${trajectory}`;
     inputContainer.appendChild(fct);
     
-    // Garbage collection
-    setTimeout(() => { fct.remove(); }, 1000);
+    // Garbage collection timed to the longest CSS animation
+    setTimeout(() => { fct.remove(); }, 1200);
 }
 
 function updateScoreUI() {
@@ -135,8 +133,7 @@ function resetStreak() {
 }
 
 startGameBtn.addEventListener("click", () => {
-    startScreen.classList.add("hidden");
-    gameContainer.classList.remove("hidden");
+    startScreen.classList.add("hidden"); gameContainer.classList.remove("hidden");
     generateBoard(); startTimer();
     gameActive = true; omniBox.disabled = false; omniBox.focus();
 });
@@ -147,16 +144,14 @@ playAgainBtn.addEventListener("click", () => {
     omniBox.value = ""; gameOverSection.classList.add("hidden"); endEarlyBtn.classList.remove("hidden"); 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    isDailyMode = false;
-    modeIndicator.textContent = "Practice Mode";
-    modeIndicator.className = "mode-practice";
+    isDailyMode = false; modeIndicator.textContent = "Practice Mode"; modeIndicator.className = "mode-practice";
     targetWord = commonWordsList[Math.floor(Math.random() * commonWordsList.length)];
     
     generateBoard(); startTimer();
     gameActive = true; omniBox.disabled = false; omniBox.focus();
 });
 
-// --- 4. Board Generation (Inline Updates) ---
+// --- 4. Board Generation ---
 function generateBoard() {
     const letters = targetWord.split("");
     const reverseLetters = [...letters].reverse();
@@ -178,6 +173,12 @@ function generateBoard() {
     const seedMain = document.createElement("div");
     seedMain.className = "row-main";
     seedMain.appendChild(seedTilesDiv);
+    
+    // NEW: The Ghost Counter to align the Seed Row perfectly
+    const ghostCounter = document.createElement("div");
+    ghostCounter.className = "row-counter ghost-counter";
+    seedMain.appendChild(ghostCounter);
+
     seedWrapper.appendChild(seedMain);
     gameBoard.appendChild(seedWrapper);
     
@@ -224,22 +225,18 @@ function generateBoard() {
         
         rowMain.appendChild(tilesDiv);
 
-        // NEW: Inline counter instead of massive block
         const counterDiv = document.createElement("div");
         counterDiv.className = "row-counter";
         counterDiv.id = `counter-row-${r+1}`;
-        if (isDead) {
-            counterDiv.textContent = `-`;
-        } else if (isDuplicate) {
-            counterDiv.textContent = `🔗 ${pool.rows[0]}`;
-        } else {
+        if (isDead) counterDiv.textContent = `-`;
+        else if (isDuplicate) counterDiv.textContent = `🔗 ${pool.rows[0]}`;
+        else {
             counterDiv.textContent = `0/${pool.validWords.length}`;
             counterDiv.classList.add(pool.baseColorClass);
         }
         rowMain.appendChild(counterDiv);
         rowWrapper.appendChild(rowMain);
 
-        // NEW: Inline Words container
         const inlineWordsDiv = document.createElement("div");
         inlineWordsDiv.className = "inline-words";
         inlineWordsDiv.id = `inline-words-${r+1}`;
@@ -257,27 +254,21 @@ if (omniBox) {
         if (!gameActive) return;
         const guess = omniBox.value.toUpperCase().trim();
         
-        // Wipe cached typing tiles
         cachedMiddleTiles.forEach(tile => { tile.textContent = ""; tile.classList.remove("active-typing"); });
         
-        // NEW: Spotlight Effect Logic
         const allRows = document.querySelectorAll('.row-wrapper');
         if (guess.length > 0) {
             const firstL = guess[0];
             cachedMiddleTiles.forEach(tile => {
                 if (tile.dataset.startLetter === firstL) {
                     const colIndex = parseInt(tile.id.split('-')[3]); 
-                    if (guess[colIndex]) {
-                        tile.textContent = guess[colIndex]; tile.classList.add("active-typing"); 
-                    }
+                    if (guess[colIndex]) { tile.textContent = guess[colIndex]; tile.classList.add("active-typing"); }
                 }
             });
             allRows.forEach(row => {
                 if (row.dataset.startLetter === firstL || row.classList.contains('dead-row') || row.classList.contains('seed-row-wrapper')) {
                     row.classList.remove('dimmed');
-                } else {
-                    row.classList.add('dimmed');
-                }
+                } else { row.classList.add('dimmed'); }
             });
         } else {
             allRows.forEach(row => row.classList.remove('dimmed'));
@@ -302,11 +293,11 @@ if (omniBox) {
 
         if (!pool.validWords.includes(guess)) {
             resetStreak(); penaltyScore += 10; updateScoreUI();
-            spawnFCT("-10", "penalty");
+            spawnFCT("-10", "penalty", "down");
             omniBox.classList.add("shake"); setTimeout(() => omniBox.classList.remove("shake"), 400); return;
         }
 
-        // Valid Word Math
+        // Valid Word Logic
         const now = Date.now();
         const timeSinceLast = now - lastWordTime;
         
@@ -325,77 +316,9 @@ if (omniBox) {
 
         const isObscure = !bonusBarrierSet.has(guess); 
         
-        // NEW: Fountain FCT Spawning
-        spawnFCT(`+${points}`, "base");
+        // Spawn Dynamic Base FCT (Shoots Left)
+        spawnFCT(`+${points}`, "base", "left");
         
         if (isObscure) {
             bonusScore += 50; 
-            setTimeout(() => spawnFCT("+50 ✨", "obscure"), 100); // Slight delay for fountain effect
-        }
-        if (isStreakActive) {
-            bonusScore += 5;
-            setTimeout(() => spawnFCT("+5 🔥", "streak"), 200);
-        }
-
-        updateScoreUI();
-
-        // Update Inline UI
-        document.getElementById(`counter-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length}/${pool.validWords.length}`;
-
-        const inlineCard = document.createElement("div");
-        inlineCard.className = `inline-word-card ${pool.baseColorClass}`;
-        if (isObscure) {
-            inlineCard.classList.add("obscure-word"); inlineCard.textContent = guess + " ✨";
-        } else {
-            inlineCard.textContent = guess;
-        }
-        
-        // Append to the specific row's inline container
-        document.getElementById(`inline-words-${pool.rows[0]}`).appendChild(inlineCard);
-    });
-}
-
-// --- 6. Timer & Game Over ---
-function startTimer() {
-    updateTimerDisplay();
-    timerInterval = setInterval(() => {
-        timeLeft--;
-        const timeSinceLast = Date.now() - lastWordTime;
-        
-        if (isStreakActive) { if (timeSinceLast > 12000) resetStreak(); } 
-        else if (streakCount > 0) { if (timeSinceLast > 6000) resetStreak(); }
-
-        if (timeLeft <= 0) { timeLeft = 0; endGame(); }
-        updateTimerDisplay();
-    }, 1000);
-}
-
-function updateTimerDisplay() {
-    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-    const s = (timeLeft % 60).toString().padStart(2, '0');
-    timerDisplay.textContent = `${m}:${s}`;
-}
-
-function endGame() {
-    clearInterval(timerInterval); gameActive = false; omniBox.disabled = true; resetStreak(); 
-    if (endEarlyBtn) endEarlyBtn.classList.add("hidden"); 
-    if (isDailyMode) localStorage.setItem("darnWortlerLastDaily", currentDailyID);
-    
-    finalScoreText.textContent = `Total Score: ${totalScore}`;
-    finalScoreBreakdown.textContent = `Base: ${baseScore} | Bonus: ${bonusScore} | Penalty: -${penaltyScore}`;
-    allSolutionsList.innerHTML = ""; 
-
-    Object.keys(targetPools).forEach(key => {
-        const pool = targetPools[key];
-        pool.validWords.forEach(word => {
-            const card = document.createElement("div"); card.className = `word-card ${pool.baseColorClass}`;
-            const isFound = pool.foundWords.includes(word); const isObscure = !bonusBarrierSet.has(word);
-            if (isFound) card.classList.add("strikethrough");
-            if (isObscure) { card.classList.add("obscure-word"); card.textContent = word + " ✨"; } 
-            else { card.textContent = word; }
-            allSolutionsList.appendChild(card);
-        });
-    });
-    
-    gameOverSection.classList.remove("hidden"); gameOverSection.scrollIntoView({ behavior: 'smooth' });
-}
+            setTimeout(() => spawnF
