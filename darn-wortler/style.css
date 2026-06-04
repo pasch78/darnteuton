@@ -37,12 +37,11 @@ header {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
+    padding: 0.5rem; /* Tightened */
 }
 
 header h1 {
-    font-size: 2.5rem;
+    font-size: 2rem; /* Scaled down slightly */
     letter-spacing: -1px;
 }
 
@@ -53,16 +52,15 @@ header h1 {
     width: 90%;
     max-width: 400px; 
     background-color: #e5dac1; 
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1.25rem; /* Tightened */
     border-radius: 8px;
-    margin-top: 0.5rem;
-    margin-bottom: 2.5rem; 
+    margin-bottom: 1rem; /* Dramatically reduced from 2.5rem */
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05), 0 4px 6px rgba(0,0,0,0.05);
     border: 2px solid var(--border-color);
 }
 
 #timer {
-    font-size: 2.4rem;
+    font-size: 2rem; /* Scaled down slightly */
     font-weight: bold;
     color: var(--col5); 
     letter-spacing: 2px;
@@ -76,14 +74,14 @@ header h1 {
 }
 
 #score-total-display {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: bold;
     color: var(--col3); 
     line-height: 1.2;
 }
 
 #score-breakdown-display {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: bold;
     color: var(--text-color);
     opacity: 0.8;
@@ -95,11 +93,12 @@ header h1 {
     flex-direction: column;
     align-items: center;
     width: 100%;
-    max-width: 400px;
+    /* NEW: Auto-scales based on available height! */
+    max-width: min(400px, 95vw, 55vh); 
 }
 
 #board-area {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     width: 100%;
 }
 
@@ -107,19 +106,18 @@ header h1 {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 0.75rem; /* Tightened from 1.5rem */
 }
 
 .row-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px; /* Tightened */
 }
 
-/* NEW: Separates the seed word from the puzzle rows */
 .seed-row-wrapper {
-    margin-bottom: 1rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: 0.5rem; /* Tightened */
+    padding-bottom: 0.75rem; /* Tightened */
     border-bottom: 2px dashed var(--border-color);
 }
 
@@ -136,7 +134,8 @@ header h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2rem;
+    /* Uses viewport width/height to ensure text scales down with the boxes */
+    font-size: min(1.5rem, 5vmin); 
     font-weight: bold;
     text-transform: uppercase;
     background-color: transparent;
@@ -145,9 +144,9 @@ header h1 {
 .row-progress {
     text-align: center;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 0.9rem; /* Scaled down slightly */
     background-color: #e5dac1; 
-    padding: 6px 0;
+    padding: 4px 0; /* Tightened */
     border-radius: 4px;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
 }
@@ -166,17 +165,25 @@ header h1 {
 .text-col4 { color: var(--col4); }
 .text-col5 { color: var(--col5); }
 
+/* Fades out rows that have zero valid words in the dictionary */
+.dead-row {
+    opacity: 0.4;
+    filter: grayscale(100%);
+    pointer-events: none; 
+}
+
 /* --- Omni-Box Input --- */
 #input-zone {
     width: 100%;
     position: relative;
     margin-bottom: 2rem;
+    max-width: 400px; /* Constrain to match max board width */
 }
 
 #omni-box {
     width: 100%;
-    padding: 1rem;
-    font-size: 1.5rem;
+    padding: 0.75rem; /* Tightened */
+    font-size: 1.25rem;
     text-align: center;
     text-transform: uppercase;
     border: 2px solid var(--border-color);
@@ -212,16 +219,17 @@ header h1 {
 #found-words-container, #all-solutions-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 8px; /* Tightened */
     justify-content: center;
     width: 100%;
+    max-width: 500px;
 }
 
 .word-card {
-    padding: 0.5rem 1rem;
+    padding: 0.4rem 0.8rem; /* Tightened */
     border-radius: 8px;
     font-weight: bold;
-    font-size: 1.1rem;
+    font-size: 1rem;
     text-transform: uppercase;
     border: 2px solid transparent; 
 }
@@ -241,7 +249,7 @@ header h1 {
 /* --- Inline Game Over Section --- */
 #game-over-section {
     width: 100%;
-    margin-top: 3rem;
+    margin-top: 2rem;
     padding-top: 2rem;
     border-top: 2px dashed var(--border-color);
     display: flex;
@@ -314,11 +322,4 @@ button:disabled {
     background-color: var(--grayed-out);
     cursor: not-allowed;
     box-shadow: none;
-}
-
-/* Fades out rows that have zero valid words in the dictionary */
-.dead-row {
-    opacity: 0.4;
-    filter: grayscale(100%);
-    pointer-events: none; 
 }
