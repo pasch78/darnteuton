@@ -7,10 +7,18 @@ let commonWordsSet = new Set();
 let targetPools = {}; 
 let baseScore = 0;
 let bonusScore = 0;
+let penaltyScore = 0; // NEW: Explicit penalty tracking
 let totalScore = 0;
 let timerInterval;
 let timeLeft = 300; 
 let gameActive = false;
+
+// Caching variables for performance optimization
+let cachedMiddleTiles = []; 
+
+// Daily Challenge Variables
+let isDailyMode = false;
+let currentDailyID = Math.floor(Date.now() / 86400000); 
 
 const commonDictURL = "https://gist.githubusercontent.com/cfreshman/a03ef2cba789d8cf00c08f767e0fad7b/raw/wordle-answers-alphabetical.txt"; 
 const fullDictURL = "https://gist.githubusercontent.com/cfreshman/cdcdf777450c5b5301e439061d29694c/raw/wordle-allowed-guesses.txt"; 
@@ -29,6 +37,7 @@ const scoreTotalDisplay = document.getElementById("score-total-display");
 const scoreBreakdownDisplay = document.getElementById("score-breakdown-display"); 
 const hud = document.getElementById("hud");
 const actionNotification = document.getElementById("action-notification"); 
+const modeIndicator = document.getElementById("mode-indicator"); 
 
 const gameOverSection = document.getElementById("game-over-section");
 const finalScoreText = document.getElementById("final-score");
@@ -50,9 +59,23 @@ async function loadDictionaries() {
         validWordsSet = new Set([...commonWordsList, ...fullArray]);
         commonWordsSet = new Set(commonWordsList); 
 
-        targetWord = commonWordsList[Math.floor(Math.random() * commonWordsList.length)];
+        const lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily");
         
-        startGameBtn.textContent = "Start 5-Minute Timer";
+        if (lastPlayedDaily != currentDailyID) {
+            isDailyMode = true;
+            modeIndicator.textContent = "★ Daily Challenge";
+            modeIndicator.className = "mode-daily";
+            targetWord = commonWordsList[currentDailyID % commonWordsList.length];
+            startGameBtn.textContent = "Start Daily Challenge";
+        } else {
+            isDailyMode = false;
+            modeIndicator.textContent = "Practice Mode";
+            modeIndicator.className = "mode-practice";
+            targetWord = commonWordsList[Math.floor(Math.random() * commonWordsList.length)];
+            startGameBtn.textContent = "Start Practice Mode";
+        }
+        
+        modeIndicator.classList.remove("hidden");
         startGameBtn.disabled = false;
         
     } catch (error) {
@@ -72,7 +95,14 @@ if (devEndGameBtn) {
     });
 }
 
-// --- 3. Start & Reset Logic ---
+// --- 3. Core Engine Functions ---
+function updateScoreUI() {
+    // NEW: Transparent mathematical formula
+    totalScore = baseScore + bonusScore - penaltyScore;
+    scoreTotalDisplay.textContent = `Total: ${totalScore}`;
+    scoreBreakdownDisplay.textContent = `Base: ${baseScore} | Bonus: ${bonusScore} | Penalty: -${penaltyScore}`;
+}
+
 startGameBtn.addEventListener("click", () => {
     startScreen.classList.add("hidden");
     gameContainer.classList.remove("hidden");
@@ -87,12 +117,14 @@ startGameBtn.addEventListener("click", () => {
 });
 
 playAgainBtn.addEventListener("click", () => {
+    // Clean Reset Architecture
     baseScore = 0;
     bonusScore = 0;
-    updateScoreUI();
+    penaltyScore = 0; 
     timeLeft = 300;
     targetPools = {}; 
     
+    updateScoreUI();
     foundWordsContainer.innerHTML = "";
     omniBox.value = "";
     gameOverSection.classList.add("hidden");
@@ -100,6 +132,9 @@ playAgainBtn.addEventListener("click", () => {
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    isDailyMode = false;
+    modeIndicator.textContent = "Practice Mode";
+    modeIndicator.className = "mode-practice";
     targetWord = commonWordsList[Math.floor(Math.random() * commonWordsList.length)];
     
     generateBoard();
@@ -109,12 +144,6 @@ playAgainBtn.addEventListener("click", () => {
     omniBox.focus();
 });
 
-function updateScoreUI() {
-    totalScore = baseScore + bonusScore;
-    scoreTotalDisplay.textContent = `Total: ${totalScore}`;
-    scoreBreakdownDisplay.textContent = `Base: ${baseScore} | Bonus: ${bonusScore}`;
-}
-
 // --- 4. Board Generation Logic ---
 function generateBoard() {
     const letters = targetWord.split("");
@@ -122,7 +151,6 @@ function generateBoard() {
     
     gameBoard.innerHTML = ""; 
 
-    // Display the Seed Word at the Top
     const seedWrapper = document.createElement("div");
     seedWrapper.className = "row-wrapper seed-row-wrapper";
     
@@ -139,7 +167,6 @@ function generateBoard() {
     seedWrapper.appendChild(seedTilesDiv);
     gameBoard.appendChild(seedWrapper);
     
-    // Parse constraints
     for (let r = 0; r < 5; r++) {
         const startL = letters[r];
         const endL = reverseLetters[r];
@@ -158,7 +185,6 @@ function generateBoard() {
         }
     }
 
-    // Build UI
     for (let r = 0; r < 5; r++) {
         const startL = letters[r];
         const endL = reverseLetters[r];
@@ -189,11 +215,9 @@ function generateBoard() {
                 tile.textContent = endL;
                 tile.classList.add((isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass);
             } else {
-                // NEW: Tagging the middle tiles for Live Typing!
                 tile.classList.add("middle-tile");
                 tile.id = `play-tile-${r}-${c}`;
                 
-                // Only allow live typing to show up on active (non-dead) rows
                 if (!isDead) {
                     tile.dataset.startLetter = startL;
                 }
@@ -221,7 +245,9 @@ function generateBoard() {
         gameBoard.appendChild(rowWrapper);
     }
 
-    // Auto-populate the Seed Word
+    // NEW: Cache the middle tiles in memory for high-performance live typing
+    cachedMiddleTiles = Array.from(document.querySelectorAll(".middle-tile"));
+
     const row1Key = `${targetWord[0]}${targetWord[4]}`;
     const row1Pool = targetPools[row1Key];
     
@@ -238,27 +264,24 @@ function generateBoard() {
 
 // --- 5. Omni-Box Input Logic ---
 if (omniBox) {
-    // Real-time Live Typing visual feedback
     omniBox.addEventListener("input", () => {
         if (!gameActive) return;
         const guess = omniBox.value.toUpperCase().trim();
         
-        // Wipe all middle tiles clean on every keystroke
-        const middleTiles = document.querySelectorAll(".middle-tile");
-        middleTiles.forEach(tile => {
+        // Wipe cached tiles instantly
+        cachedMiddleTiles.forEach(tile => {
             tile.textContent = "";
-            tile.classList.remove("active-typing"); // NEW: Remove shading
+            tile.classList.remove("active-typing"); 
         });
         
-        // Repopulate active rows if the first letter matches
         if (guess.length > 0) {
             const firstLetter = guess[0];
-            middleTiles.forEach(tile => {
+            cachedMiddleTiles.forEach(tile => {
                 if (tile.dataset.startLetter === firstLetter) {
                     const colIndex = parseInt(tile.id.split('-')[3]); 
                     if (guess[colIndex]) {
                         tile.textContent = guess[colIndex];
-                        tile.classList.add("active-typing"); // NEW: Apply shading
+                        tile.classList.add("active-typing"); 
                     }
                 }
             });
@@ -270,11 +293,10 @@ if (omniBox) {
         
         const guess = omniBox.value.toUpperCase().trim();
         
-        // Instantly wipe the board and input box on submit
         omniBox.value = ""; 
-        document.querySelectorAll(".middle-tile").forEach(tile => {
+        cachedMiddleTiles.forEach(tile => {
             tile.textContent = "";
-            tile.classList.remove("active-typing"); // NEW: Remove shading on submit
+            tile.classList.remove("active-typing"); 
         });
 
         if (guess.length !== 5) return;
@@ -284,38 +306,33 @@ if (omniBox) {
         const key = `${startL}${endL}`;
         const pool = targetPools[key];
 
-        // Typo / Missing Constraint (0 point penalty, just shake)
         if (!pool || pool.validWords.length === 0) {
             shakeInput();
             return;
         }
 
-        // Already Found
         if (pool.foundWords.includes(guess)) {
             shakeInput();
             return;
         }
 
-        // Fake Word (-10 point penalty)
         if (!pool.validWords.includes(guess)) {
-            baseScore -= 10;
+            penaltyScore += 10; // NEW: Apply to explicit penalty tracker
             updateScoreUI();
             showAction("-10 pts (Fake Word)", "penalty");
             shakeInput();
             return;
         }
 
-        // Valid Word Logic
         const isObscure = !commonWordsSet.has(guess);
         pool.foundWords.push(guess);
         
-        // The Shared Pool Multiplier
         const multiplier = pool.rows.length;
         const points = Math.round(1000 / pool.validWords.length) * multiplier;
         baseScore += points;
 
         if (isObscure) {
-            bonusScore += 50; // The Flat Bonus
+            bonusScore += 50; 
             showAction("+50 pts (Rare Word!)", "bonus");
         }
         
@@ -349,6 +366,7 @@ function showAction(message, type) {
     
     setTimeout(() => actionNotification.classList.add("hidden"), 1500);
 }
+
 // --- 6. The Timer & Game Over Logic ---
 function startTimer() {
     updateTimerDisplay();
@@ -374,8 +392,12 @@ function endGame() {
     omniBox.disabled = true;
     if (devEndGameBtn) devEndGameBtn.classList.add("hidden");
     
+    if (isDailyMode) {
+        localStorage.setItem("darnWortlerLastDaily", currentDailyID);
+    }
+    
     finalScoreText.textContent = `Total Score: ${totalScore}`;
-    finalScoreBreakdown.textContent = `Base: ${baseScore} | Bonus: ${bonusScore}`;
+    finalScoreBreakdown.textContent = `Base: ${baseScore} | Bonus: ${bonusScore} | Penalty: -${penaltyScore}`;
     
     allSolutionsList.innerHTML = ""; 
 
