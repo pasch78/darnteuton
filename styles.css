@@ -1,0 +1,119 @@
+/* --- Global Variables & Fluid Spacing System --- */
+/* Extracted directly from your app's style.css to ensure perfect harmony */
+:root {
+	--col3: #5c8262; /* Primary action green */
+	
+	--bg-color: #f6f0e2; 
+	--text-color: #3e3128; 
+	--border-color: #c9bda5; 
+	--grayed-out: #a39b8b; 
+	
+	--max-app-width: 500px;
+
+	/* Fluid Design Tokens */
+	--space-xs: clamp(2px, 0.5svh, 4px);
+	--space-sm: clamp(4px, 1svh, 8px);
+	--space-md: clamp(8px, 1.5svh, 16px);
+	--space-lg: clamp(12px, 2.5svh, 24px);
+	--space-xl: clamp(24px, 5svh, 40px); /* Added for larger hero gaps */
+}
+
+/* --- Base Resets --- */
+* { 
+	box-sizing: border-box; 
+	margin: 0; 
+	padding: 0; 
+}
+
+body { 
+	background-color: var(--bg-color); 
+	color: var(--text-color); 
+	font-family: 'Play', Arial, sans-serif; 
+	display: flex; 
+	flex-direction: column; 
+	align-items: center; 
+	justify-content: center;
+	min-height: 100svh; 
+	padding: var(--space-lg); 
+	overflow-x: hidden; 
+}
+
+/* --- Layout --- */
+.cover-container { 
+	text-align: center; 
+	width: 100%;
+	max-width: var(--max-app-width);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--space-xl); 
+}
+
+/* --- Image Styling --- */
+.hero-image { 
+	max-width: 100%; 
+	max-height: 50svh; 
+	height: auto;
+	border-radius: 4px; 
+	border: 2px solid var(--border-color); /* Matches app tile borders */
+	box-shadow: 0 4px 12px rgba(62, 49, 40, 0.08); /* Tinted shadow to match dark brown */
+}
+
+/* --- Brand Flourish --- */
+.divider {
+	width: 100%;
+	max-width: 200px;
+	border-bottom: 2px dashed var(--border-color); /* Pulled from app's seed-row-wrapper */
+}
+
+/* --- Typography --- */
+.game-info {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--space-md);
+	width: 100%;
+}
+
+.game-title {
+	font-size: clamp(2rem, 8vw, 3rem); 
+	color: var(--text-color);
+	margin: 0;
+	font-weight: bold;
+	letter-spacing: -1px; /* Matches app header */
+	line-height: 1;
+}
+
+.game-tagline {
+	font-size: clamp(0.9rem, 4vw, 1.1rem);
+	color: var(--grayed-out);
+	margin: 0 0 var(--space-md) 0;
+	font-style: italic; /* Matches subtitle styling in app */
+}
+
+/* --- Components --- */
+/* Matched exactly to the app's .primary-btn class */
+.play-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: clamp(0.8rem, 2.5svh, 1rem) clamp(2rem, 6vw, 3rem); 
+	font-size: clamp(1.1rem, 3svh, 1.2rem); 
+	font-weight: bold; 
+	color: #f6f0e2;
+	background-color: var(--col3); 
+	text-decoration: none;
+	border-radius: 6px; 
+	transition: all 0.2s ease;
+	touch-action: manipulation;
+	user-select: none;
+}
+
+.play-button:hover {
+	background-color: #46664b; /* Hardcoded hover state from app */
+	transform: translateY(-2px);
+}
+
+.play-button:active {
+	transform: translateY(0);
+}

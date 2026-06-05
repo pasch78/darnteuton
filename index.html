@@ -3,91 +3,29 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Darn Teuton! You Betcha.</title>
-    <style>
-        body { 
-            margin: 0; 
-            padding: 0; 
-            background-color: #f6f0e2; /* Matches the warm vintage cream frame of the image */
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; 
-            min-height: 100vh; 
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-        }
-        
-        .cover-container { 
-            text-align: center; 
-            max-width: 600px; 
-            width: 90%;
-            padding: 2rem 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem; 
-        }
-        
-        img { 
-            max-width: 100%; 
-            max-height: 70vh; 
-            height: auto;
-            border-radius: 4px; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12); 
-        }
-
-        .game-info {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .game-title {
-            font-size: 2.2rem;
-            color: #111827;
-            margin: 0;
-            font-weight: bold;
-            letter-spacing: -0.5px;
-        }
-
-        .game-tagline {
-            font-size: 1rem;
-            color: #4b5563;
-            margin: 0;
-            font-style: italic;
-        }
-
-        .play-button {
-            display: inline-block;
-            padding: 0.8rem 2.5rem;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #ffffff;
-            background-color: #10b981; /* Signature Phase 2 Green */
-            text-decoration: none;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-            transition: background-color 0.2s ease, transform 0.1s ease;
-        }
-
-        .play-button:hover {
-            background-color: #0d9668;
-            transform: translateY(-1px);
-        }
-
-        .play-button:active {
-            transform: translateY(1px);
-        }
-    </style>
+    <title>Darn Wortler | Play Now</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="cover-container">
-        <img src="darnteuton.png" alt="Lederhosen Lawman">
+        <img src="darnteuton.png" alt="Lederhosen Lawman" class="hero-image">
+        
+        <div class="divider"></div>
         
         <div class="game-info">
             <h1 class="game-title">Darn Wortler</h1>
             <p class="game-tagline">Flex your vocabulary. Outrun the 5-minute clock.</p>
             <a href="darn-wortler/index.html" class="play-button">Play Now</a>
+        </div>
+        <div class="game-info">
+            <h1 class="game-title">Darn Climate</h1>
+            <p class="game-tagline">See how the climate has changed during your lifetime.</p>
+            <a href="darn-climate/index.html" class="play-button">Explore Now</a>
         </div>
     </div>
 </body>
