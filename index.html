@@ -3,30 +3,43 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Darn Wortler | Play Now</title>
+    <title>Darn Teuton! You Betcha.</title>
     
+    <!-- Importing the brand fonts: Arvo (Slab Serif) and Play (Sans Serif) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@700&family=Play:wght@400;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="cover-container">
-        <img src="darnteuton.png" alt="Lederhosen Lawman" class="hero-image">
         
-        <div class="divider"></div>
+        <header class="hero-section">
+            <img src="darnteuton.png" alt="Lederhosen Lawman" class="hero-image">
+            <div class="divider"></div>
+        </header>
+
+        <main class="projects-grid">
+            <!-- Project 1 -->
+            <article class="project-card">
+                <div class="project-info">
+                    <h2 class="project-title">Darn Wortler</h2>
+                    <p class="project-tagline">Flex your vocabulary. Outrun the 5-minute clock.</p>
+                </div>
+                <a href="darn-wortler/index.html" class="play-button">Play Now</a>
+            </article>
+
+            <!-- Project 2 -->
+            <article class="project-card">
+                <div class="project-info">
+                    <h2 class="project-title">Darn Climate</h2>
+                    <p class="project-tagline">See how the climate has changed during your lifetime.</p>
+                </div>
+                <a href="darn-climate/index.html" class="play-button">Explore Now</a>
+            </article>
+        </main>
         
-        <div class="game-info">
-            <h1 class="game-title">Darn Wortler</h1>
-            <p class="game-tagline">Flex your vocabulary. Outrun the 5-minute clock.</p>
-            <a href="darn-wortler/index.html" class="play-button">Play Now</a>
-        </div>
-        <div class="game-info">
-            <h1 class="game-title">Darn Climate</h1>
-            <p class="game-tagline">See how the climate has changed during your lifetime.</p>
-            <a href="darn-climate/index.html" class="play-button">Explore Now</a>
-        </div>
     </div>
 </body>
 </html>
