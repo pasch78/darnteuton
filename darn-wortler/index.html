@@ -10,21 +10,37 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
     
+<<<<<<< HEAD
     <link rel="stylesheet" href="style.css?v=5.0.0">
+=======
+    <link rel="stylesheet" href="style.css">
+>>>>>>> v8.1.1
 </head>
 <body>
-    <header>
-        <div class="header-container">
+    <header class="app-header">
+        <div class="header-left">
+            <div id="timer" role="timer" aria-live="off" aria-label="Time remaining">05:00</div>
+        </div>
+        <div class="header-center">
             <h1>Darn Wortler</h1>
             <div id="mode-indicator" class="hidden" aria-live="polite">Loading...</div>
+        </div>
+        <div class="header-right">
+            <div id="score-wrapper">
+                <div id="score-total-display">Total: 0</div>
+                <div id="score-breakdown-display">Base: 0 | Bonus: 0</div>
+            </div>
         </div>
     </header>
 
     <main id="game-container" class="hidden">
         <section id="board-area" aria-label="Game Board">
-            <div id="game-board"></div> 
+            <div id="game-board">
+                <!-- Board rows, ghost counters, and Input row are generated dynamically here -->
+            </div> 
         </section>
 
+<<<<<<< HEAD
         <section id="action-zone" aria-label="Game Controls and Stats">
             <div class="action-stats">
                 <div id="timer" role="timer" aria-label="Time remaining">05:00</div>
@@ -81,13 +97,19 @@
         </section>
         
         <button id="end-early-btn" class="end-game-btn">Reveal Answers</button>
+=======
+        <section id="keyboard-area" aria-label="Virtual Keyboard">
+            <div id="virtual-keyboard"></div>
+            <button id="end-early-btn" class="secondary-btn">Reveal Answers</button>
+        </section>
+>>>>>>> v8.1.1
 
         <section id="game-over-section" class="hidden" aria-labelledby="game-over-heading">
             <h2 id="game-over-heading">Time's Up!</h2>
             <h3 id="final-score">Total Score: 0</h3>
             <h4 id="final-score-breakdown">Base: 0 | Bonus: 0</h4>
             
-            <button id="play-again-btn" class="play-again-btn">Play Practice Mode</button>
+            <button id="play-again-btn" class="primary-btn">Play Practice Mode</button>
 
             <div id="all-solutions-area">
                 <h4>All Possible Solutions:</h4>
@@ -118,26 +140,30 @@
             </div>
             <div class="step">
                 <span class="step-icon">🥪</span>
-                <p><strong>Game Grid:</strong> Guess five-letter words that fit between the given outer letters. The left column is your seed word; the right column is the seed word in reverse.</p>
+                <p><strong>Game Grid:</strong> Guess five-letter words that fit between the given outer letters.</p>
             </div>
             <div class="step">
                 <span class="step-icon">📊</span>
-                <p><strong>Row Difficulty:</strong> Some rows are much tougher than others with few valid solutions. The tougher the row, the higher the score!</p>
+                <p><strong>Row Difficulty:</strong> Tougher rows yield higher scores.</p>
             </div>
             
             <div class="step-group-title">Bonus Points</div>
             <div class="step">
                 <span class="step-icon">✨</span>
-                <p><strong>Great Vocabulary:</strong> Earn <strong>+50 points</strong> for each obscure but valid word.</p>
+                <p><strong>Great Vocabulary:</strong> Earn <strong>+50 points</strong> for each obscure word.</p>
             </div>
             <div class="step">
                 <span class="step-icon">🔥</span>
-                <p><strong>Speed Streak:</strong> Type 3 valid words within 15s to unlock a persistent <strong>+5 point bonus</strong> per answer.</p>
+                <p><strong>Speed Streak:</strong> Type 3 valid words within 15s to unlock a <strong>+5 point bonus</strong>.</p>
             </div>
         </div>
-        <button id="start-game-btn" disabled aria-live="polite">Loading Dictionary...</button>
+        <button id="start-game-btn" class="primary-btn" disabled aria-live="polite">Loading Dictionary...</button>
     </div>
 
+<<<<<<< HEAD
     <script src="script.js?v=5.0.1"></script>
+=======
+    <script src="script.js"></script>
+>>>>>>> v8.1.1
 </body>
 </html>
