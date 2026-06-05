@@ -169,14 +169,14 @@ const DarnWortler = (function () {
             }
         }
 
-        // THE FIX: Added a "ghost" counter to the seed row to enforce the 5fr/1fr grid constraint
+        // Added "SEED" to the ghost counter to visually balance the layout
         let boardHTML = `
             <div class="row-wrapper seed-row-wrapper" data-start="${letters[0]}">
                 <div class="row-main">
                     <div class="row-tiles">
                         ${letters.map(l => `<div class="tile bg-col1">${l}</div>`).join('')}
                     </div>
-                    <div class="row-counter" aria-hidden="true"></div>
+                    <div class="row-counter" aria-hidden="true">SEED</div>
                 </div>
             </div>`;
 
@@ -217,10 +217,13 @@ const DarnWortler = (function () {
                         <div class="tile input-tile"></div>
                         <div class="tile input-tile"></div>
                     </div>
-                    <button id="hint-btn" title="Reveal a letter (3 left)" aria-label="Use Hint">💡 3</button>
+                    <button id="hint-btn" title="Reveal a letter" aria-label="Use Hint">
+                        💡
+                        <span id="hint-badge">3</span>
+                    </button>
                 </div>
             </div>`;
-
+        
         ui["game-board"].insertAdjacentHTML('beforeend', boardHTML);
     }
 
@@ -360,9 +363,12 @@ const DarnWortler = (function () {
         if (!options.length) return spawnFCT("No words left!", "error");
 
         state.hints.remaining--;
+        
+        const hintBadge = document.getElementById("hint-badge");
+        if (hintBadge) hintBadge.textContent = state.hints.remaining;
+        
         const hintBtn = document.getElementById("hint-btn");
-        hintBtn.textContent = `💡 ${state.hints.remaining}`;
-        hintBtn.disabled = state.hints.remaining === 0;
+        if (hintBtn) hintBtn.disabled = state.hints.remaining === 0;
 
         const { pool, word } = options[Math.floor(Math.random() * options.length)];
         pool.hintedWords[word] = pool.hintedWords[word] || [];
@@ -406,7 +412,6 @@ const DarnWortler = (function () {
     }
 
     function attachEventListeners() {
-        // Delegated event listener for dynamically injected hint button
         ui["game-board"].addEventListener("click", (e) => {
             const btn = e.target.closest('#hint-btn');
             if (btn && !btn.disabled) useHint();
