@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const colorGray = rootStyles.getPropertyValue('--grayed-out').trim();
 	const colorBorder = rootStyles.getPropertyValue('--border-color').trim();
 
-	Chart.defaults.font.family = "'Helvetica Neue', Arial, sans-serif";
+	Chart.defaults.font.family = "'Play', Arial, sans-serif";
 	Chart.defaults.color = colorGray;
 
 	analyzeBtn.addEventListener('click', async () => {
