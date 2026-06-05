@@ -1,0 +1,225 @@
+/* --- Global Variables & Reset --- */
+:root {
+	/* Primary Palette */
+	--col1: #4a7c8c; /* Cold / Snow */
+	--col2: #c86b3c; /* Extreme Heat */
+	--col3: #5c8262; /* Mild / Rain */
+	--col4: #8a6a82; /* Dry Spell Purple */
+	--col5: #a84646; /* Error Crimson */
+	
+	/* New Visceral Metric Colors */
+	--col-muggy: #b85a32;    /* Muggy Night Deep Rust */
+	--col-mosquito: #6e733b; /* Mosquito Swamp Green */
+	
+	/* Neutral Base Palette */
+	--bg-color: #f6f0e2; 
+	--text-color: #3e3128; 
+	--border-color: #c9bda5; 
+	--grayed-out: #635b4f; /* High-contrast accessibility dark grey */
+}
+
+* { 
+	box-sizing: border-box; 
+	margin: 0; 
+	padding: 0; 
+}
+
+body { 
+	background-color: var(--bg-color); 
+	color: var(--text-color); 
+	font-family: 'Helvetica Neue', Arial, sans-serif; 
+	display: flex; 
+	flex-direction: column; 
+	align-items: center; 
+	min-height: 100vh; 
+	padding: 2rem 1rem; 
+}
+
+.hidden { 
+	display: none !important; 
+}
+
+/* --- Layout & Typography --- */
+header { 
+	text-align: center; 
+	margin-bottom: 2rem; 
+}
+
+header h1 { 
+	font-size: 2.2rem; 
+	color: var(--col3); 
+	letter-spacing: -1px; 
+	margin-bottom: 0.5rem; 
+}
+
+header p { 
+	font-size: 1rem; 
+	color: var(--grayed-out); 
+	max-width: 400px; 
+	line-height: 1.4; 
+}
+
+.container {
+	width: 100%; 
+	max-width: 450px; 
+	display: flex; 
+	flex-direction: column; 
+	gap: 1.5rem;
+}
+
+/* --- Input Zone --- */
+.input-card {
+	background-color: #e5dac1; 
+	padding: 1.5rem; 
+	border-radius: 8px; 
+	border: 2px solid var(--border-color); 
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.input-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+label { 
+	font-size: 0.85rem; 
+	font-weight: bold; 
+	text-transform: uppercase; 
+	color: var(--text-color); 
+}
+
+input {
+	padding: 0.75rem; 
+	font-size: 1.2rem; 
+	border: 2px solid var(--border-color); 
+	border-radius: 4px; 
+	background-color: var(--bg-color); 
+	color: var(--text-color); 
+	outline: none;
+	transition: border-color 0.2s ease;
+}
+
+input:focus { 
+	border-color: var(--col3); 
+}
+
+button { 
+	padding: 1rem; 
+	font-size: 1.1rem; 
+	font-weight: bold; 
+	color: #f6f0e2; 
+	background-color: var(--col3); 
+	border: none; 
+	border-radius: 4px; 
+	cursor: pointer; 
+	transition: background-color 0.2s ease;
+}
+
+button:hover:not(:disabled) { 
+	background-color: #46664b; 
+}
+
+button:disabled { 
+	background-color: var(--grayed-out); 
+	cursor: not-allowed; 
+}
+
+/* --- Dashboard & Metrics --- */
+#dashboard { 
+	display: flex; 
+	flex-direction: column; 
+	gap: 1rem; 
+	width: 100%;
+}
+
+.location-header {
+	text-align: center;
+	font-size: 1.1rem;
+	font-weight: bold;
+	color: var(--col1);
+	margin-bottom: 0.5rem;
+	border-bottom: 2px dashed var(--border-color);
+	padding-bottom: 1rem;
+}
+
+.metric-card {
+	background-color: transparent;
+	border: 2px solid var(--border-color);
+	border-radius: 8px;
+	padding: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
+	width: 100%;
+}
+
+.metric-title { 
+	font-size: 1rem; 
+	font-weight: bold; 
+	color: var(--text-color); 
+}
+
+.metric-desc { 
+	font-size: 0.85rem; 
+	color: var(--grayed-out); 
+	line-height: 1.3; 
+}
+
+.metric-comparison {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: rgba(255, 255, 255, 0.3);
+	padding: 0.75rem;
+	border-radius: 4px;
+	margin-top: 0.5rem;
+}
+
+.data-point { 
+	display: flex; 
+	flex-direction: column; 
+	align-items: center; 
+}
+
+.data-year { 
+	font-size: 0.8rem; 
+	text-transform: uppercase; 
+	font-weight: bold; 
+	color: var(--grayed-out); 
+}
+
+.data-value { 
+	font-size: 1.8rem; 
+	font-weight: bold; 
+}
+
+/* Dynamic Text Color Classes */
+.text-heat     { color: var(--col2); }
+.text-muggy    { color: var(--col-muggy); }
+.text-dry      { color: var(--col4); }
+.text-mosquito { color: var(--col-mosquito); }
+.text-mild     { color: var(--col3); }
+.text-cold     { color: var(--col1); }
+
+.arrow { 
+	font-size: 1.2rem; 
+	color: var(--grayed-out); 
+}
+
+/* --- Charts --- */
+.chart-container {
+	position: relative;
+	height: 160px; 
+	width: 100%;
+	margin-top: 1rem;
+}
+
+.error-msg { 
+	color: var(--col5); 
+	font-size: 0.9rem; 
+	text-align: center; 
+	font-weight: bold; 
+}
