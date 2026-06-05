@@ -325,9 +325,72 @@ header h1 {
 
 /* --- Virtual Keyboard --- */
 #keyboard-area {
+<<<<<<< HEAD
     width: calc(100% - 55px);
     margin-top: auto; /* Pushes keyboard down */
     padding-bottom: 0.5rem;
+=======
+    width: 100%; /* Free the keyboard from the 55px column restriction */
+    margin-top: auto; /* Pushes keyboard down */
+    padding-bottom: 0.5rem;
+}
+
+#virtual-keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    gap: 4px; /* Tighter gaps to maximize touch target size */
+    width: 100%;
+}
+
+.key {
+    flex: 1;
+    min-width: 0; /* Prevents overflow */
+    height: 46px; /* Ideal mobile tap target */
+    padding: 0; /* CRITICAL: Strips native button padding */
+    border: none;
+    border-radius: 4px;
+    background-color: #d8ceb9; /* Slightly darker than bg for contrast */
+    color: var(--text-color);
+    font-size: min(1.15rem, 4.5vw); /* Fluid text scaling to prevent wrap/overflow */
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.1s ease, transform 0.1s ease;
+}
+
+.key:active {
+    background-color: var(--col1);
+    color: #fff;
+    transform: scale(0.92);
+}
+
+.action-key {
+    flex: 1.5; /* Makes Enter/Delete wider */
+    font-size: min(0.85rem, 3.5vw);
+    background-color: #c9bda5;
+}
+
+/* --- Streak Indicator --- */
+#streak-indicator { 
+    position: absolute; 
+    top: -22px; 
+    width: 100%; 
+    text-align: center; 
+    font-weight: bold; 
+    font-size: 0.9rem; 
+    color: var(--col2); 
+    letter-spacing: 1px; 
+    animation: pulse-streak 1.5s infinite; 
+>>>>>>> v8.0.1
 }
 
 #virtual-keyboard {
@@ -390,9 +453,22 @@ header h1 {
 }
 
 .word-card { 
+<<<<<<< HEAD
     padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: bold; font-size: 1rem; 
     text-transform: uppercase; background-color: transparent; border: 2px solid currentColor;
     display: flex; align-items: center; justify-content: center;
+=======
+    padding: 0.4rem 0.8rem; 
+    border-radius: 4px; 
+    font-weight: bold; 
+    font-size: 1rem; 
+    text-transform: uppercase; 
+    background-color: transparent;
+    border: 2px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+>>>>>>> v8.0.1
 }
 
 .obscure-word { 
@@ -402,10 +478,34 @@ header h1 {
 }
 
 #start-screen { 
+<<<<<<< HEAD
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background-color: var(--bg-color); z-index: var(--z-modal); 
     display: flex; flex-direction: column; justify-content: flex-start; 
     align-items: center; padding: 2rem 1.5rem; overflow-y: auto;
+=======
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: var(--bg-color); /* Solid background */
+    z-index: var(--z-modal); 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: flex-start; 
+    align-items: center; 
+    padding: 2rem 1.5rem; 
+    overflow-y: auto;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--grayed-out);
+    margin-top: 0.4rem;       
+    margin-bottom: 1.25rem;    
+>>>>>>> v8.0.1
 }
 
 button { 
