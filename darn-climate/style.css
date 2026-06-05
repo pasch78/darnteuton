@@ -1,6 +1,5 @@
 /* --- Global Variables & Reset --- */
 :root {
-	/* Climate Specific Metric Colors (Preserved for Chart.js) */
 	--col1: #4a7c8c; 
 	--col2: #c86b3c; 
 	--col3: #5c8262; 
@@ -9,14 +8,12 @@
 	--col-muggy: #b85a32;    
 	--col-mosquito: #6e733b; 
 	
-	/* Brand Identity Palette */
 	--bg-color: #f6f0e2; 
 	--card-bg: #fffbf0;
 	--text-color: #3e3128; 
 	--border-color: #c9bda5; 
-	--grayed-out: #635b4f; /* High contrast dark gray for optimal accessibility */
+	--grayed-out: #635b4f; 
 
-	/* Fluid Design Tokens */
 	--space-xs: clamp(2px, 0.5svh, 4px);
 	--space-sm: clamp(4px, 1svh, 8px);
 	--space-md: clamp(8px, 1.5svh, 16px);
@@ -45,7 +42,6 @@ body {
 	display: none !important; 
 }
 
-/* --- Layout & Typography --- */
 header { 
 	text-align: center; 
 	margin-bottom: var(--space-xl); 
@@ -77,7 +73,7 @@ header p {
 	gap: var(--space-lg);
 }
 
-/* --- Input Zone --- */
+/* --- Input Zone UI --- */
 .input-card {
 	background-color: var(--card-bg); 
 	padding: var(--space-lg); 
@@ -89,10 +85,21 @@ header p {
 	box-shadow: 0 4px 6px rgba(0,0,0,0.02);
 }
 
+.input-row {
+	display: flex;
+	gap: var(--space-lg);
+	width: 100%;
+}
+
+.input-row .input-group {
+	flex: 1;
+}
+
 .input-group {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-sm);
+	position: relative; 
 }
 
 label { 
@@ -105,12 +112,13 @@ label {
 input {
 	font-family: 'Play', Arial, sans-serif;
 	padding: 0.75rem; 
-	font-size: 1.2rem; 
+	font-size: 1.1rem; 
 	border: 2px solid var(--border-color); 
 	border-radius: 4px; 
 	background-color: var(--bg-color); 
 	color: var(--text-color); 
 	outline: none;
+	width: 100%;
 	transition: border-color 0.2s ease;
 }
 
@@ -118,6 +126,99 @@ input:focus {
 	border-color: var(--col3); 
 }
 
+/* --- Autocomplete Search List Box --- */
+.autocomplete-dropdown {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	background-color: #ffffff;
+	border: 2px solid var(--border-color);
+	border-top: none;
+	border-radius: 0 0 4px 4px;
+	z-index: 999;
+	max-height: 200px;
+	overflow-y: auto;
+	box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+}
+
+.autocomplete-item {
+	padding: 0.75rem;
+	font-size: 0.95rem;
+	cursor: pointer;
+	border-bottom: 1px solid var(--bg-color);
+	color: var(--text-color);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.autocomplete-item:hover {
+	background-color: var(--bg-color);
+}
+
+/* --- Premium Segmented Switch UI --- */
+.switch-group {
+	max-width: 160px;
+}
+
+.switch-container {
+	position: relative;
+	display: inline-block;
+	width: 100%;
+	height: 42px;
+	cursor: pointer;
+}
+
+.switch-container input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.switch-slider {
+	position: absolute;
+	top: 0; left: 0; right: 0; bottom: 0;
+	background-color: var(--bg-color);
+	border: 2px solid var(--border-color);
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	font-size: 0.85rem;
+	font-weight: bold;
+	color: var(--grayed-out);
+	transition: 0.2s ease;
+}
+
+.switch-slider::before {
+	content: "";
+	position: absolute;
+	height: 32px;
+	width: calc(50% - 4px);
+	left: 2px;
+	bottom: 2px;
+	background-color: var(--col3);
+	border-radius: 4px;
+	transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	z-index: 1;
+}
+
+.switch-slider span {
+	width: 50%;
+	text-align: center;
+	z-index: 2;
+	transition: color 0.2s ease;
+}
+
+.switch-container input:checked + .switch-slider::before {
+	transform: translateX(100%);
+}
+
+.switch-container input:not(:checked) + .switch-slider span:first-of-type { color: #f6f0e2; }
+.switch-container input:checked + .switch-slider span:last-of-type { color: #f6f0e2; }
+
+/* --- Dashboard Modules --- */
 button { 
 	display: inline-flex;
 	align-items: center;
@@ -129,7 +230,7 @@ button {
 	background-color: var(--col3); 
 	border: none; 
 	border-radius: 6px; 
-	cursor: pointer; 
+	cursor: pointer;
 	transition: all 0.2s ease;
 	font-family: 'Play', Arial, sans-serif;
 }
@@ -139,16 +240,11 @@ button:hover:not(:disabled) {
 	transform: translateY(-2px);
 }
 
-button:active:not(:disabled) {
-	transform: translateY(0);
-}
-
 button:disabled { 
-	background-color: var(--grayed-out); 
+	background-color: var(--border-color); 
 	cursor: not-allowed; 
 }
 
-/* --- Dashboard & Metrics --- */
 #dashboard { 
 	display: flex; 
 	flex-direction: column; 
@@ -167,6 +263,39 @@ button:disabled {
 	padding-bottom: var(--space-lg);
 }
 
+/* --- Future Scenario Tabs --- */
+.scenario-tabs {
+	display: flex;
+	justify-content: center;
+	gap: var(--space-xs);
+	background-color: var(--border-color);
+	padding: 4px;
+	border-radius: 8px;
+	margin-bottom: var(--space-xs);
+}
+
+.tab-btn {
+	flex: 1;
+	padding: 0.6rem;
+	font-size: clamp(0.75rem, 3vw, 0.85rem);
+	background-color: transparent;
+	color: var(--text-color);
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-family: 'Play', Arial, sans-serif;
+}
+
+.tab-btn:hover { background-color: rgba(255,255,255,0.3); }
+
+.tab-btn.active {
+	background-color: var(--card-bg);
+	font-weight: bold;
+	box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* --- Metric Cards --- */
 .metric-card {
 	background-color: var(--card-bg);
 	border: 2px dashed var(--border-color); 
@@ -192,6 +321,7 @@ button:disabled {
 	line-height: 1.3; 
 }
 
+/* --- 3-Column Data Point Layout --- */
 .metric-comparison {
 	display: flex;
 	justify-content: space-between;
@@ -201,27 +331,30 @@ button:disabled {
 	border: 1px solid var(--border-color);
 	border-radius: 4px;
 	margin-top: var(--space-sm);
+	gap: 2px;
 }
 
 .data-point { 
 	display: flex; 
 	flex-direction: column; 
 	align-items: center; 
+	flex: 1;
 }
 
 .data-year { 
-	font-size: 0.8rem; 
+	font-size: 0.75rem; 
 	text-transform: uppercase; 
 	font-weight: bold; 
 	color: var(--grayed-out); 
 }
 
 .data-value { 
-	font-size: 1.8rem; 
+	font-size: clamp(1.1rem, 4vw, 1.5rem); 
 	font-weight: bold; 
+	text-align: center;
+	white-space: nowrap;
 }
 
-/* Dynamic Text Color Classes */
 .text-heat     { color: var(--col2); }
 .text-muggy    { color: var(--col-muggy); }
 .text-dry      { color: var(--col4); }
@@ -230,11 +363,11 @@ button:disabled {
 .text-cold     { color: var(--col1); }
 
 .arrow { 
-	font-size: 1.2rem; 
+	font-size: 1rem; 
 	color: var(--grayed-out); 
+	flex-shrink: 0;
 }
 
-/* --- Charts --- */
 .chart-container {
 	position: relative;
 	height: 160px; 
@@ -242,7 +375,7 @@ button:disabled {
 	margin-top: var(--space-md);
 }
 
-/* --- Re-engineered Seasonal Frost Slider UI --- */
+/* --- Frost Timeline Track Slider --- */
 .frost-timeline-container {
 	display: flex;
 	flex-direction: column;
@@ -297,7 +430,7 @@ button:disabled {
 	height: 28px;
 	width: 100%;
 	border-radius: 4px;
-	overflow: visible; /* Allows date markers to look balanced */
+	overflow: visible; 
 	border: 1px solid var(--border-color);
 }
 
@@ -307,11 +440,11 @@ button:disabled {
 }
 
 .frost-cold-zone {
-	background-color: rgba(74, 124, 140, 0.25); /* Translucent Cold Blue */
+	background-color: rgba(74, 124, 140, 0.25); 
 }
 
 .frost-warm-zone {
-	background-color: rgba(92, 130, 98, 0.75); /* Deep Growing Green */
+	background-color: rgba(92, 130, 98, 0.75); 
 	position: relative;
 	display: flex;
 	justify-content: space-between;
@@ -327,14 +460,13 @@ button:disabled {
 	border-radius: 3px;
 	position: absolute;
 	white-space: nowrap;
-	bottom: -20px; /* Offset dates directly under visual color split lines */
+	bottom: -20px; 
 	transform: translateX(-50%);
 }
 
 .frost-date-marker.date-start { left: 0%; }
 .frost-date-marker.date-end   { left: 100%; }
 
-/* Space wrapper to ensure dates don't bleed into items below the bar track rows */
 .frost-timeline-row:not(:last-child) {
 	margin-bottom: var(--space-md);
 }

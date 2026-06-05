@@ -20,25 +20,47 @@
 	</header>
 
 	<div class="container">
-		<div class="input-card" id="input-section">
-			<div class="input-group">
-				<label for="zip-code">US Zip Code</label>
-				<input type="text" id="zip-code" placeholder="e.g., 02138" maxlength="5" pattern="\d{5}">
+		<form class="input-card" id="input-form" onsubmit="return false;">
+			<div class="input-group location-group">
+				<label for="location-input">Hometown / City</label>
+				<input type="text" id="location-input" placeholder="e.g., Paris, Tokyo, Boston" autocomplete="off" required>
+				<div id="autocomplete-dropdown" class="autocomplete-dropdown hidden"></div>
 			</div>
-			<div class="input-group">
-				<label for="birth-year">Birth Year</label>
-				<input type="number" id="birth-year" placeholder="e.g., 1980" min="1945" max="2020">
+			
+			<div class="input-row">
+				<div class="input-group">
+					<label for="birth-year">Birth Year</label>
+					<input type="number" id="birth-year" placeholder="e.g., 1980" min="1920" max="2020" required>
+				</div>
+				
+				<div class="input-group switch-group">
+					<label>Units</label>
+					<label class="switch-container">
+						<input type="checkbox" id="unit-toggle">
+						<div class="switch-slider">
+							<span>Imperial</span>
+							<span>Metric</span>
+						</div>
+					</label>
+				</div>
 			</div>
-			<button id="analyze-btn">Generate Baseline</button>
+			
+			<button type="submit" id="analyze-btn">Generate Baseline</button>
 			<div id="error-display" class="error-msg hidden"></div>
-		</div>
+		</form>
 
 		<div id="dashboard" class="hidden">
 			<div class="location-header" id="location-display">Analyzing data for...</div>
 
+			<div class="scenario-tabs">
+				<button class="tab-btn active" data-scenario="ssp245">Current Path (SSP2-4.5)</button>
+				<button class="tab-btn" data-scenario="ssp126">Optimistic (SSP1-2.6)</button>
+				<button class="tab-btn" data-scenario="ssp585">Severe (SSP5-8.5)</button>
+			</div>
+
 			<div class="metric-card hidden" id="card-heat">
 				<div class="metric-title">The Sweat Equity</div>
-				<div class="metric-desc">Average days per year where the heat index ("feels like" temperature) reaches 90°F or higher.</div>
+				<div class="metric-desc">Average days per year where the actual air temperature reaches <span id="label-thresh-heat">90°F</span> or higher.</div>
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-heat">---</span>
@@ -49,6 +71,11 @@
 						<span class="data-year" id="year2-label-heat">---</span>
 						<span class="data-value text-heat" id="val2-heat">--</span>
 					</div>
+					<div class="arrow">→</div>
+					<div class="data-point">
+						<span class="data-year" id="year3-label-heat">---</span>
+						<span class="data-value text-heat" id="val3-heat">--</span>
+					</div>
 				</div>
 				<div class="chart-container">
 					<canvas id="canvas-heat"></canvas>
@@ -57,7 +84,7 @@
 
 			<div class="metric-card hidden" id="card-muggy">
 				<div class="metric-title">The Muggy Night</div>
-				<div class="metric-desc">Average nights per year where the overnight low temperature fails to drop below 70°F, disrupting sleep and surging AC usage.</div>
+				<div class="metric-desc">Average nights per year where the overnight low temperature fails to drop below <span id="label-thresh-muggy">70°F</span>, disrupting sleep and surging cooling demands.</div>
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-muggy">---</span>
@@ -68,6 +95,11 @@
 						<span class="data-year" id="year2-label-muggy">---</span>
 						<span class="data-value text-muggy" id="val2-muggy">--</span>
 					</div>
+					<div class="arrow">→</div>
+					<div class="data-point">
+						<span class="data-year" id="year3-label-muggy">---</span>
+						<span class="data-value text-muggy" id="val3-muggy">--</span>
+					</div>
 				</div>
 				<div class="chart-container">
 					<canvas id="canvas-muggy"></canvas>
@@ -76,7 +108,7 @@
 
 			<div class="metric-card hidden" id="card-dry">
 				<div class="metric-title">The Dry Spell</div>
-				<div class="metric-desc">The average longest annual stretch of consecutive days with no measurable precipitation (less than 0.01 inches).</div>
+				<div class="metric-desc">The average longest annual stretch of consecutive days with no measurable precipitation (less than <span id="label-thresh-dry">0.01 inches</span>).</div>
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-dry">---</span>
@@ -87,6 +119,11 @@
 						<span class="data-year" id="year2-label-dry">---</span>
 						<span class="data-value text-dry" id="val2-dry">--</span>
 					</div>
+					<div class="arrow">→</div>
+					<div class="data-point">
+						<span class="data-year" id="year3-label-dry">---</span>
+						<span class="data-value text-dry" id="val3-dry">--</span>
+					</div>
 				</div>
 				<div class="chart-container">
 					<canvas id="canvas-dry"></canvas>
@@ -95,7 +132,7 @@
 
 			<div class="metric-card hidden" id="card-mosquito">
 				<div class="metric-title">The Mosquito Window</div>
-				<div class="metric-desc">Average days per year with ideal conditions for mosquito activity (temperatures between 70°F and 95°F with rain in the trailing 3 days).</div>
+				<div class="metric-desc">Average days per year with ideal conditions for mosquito activity (temperatures between <span id="label-thresh-mosq-min">70°F</span> and <span id="label-thresh-mosq-max">95°F</span> with rain in the trailing 3 days).</div>
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-mosquito">---</span>
@@ -106,6 +143,11 @@
 						<span class="data-year" id="year2-label-mosquito">---</span>
 						<span class="data-value text-mosquito" id="val2-mosquito">--</span>
 					</div>
+					<div class="arrow">→</div>
+					<div class="data-point">
+						<span class="data-year" id="year3-label-mosquito">---</span>
+						<span class="data-value text-mosquito" id="val3-mosquito">--</span>
+					</div>
 				</div>
 				<div class="chart-container">
 					<canvas id="canvas-mosquito"></canvas>
@@ -114,7 +156,7 @@
 
 			<div class="metric-card hidden" id="card-rain">
 				<div class="metric-title">The Heavy Pour</div>
-				<div class="metric-desc">Average days per year with heavy precipitation (over 1 inch).</div>
+				<div class="metric-desc">Average days per year with heavy precipitation (over <span id="label-thresh-rain">1 inch</span>).</div>
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-rain">---</span>
@@ -125,6 +167,11 @@
 						<span class="data-year" id="year2-label-rain">---</span>
 						<span class="data-value text-mild" id="val2-rain">--</span>
 					</div>
+					<div class="arrow">→</div>
+					<div class="data-point">
+						<span class="data-year" id="year3-label-rain">---</span>
+						<span class="data-value text-mild" id="val3-rain">--</span>
+					</div>
 				</div>
 				<div class="chart-container">
 					<canvas id="canvas-rain"></canvas>
@@ -133,7 +180,7 @@
 
 			<div class="metric-card hidden" id="card-snow">
 				<div class="metric-title">The Nostalgia Index</div>
-				<div class="metric-desc">Average days per year with a fresh blanket of snow (over 1 inch).</div>
+				<div class="metric-desc">Average days per year with a fresh blanket of snow (over <span id="label-thresh-snow">1 inch</span>).</div>
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-snow">---</span>
@@ -144,6 +191,11 @@
 						<span class="data-year" id="year2-label-snow">---</span>
 						<span class="data-value text-cold" id="val2-snow">--</span>
 					</div>
+					<div class="arrow">→</div>
+					<div class="data-point">
+						<span class="data-year" id="year3-label-snow">---</span>
+						<span class="data-value text-cold" id="val3-snow">--</span>
+					</div>
 				</div>
 				<div class="chart-container">
 					<canvas id="canvas-snow"></canvas>
@@ -152,7 +204,7 @@
 
 			<div class="metric-card hidden" id="card-frost">
 				<div class="metric-title">The Seasonal Shift</div>
-				<div class="metric-desc">The visual extension of your hometown's frost-free growing season (dates tracking last spring frost to first fall frost).</div>
+				<div class="metric-desc">The visual extension of your hometown's frost-free growing season (dates tracking last spring frost to first fall frost below <span id="label-thresh-frost">32°F</span>).</div>
 				
 				<div class="frost-timeline-container">
 					<div class="timeline-axis-labels">
@@ -188,6 +240,22 @@
 							<div class="frost-segment frost-cold-zone" id="recent-seg-right"></div>
 						</div>
 					</div>
+
+					<div class="frost-timeline-row">
+						<div class="frost-row-meta">
+							<span class="frost-row-year" id="timeline-label-future">~2050</span>
+							<span class="frost-duration-badge" id="frost-duration-future">-- days</span>
+						</div>
+						<div class="frost-slider-track" id="track-future">
+							<div class="frost-segment frost-cold-zone" id="future-seg-left"></div>
+							<div class="frost-segment frost-warm-zone" id="future-seg-mid">
+								<span class="frost-date-marker date-start" id="future-date-start">--</span>
+								<span class="frost-date-marker date-end" id="future-date-end">--</span>
+							</div>
+							<div class="frost-segment frost-cold-zone" id="future-seg-right"></div>
+						</div>
+					</div>
+
 				</div>
 			</div>
 			
