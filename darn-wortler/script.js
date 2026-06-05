@@ -268,23 +268,27 @@ const DarnWortler = (function () {
         const guess = state.currentGuess;
         const pool = state.targetPools[`${guess[0]}${guess[4]}`];
         const inputWrapper = document.getElementById("input-row-wrapper");
-
+    
         const triggerError = (msg) => {
             spawnFCT(msg, "error");
             inputWrapper.classList.add("shake");
             setTimeout(() => inputWrapper.classList.remove("shake"), 400);
+            
+            // THE FIX: Instantly clear the invalid guess so the player can keep typing
+            state.currentGuess = "";
+            updateGuessDisplay();
         };
-
+    
         if (!pool || pool.validWords.length === 0) return triggerError("Check letters");
         if (pool.foundWords.includes(guess)) return triggerError("Already found");
         if (!pool.validWords.includes(guess)) {
             resetStreak();
             return triggerError("Not in list");
         }
-
+    
         handleValidGuess(guess, pool);
     }
-
+    
     function handleValidGuess(guess, pool) {
         manageStreak();
         
