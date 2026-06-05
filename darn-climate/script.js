@@ -72,15 +72,20 @@ document.addEventListener('DOMContentLoaded', () => {
 				data.results.forEach(city => {
 					const div = document.createElement('div');
 					div.className = 'autocomplete-item';
+					
+					// Format the text for the dropdown list item
 					const region = city.admin1 ? `${city.admin1}, ` : '';
 					div.innerText = `${city.name}, ${region}${city.country}`;
 					
 					div.addEventListener('click', () => {
+						// Use the exact text from the dropdown item (includes city, state/region, and country)
 						locationInput.value = div.innerText;
+						
 						selectedLocation = {
 							lat: city.latitude,
 							lon: city.longitude,
-							displayName: `${city.name}, ${city.country}`
+							// FIX: Persist the full localized name to the dashboard payload
+							displayName: div.innerText 
 						};
 						autocompleteDropdown.classList.add('hidden');
 					});
