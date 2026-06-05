@@ -16,7 +16,7 @@
 
 	<header>
 		<h1>Darn Climate</h1>
-		<p>Discover how the climate in your hometown has shifted since the year you were born.</p>
+		<p>Discover how the climate in your hometown has shifted since the year you were born—and see where it's heading by 2050.</p>
 	</header>
 
 	<div class="container">
@@ -52,10 +52,19 @@
 		<div id="dashboard" class="hidden">
 			<div class="location-header" id="location-display">Analyzing data for...</div>
 
-			<div class="scenario-tabs">
-				<button class="tab-btn active" data-scenario="ssp245">Current Path (SSP2-4.5)</button>
-				<button class="tab-btn" data-scenario="ssp126">Optimistic (SSP1-2.6)</button>
-				<button class="tab-btn" data-scenario="ssp585">Severe (SSP5-8.5)</button>
+			<div class="scenario-container">
+				<h2 class="scenario-heading">Choose Your Climate Future</h2>
+				<p class="scenario-explainer">The projections out to 2050 depend entirely on the greenhouse gas pathways humanity chooses today:</p>
+				<ul class="scenario-list">
+					<li><strong>Optimistic:</strong> Rapid global shift away from fossil fuels. Warming stabilizes, preserving more of the climate you remember.</li>
+					<li><strong>Current Path:</strong> Middle-of-the-road. Pledges are met, but enough emissions slip through to permanently warp seasonal norms.</li>
+					<li><strong>Severe:</strong> Fossil-fuel dependence accelerates. Expect unrelenting shifts in extreme heat, lost winters, and volatile weather.</li>
+				</ul>
+				<div class="scenario-tabs">
+					<button class="tab-btn active" data-scenario="ssp245">Current Path</button>
+					<button class="tab-btn" data-scenario="ssp126">Optimistic</button>
+					<button class="tab-btn" data-scenario="ssp585">Severe</button>
+				</div>
 			</div>
 
 			<div class="metric-card hidden" id="card-heat">

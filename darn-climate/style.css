@@ -263,38 +263,89 @@ button:disabled {
 	padding-bottom: var(--space-lg);
 }
 
-/* --- Future Scenario Tabs --- */
+/* --- Future Scenario Tabs & Explainer --- */
+.scenario-container {
+	background-color: var(--card-bg);
+	border: 2px dashed var(--border-color);
+	border-radius: 8px;
+	padding: var(--space-lg);
+	margin-bottom: var(--space-md);
+	box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.scenario-heading {
+	font-family: 'Arvo', serif;
+	font-size: 1.2rem;
+	color: var(--text-color);
+	margin-bottom: var(--space-xs);
+}
+
+.scenario-explainer {
+	font-size: 0.9rem;
+	color: var(--grayed-out);
+	margin-bottom: var(--space-sm);
+}
+
+.scenario-list {
+	list-style: none;
+	font-size: 0.85rem;
+	color: var(--text-color);
+	margin-bottom: var(--space-md);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+}
+
+.scenario-list li {
+	position: relative;
+	padding-left: 14px;
+	line-height: 1.4;
+}
+
+.scenario-list li::before {
+	content: '•';
+	position: absolute;
+	left: 0;
+	font-size: 1.2rem;
+	line-height: 1;
+}
+
+/* Color-coded bullets to match the tabs below */
+.scenario-list li:nth-child(1)::before { color: var(--col3); } /* Greenish */
+.scenario-list li:nth-child(2)::before { color: #d49a36; }     /* Yellowish */
+.scenario-list li:nth-child(3)::before { color: var(--col5); } /* Reddish */
+
 .scenario-tabs {
 	display: flex;
 	justify-content: center;
-	gap: var(--space-xs);
-	background-color: var(--border-color);
-	padding: 4px;
-	border-radius: 8px;
-	margin-bottom: var(--space-xs);
+	gap: var(--space-sm);
+	background-color: transparent;
+	padding: 0;
 }
 
 .tab-btn {
 	flex: 1;
 	padding: 0.6rem;
 	font-size: clamp(0.75rem, 3vw, 0.85rem);
-	background-color: transparent;
+	background-color: var(--bg-color);
+	border: 1px solid var(--border-color);
 	color: var(--text-color);
-	border: none;
 	border-radius: 4px;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	font-family: 'Play', Arial, sans-serif;
-}
-
-.tab-btn:hover { background-color: rgba(255,255,255,0.3); }
-
-.tab-btn.active {
-	background-color: var(--card-bg);
 	font-weight: bold;
-	box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
+/* Dynamic Hover & Active States with Lighter Shading */
+.tab-btn[data-scenario="ssp245"]:hover { background-color: rgba(212, 154, 54, 0.15); border-color: #d49a36; }
+.tab-btn[data-scenario="ssp245"].active { background-color: rgba(212, 154, 54, 0.35); border-color: #d49a36; }
+
+.tab-btn[data-scenario="ssp126"]:hover { background-color: rgba(92, 130, 98, 0.15); border-color: var(--col3); }
+.tab-btn[data-scenario="ssp126"].active { background-color: rgba(92, 130, 98, 0.35); border-color: var(--col3); }
+
+.tab-btn[data-scenario="ssp585"]:hover { background-color: rgba(168, 70, 70, 0.15); border-color: var(--col5); }
+.tab-btn[data-scenario="ssp585"].active { background-color: rgba(168, 70, 70, 0.35); border-color: var(--col5); }
 /* --- Metric Cards --- */
 .metric-card {
 	background-color: var(--card-bg);
