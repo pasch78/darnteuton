@@ -10,10 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="style.css?v=5.0.0">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
+    <header class="app-header">
         <div class="header-container">
             <h1>Darn Wortler</h1>
             <div id="mode-indicator" class="hidden" aria-live="polite">Loading...</div>
@@ -27,7 +27,7 @@
 
         <section id="action-zone" aria-label="Game Controls and Stats">
             <div class="action-stats">
-                <div id="timer" role="timer" aria-label="Time remaining">05:00</div>
+                <div id="timer" role="timer" aria-live="off" aria-label="Time remaining">05:00</div>
                 <div id="score-wrapper">
                     <div id="score-total-display">Total: 0</div>
                     <div id="score-breakdown-display">Base: 0 | Bonus: 0</div>
@@ -36,58 +36,23 @@
             
             <div id="input-container">
                 <div id="streak-indicator" class="hidden" aria-live="polite">🔥 STREAK ACTIVE! (+5)</div>
-                <div id="guess-display" aria-live="polite" aria-label="Current guess buffer"></div>
+                <div id="guess-display" aria-live="polite" aria-atomic="true"></div>
                 <button id="hint-btn" aria-label="Use Hint" title="Reveal a letter (3 left)" disabled>💡 3</button>
             </div>
         </section>
 
         <section id="keyboard-area" aria-label="Virtual Keyboard">
-            <div id="virtual-keyboard">
-                <div class="keyboard-row">
-                    <button class="key" data-key="Q">Q</button>
-                    <button class="key" data-key="W">W</button>
-                    <button class="key" data-key="E">E</button>
-                    <button class="key" data-key="R">R</button>
-                    <button class="key" data-key="T">T</button>
-                    <button class="key" data-key="Y">Y</button>
-                    <button class="key" data-key="U">U</button>
-                    <button class="key" data-key="I">I</button>
-                    <button class="key" data-key="O">O</button>
-                    <button class="key" data-key="P">P</button>
-                </div>
-                <div class="keyboard-row">
-                    <button class="key" data-key="A">A</button>
-                    <button class="key" data-key="S">S</button>
-                    <button class="key" data-key="D">D</button>
-                    <button class="key" data-key="F">F</button>
-                    <button class="key" data-key="G">G</button>
-                    <button class="key" data-key="H">H</button>
-                    <button class="key" data-key="J">J</button>
-                    <button class="key" data-key="K">K</button>
-                    <button class="key" data-key="L">L</button>
-                </div>
-                <div class="keyboard-row">
-                    <button class="key action-key" data-key="ENTER" aria-label="Submit guess">ENTER</button>
-                    <button class="key" data-key="Z">Z</button>
-                    <button class="key" data-key="X">X</button>
-                    <button class="key" data-key="C">C</button>
-                    <button class="key" data-key="V">V</button>
-                    <button class="key" data-key="B">B</button>
-                    <button class="key" data-key="N">N</button>
-                    <button class="key" data-key="M">M</button>
-                    <button class="key action-key" data-key="DELETE" aria-label="Delete last character">⌫</button>
-                </div>
-            </div>
+            <div id="virtual-keyboard"></div>
         </section>
         
-        <button id="end-early-btn" class="end-game-btn">Reveal Answers</button>
+        <button id="end-early-btn" class="secondary-btn">Reveal Answers</button>
 
         <section id="game-over-section" class="hidden" aria-labelledby="game-over-heading">
             <h2 id="game-over-heading">Time's Up!</h2>
             <h3 id="final-score">Total Score: 0</h3>
             <h4 id="final-score-breakdown">Base: 0 | Bonus: 0</h4>
             
-            <button id="play-again-btn" class="play-again-btn">Play Practice Mode</button>
+            <button id="play-again-btn" class="primary-btn">Play Practice Mode</button>
 
             <div id="all-solutions-area">
                 <h4>All Possible Solutions:</h4>
@@ -118,26 +83,26 @@
             </div>
             <div class="step">
                 <span class="step-icon">🥪</span>
-                <p><strong>Game Grid:</strong> Guess five-letter words that fit between the given outer letters. The left column is your seed word; the right column is the seed word in reverse.</p>
+                <p><strong>Game Grid:</strong> Guess five-letter words that fit between the given outer letters.</p>
             </div>
             <div class="step">
                 <span class="step-icon">📊</span>
-                <p><strong>Row Difficulty:</strong> Some rows are much tougher than others with few valid solutions. The tougher the row, the higher the score!</p>
+                <p><strong>Row Difficulty:</strong> Tougher rows yield higher scores.</p>
             </div>
             
             <div class="step-group-title">Bonus Points</div>
             <div class="step">
                 <span class="step-icon">✨</span>
-                <p><strong>Great Vocabulary:</strong> Earn <strong>+50 points</strong> for each obscure but valid word.</p>
+                <p><strong>Great Vocabulary:</strong> Earn <strong>+50 points</strong> for each obscure word.</p>
             </div>
             <div class="step">
                 <span class="step-icon">🔥</span>
-                <p><strong>Speed Streak:</strong> Type 3 valid words within 15s to unlock a persistent <strong>+5 point bonus</strong> per answer.</p>
+                <p><strong>Speed Streak:</strong> Type 3 valid words within 15s to unlock a <strong>+5 point bonus</strong>.</p>
             </div>
         </div>
-        <button id="start-game-btn" disabled aria-live="polite">Loading Dictionary...</button>
+        <button id="start-game-btn" class="primary-btn" disabled aria-live="polite">Loading Dictionary...</button>
     </div>
 
-    <script src="script.js?v=5.0.1"></script>
+    <script src="script.js"></script>
 </body>
 </html>

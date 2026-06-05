@@ -1,4 +1,4 @@
-/* --- Global Variables & Reset --- */
+/* --- Global Variables & Fluid Spacing System --- */
 :root {
     --col1: #4a7c8c; 
     --col2: #c86b3c; 
@@ -11,9 +11,16 @@
     --border-color: #c9bda5; 
     --grayed-out: #a39b8b; 
     
-    /* Z-index Architecture */
     --z-floating-text: 100;
     --z-modal: 1000;
+    
+    --max-app-width: 500px;
+
+    /* Fluid Design Tokens: Scales padding/gaps based on viewport height */
+    --space-xs: clamp(2px, 0.5svh, 4px);
+    --space-sm: clamp(4px, 1svh, 8px);
+    --space-md: clamp(8px, 1.5svh, 16px);
+    --space-lg: clamp(12px, 2.5svh, 24px);
 }
 
 * { 
@@ -29,8 +36,8 @@ body {
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    min-height: 100svh; /* Mobile fix: accounts for dynamic address bars */
-    padding-bottom: 1rem; 
+    min-height: 100svh; 
+    padding: 0 var(--space-md) var(--space-lg) var(--space-md); 
     overflow-x: hidden; 
 }
 
@@ -38,20 +45,19 @@ body {
     display: none !important; 
 }
 
-/* Touch Action Fix: Removes 300ms tap delay on mobile */
 button, .key, .tile {
     touch-action: manipulation;
     user-select: none;
 }
 
 /* --- Typography & Header --- */
-header { 
+.app-header { 
     width: 100%; 
-    max-width: min(380px, calc(100vw - 20px)); 
+    max-width: var(--max-app-width);
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    padding: 0.5rem 55px 0.5rem 0; 
+    padding: var(--space-md) 0; 
 }
 
 .header-container {
@@ -60,19 +66,19 @@ header {
     align-items: center;
 }
 
-header h1 { 
-    font-size: 2rem; 
+.app-header h1 { 
+    font-size: clamp(1.6rem, 5svh, 2rem); 
     letter-spacing: -1px; 
 }
 
 #mode-indicator { 
-    font-size: 0.85rem; 
+    font-size: clamp(0.7rem, 2svh, 0.85rem); 
     font-weight: bold; 
     text-transform: uppercase; 
     letter-spacing: 1px; 
-    padding: 0.2rem 0.6rem; 
+    padding: var(--space-xs) var(--space-md); 
     border-radius: 12px; 
-    margin-top: 0.2rem; 
+    margin-top: var(--space-xs); 
 }
 
 .mode-daily { 
@@ -90,59 +96,66 @@ header h1 {
 #game-container { 
     display: flex; 
     flex-direction: column; 
-    align-items: stretch; 
+    align-items: center; 
     width: 100%; 
-    max-width: min(380px, calc(100vw - 20px)); 
+    max-width: var(--max-app-width);
     flex-grow: 1;
 }
 
+#board-area, #action-zone, #keyboard-area {
+    width: 100%;
+}
+
 #board-area { 
-    margin-bottom: 0.5rem; 
-    width: 100%; 
+    margin-bottom: var(--space-md); 
 }
 
 #game-board { 
-    width: 100%; 
     display: flex; 
     flex-direction: column; 
-    gap: 0.75rem; 
+    gap: var(--space-md); 
+    width: 100%;
+    
+    /* THE MAGIC BULLET: 
+       Caps the width of the board based on the height of the screen. 
+       55svh ensures 6 rows of squares will never push the keyboard off-screen. */
+    max-width: min(100%, 55svh); 
+    margin: 0 auto; /* Centers the constrained board */
 }
 
 .row-wrapper { 
     display: flex; 
     flex-direction: column; 
-    gap: 2px; 
+    gap: var(--space-xs); 
     transition: opacity 0.2s ease; 
     width: 100%; 
 }
 
 .dimmed { 
-    opacity: 0.3; 
+    opacity: 0.4; 
 }
 
 .seed-row-wrapper { 
-    margin-bottom: 0.25rem; 
-    padding-bottom: 0.5rem; 
+    margin-bottom: var(--space-sm); 
+    padding-bottom: var(--space-md); 
     border-bottom: 2px dashed var(--border-color); 
-    width: 100%; 
 }
 
 .row-main { 
     display: grid;
-    grid-template-columns: 1fr 45px; 
-    gap: 10px;
+    /* Allows the main track to shrink without pushing the counter off-screen */
+    grid-template-columns: minmax(0, 1fr) max-content; 
+    gap: var(--space-md);
     align-items: center;
-    width: 100%;
 }
 
 .row-tiles { 
     display: grid; 
-    grid-template-columns: repeat(5, 1fr); 
-    gap: 5px; 
-    width: 100%; 
+    /* Forces the 5 tiles to shrink proportionately, even if text is tight */
+    grid-template-columns: repeat(5, minmax(0, 1fr)); 
+    gap: var(--space-sm); 
 }
 
-/* Fluid aspect sizing for tiles based on viewport */
 .tile { 
     width: 100%; 
     aspect-ratio: 1; 
@@ -150,19 +163,22 @@ header h1 {
     display: flex; 
     justify-content: center; 
     align-items: center; 
-    font-size: min(1.5rem, 5vmin); 
+    
+    /* Changed 5vw to 6vmin, and slightly reduced the minimum to 1rem */
+    font-size: clamp(1rem, 6vmin, 1.8rem);
     font-weight: bold; 
     text-transform: uppercase; 
     background-color: transparent; 
+    border-radius: 4px;
+    
+    /* Prevents oversized fonts from breaking the aspect ratio */
+    overflow: hidden; 
 }
 
 .row-counter { 
-    position: static; 
-    transform: none;
-    width: 45px; 
-    flex-shrink: 0; 
-    text-align: left;
-    font-size: 0.85rem; 
+    min-width: 40px;
+    text-align: right;
+    font-size: clamp(0.75rem, 2svh, 0.9rem); 
     font-weight: bold; 
     color: var(--grayed-out); 
 }
@@ -172,10 +188,10 @@ header h1 {
     display: flex; 
     flex-wrap: nowrap; 
     overflow-x: auto; 
-    gap: 6px; 
-    padding: 2px 2px 6px 2px; 
+    gap: var(--space-sm); 
+    padding: var(--space-xs) 2px var(--space-sm) 2px; 
     scrollbar-width: none; 
-    -webkit-overflow-scrolling: touch; /* Momentum scrolling */
+    -webkit-overflow-scrolling: touch; 
     scroll-snap-type: x mandatory;
 }
 
@@ -183,17 +199,17 @@ header h1 {
 
 .inline-word-card { 
     flex-shrink: 0; 
-    font-size: 0.75rem; 
+    font-size: clamp(0.7rem, 2svh, 0.8rem); 
     font-weight: bold; 
     text-transform: uppercase; 
-    padding: 2px 6px; 
+    padding: var(--space-xs) var(--space-sm); 
     border-radius: 4px; 
     background-color: transparent;
     border: 2px solid currentColor;
     display: flex;
     align-items: center;
     justify-content: center;
-    scroll-snap-align: start; /* Smooth swipe snapping */
+    scroll-snap-align: start; 
 }
 
 .inline-word-card.hint-card {
@@ -229,15 +245,14 @@ header h1 {
 
 /* --- Action Zone --- */
 #action-zone { 
-    width: calc(100% - 55px); 
     display: flex; 
     flex-direction: column; 
-    gap: 0.5rem; 
+    gap: var(--space-md); 
     background-color: #e5dac1; 
-    padding: 0.75rem; 
-    border-radius: 4px; 
+    padding: var(--space-md); 
+    border-radius: 8px; 
     border: 2px solid var(--border-color); 
-    margin-bottom: 0.5rem; 
+    margin-bottom: var(--space-md); 
 }
 
 .action-stats { 
@@ -247,7 +262,7 @@ header h1 {
 }
 
 #timer { 
-    font-size: 1.8rem; 
+    font-size: clamp(1.4rem, 4.5svh, 2rem); 
     font-weight: bold; 
     color: var(--text-color); 
     letter-spacing: 1px; 
@@ -263,35 +278,32 @@ header h1 {
 }
 
 #score-wrapper { display: flex; flex-direction: column; align-items: flex-end; }
-#score-total-display { font-size: 1.2rem; font-weight: bold; color: var(--col3); line-height: 1.2; }
-#score-breakdown-display { font-size: 0.7rem; font-weight: bold; color: var(--text-color); opacity: 0.8; }
+#score-total-display { font-size: clamp(1.1rem, 3svh, 1.3rem); font-weight: bold; color: var(--col3); }
+#score-breakdown-display { font-size: clamp(0.7rem, 2svh, 0.8rem); font-weight: bold; color: var(--text-color); opacity: 0.8; }
 
-/* --- Input Zone & Hint Button --- */
 #input-container { 
     position: relative;
     display: flex; 
-    gap: 0.5rem;
-    width: 100%; 
+    gap: var(--space-sm);
     align-items: stretch;
 }
 
-/* Replaced Input Box with styled Div */
 #guess-display { 
     flex-grow: 1;
-    width: 100%; 
-    padding: 0.75rem; 
-    font-size: 1.25rem; 
+    padding: var(--space-sm); 
+    /* Switched svh to vmin for better responsive squishing */
+    font-size: clamp(1rem, 4vmin, 1.25rem); 
     text-align: center; 
     text-transform: uppercase; 
     border: 2px solid var(--border-color); 
-    border-radius: 4px; 
+    border-radius: 6px; 
     background-color: var(--bg-color); 
     color: var(--text-color); 
-    min-height: 48px;
+    min-height: clamp(38px, 6svh, 50px);
     display: flex;
     align-items: center;
     justify-content: center;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     font-weight: bold;
 }
 
@@ -302,58 +314,54 @@ header h1 {
 }
 
 #hint-btn {
-    margin-top: 0; 
-    padding: 0 1rem;
-    font-size: 1.1rem;
+    padding: 0 clamp(0.8rem, 2.5vw, 1.2rem);
+    font-size: clamp(1rem, 3svh, 1.1rem);
     background-color: #d1b058;
     color: var(--text-color);
-    font-weight: 700;
-    flex-shrink: 0;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
 }
 
 #hint-btn:hover:not(:disabled) { background-color: #b8912e; }
-#hint-btn:active:not(:disabled) { transform: scale(0.95); }
+#hint-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.shake { animation: shake-animation 0.4s; }
+.shake { animation: shake-animation 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
 @keyframes shake-animation { 
-    0%, 100% { transform: translateX(0); } 
-    20%, 60% { transform: translateX(-5px); } 
-    40%, 80% { transform: translateX(5px); } 
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(4px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+    40%, 60% { transform: translate3d(6px, 0, 0); }
 }
 
 /* --- Virtual Keyboard --- */
 #keyboard-area {
-    width: 100%; /* Free the keyboard from the 55px column restriction */
     margin-top: auto; 
-    padding-bottom: 0.5rem;
+    padding-bottom: var(--space-md);
 }
 
 #virtual-keyboard {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    width: 100%;
+    gap: var(--space-sm);
 }
 
 .keyboard-row {
     display: flex;
     justify-content: center;
-    gap: 4px; /* Tighter gaps to maximize touch target size */
-    width: 100%;
+    gap: var(--space-xs); 
 }
 
 .key {
     flex: 1;
-    min-width: 0; 
-    height: 46px; 
-    padding: 0; /* CRITICAL: Strips native button padding */
+    height: clamp(40px, 7svh, 54px); 
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     background-color: #d8ceb9; 
     color: var(--text-color);
-    font-size: min(1.15rem, 4.5vw); /* Fluid text scaling to prevent wrap/overflow */
+    font-size: clamp(1.1rem, 4vw, 1.3rem);
     font-weight: bold;
     cursor: pointer;
     display: flex;
@@ -365,65 +373,98 @@ header h1 {
 .key:active {
     background-color: var(--col1);
     color: #fff;
-    transform: scale(0.92);
+    transform: scale(0.95);
 }
 
 .action-key {
-    flex: 1.5; /* Makes Enter/Delete proportionally wider */
-    font-size: min(0.85rem, 3.5vw); 
+    flex: 1.5; 
+    font-size: clamp(0.85rem, 3vw, 1rem); 
     background-color: #c9bda5;
 }
 
-/* --- End Game & Start Screen --- */
-#game-over-section { 
-    width: calc(100% - 55px); 
-    margin-top: 2rem; 
-    padding-top: 2rem; 
-    border-top: 2px dashed var(--border-color); 
-    text-align: center; 
+/* --- Buttons & Modals --- */
+.primary-btn, .secondary-btn {
+    padding: clamp(0.8rem, 2.5svh, 1rem) clamp(1rem, 4vw, 2rem); 
+    font-size: clamp(1rem, 3svh, 1.1rem); 
+    font-weight: bold; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    border: none;
+    transition: all 0.2s ease;
 }
 
-#final-score { font-size: 1.8rem; color: var(--col3); margin: 1rem 0 0.5rem 0; }
-#final-score-breakdown { color: var(--grayed-out); margin-bottom: 2rem; font-size: 0.9rem; }
+.primary-btn {
+    background-color: var(--col3);
+    color: #f6f0e2;
+}
+
+.primary-btn:hover:not(:disabled) { background-color: #46664b; }
+.primary-btn:disabled { background-color: var(--grayed-out); cursor: not-allowed; }
+
+.secondary-btn {
+    background-color: transparent; 
+    color: var(--grayed-out);
+    border: 2px solid var(--border-color); 
+    width: 100%;
+}
+
+.secondary-btn:hover:not(:disabled) { background-color: var(--border-color); color: var(--text-color); }
+
+#game-over-section { 
+    margin-top: var(--space-lg); 
+    padding-top: var(--space-lg); 
+    border-top: 2px dashed var(--border-color); 
+    text-align: center; 
+    width: 100%;
+}
+
+#final-score { font-size: clamp(1.5rem, 5svh, 2rem); color: var(--col3); margin: var(--space-md) 0 var(--space-sm) 0; }
+#final-score-breakdown { color: var(--grayed-out); margin-bottom: var(--space-lg); font-size: clamp(0.9rem, 2.5svh, 1rem); }
 
 #all-solutions-list { 
-    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; 
+    display: flex; flex-wrap: wrap; gap: var(--space-sm); justify-content: center; margin-top: var(--space-md);
 }
 
 .word-card { 
-    padding: 0.4rem 0.8rem; border-radius: 4px; font-weight: bold; font-size: 1rem; 
+    padding: var(--space-sm) var(--space-md); border-radius: 6px; font-weight: bold; font-size: clamp(0.85rem, 2.5svh, 1rem); 
     text-transform: uppercase; background-color: transparent; border: 2px solid currentColor;
-    display: flex; align-items: center; justify-content: center;
 }
 
 .obscure-word { 
     border-color: #d1b058 !important; color: #b8912e !important;
     background-color: rgba(209, 176, 88, 0.1); font-style: italic; 
-    box-shadow: 0 0 8px rgba(209, 176, 88, 0.4); 
 }
+
+.strikethrough { text-decoration: line-through; opacity: 0.6; }
 
 #start-screen { 
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
     background-color: var(--bg-color); z-index: var(--z-modal); 
-    display: flex; flex-direction: column; justify-content: flex-start; 
-    align-items: center; padding: 2rem 1.5rem; overflow-y: auto;
+    display: flex; flex-direction: column; align-items: center; 
+    padding: var(--space-lg) var(--space-md); overflow-y: auto;
 }
 
-button { 
-    margin-top: 1.5rem; padding: 1rem 2rem; font-size: 1.2rem; font-weight: bold; 
-    color: #f6f0e2; background-color: var(--col3); border: none; border-radius: 4px; cursor: pointer; 
+.onboarding-steps { margin: var(--space-lg) 0; max-width: 400px; width: 100%; text-align: left; }
+.step-group-title { font-weight: bold; color: var(--col1); margin: var(--space-md) 0 var(--space-sm) 0; text-transform: uppercase; letter-spacing: 1px; font-size: clamp(0.8rem, 2.5svh, 0.9rem);}
+.step { display: flex; gap: var(--space-md); margin-bottom: var(--space-md); align-items: flex-start; font-size: clamp(0.9rem, 2.5svh, 1rem); }
+.step-icon { font-size: clamp(1.2rem, 4svh, 1.5rem); }
+.subtitle { color: var(--grayed-out); margin-top: var(--space-sm); font-style: italic; font-size: clamp(0.85rem, 2.5svh, 1rem); }
+
+/* Dynamic Floating Combat Text */
+.fct {
+    position: absolute;
+    font-weight: bold;
+    z-index: var(--z-floating-text);
+    pointer-events: none;
+    animation: floatUp 1s ease-out forwards;
 }
 
-button:hover:not(:disabled) { background-color: #46664b; }
-button:disabled { background-color: var(--grayed-out); cursor: not-allowed; }
+.fct-error { color: var(--col5); font-size: clamp(0.9rem, 2.5svh, 1rem); }
+.fct-base { color: var(--col3); font-size: clamp(1rem, 3svh, 1.2rem); }
+.fct-obscure { color: #d1b058; font-size: clamp(1rem, 3svh, 1.2rem); }
+.fct-streak { color: var(--col2); font-size: clamp(1rem, 3svh, 1.2rem); }
 
-.play-again-btn { margin-bottom: 2rem; background-color: var(--text-color); color: var(--bg-color); }
-.play-again-btn:hover:not(:disabled) { background-color: #2a211b; }
-
-.end-game-btn { 
-    width: calc(100% - 55px); background-color: transparent; color: var(--grayed-out);
-    border: 2px solid var(--border-color); margin-top: 1rem; 
-    transition: background-color 0.2s ease, color 0.2s ease;
+@keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-40px) scale(1.1); }
 }
-
-.end-game-btn:hover:not(:disabled) { background-color: var(--border-color); color: var(--text-color); }

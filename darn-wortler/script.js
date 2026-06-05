@@ -1,17 +1,26 @@
 'use strict';
 
-// Global error trap to prevent silent failures during startup
 window.onerror = function (msg, url, line) {
     const btn = document.getElementById("start-game-btn");
     if (btn) {
         btn.textContent = `Crash: ${msg} (Line ${line})`;
-        btn.style.backgroundColor = "#a84646";
-        btn.style.fontSize = "0.9rem";
+        btn.style.backgroundColor = "var(--col5)";
     }
 };
 
-(function () {
-    // --- 1. Game State Management ---
+const DarnWortler = (function () {
+    const config = {
+        commonDictURL: "./common.txt",
+        fullDictURL: "./full.txt",
+        expandedDictURL: "./expanded.txt",
+        gameDuration: 300,
+        keyboardLayout: [
+            ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+            ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+            ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'DELETE']
+        ]
+    };
+
     const state = {
         targetWord: "",
         currentGuess: "", 
@@ -20,250 +29,131 @@ window.onerror = function (msg, url, line) {
         bonusBarrierSet: new Set(),
         targetPools: {},
         scores: { base: 0, bonus: 0, total: 0 },
-        timer: { interval: null, endTime: 0, duration: 300 },
+        timer: { interval: null, endTime: 0, duration: config.gameDuration },
         active: false,
-        cachedMiddleTiles: [],
-        cachedActiveRows: [],
         daily: {
             isMode: false,
             currentID: Math.floor(new Date().setUTCHours(0,0,0,0) / 86400000)
         },
         streak: { count: 0, isActive: false, lastWordTime: 0 },
-        hints: { remaining: 3 } 
-    };
-
-    const config = {
-        commonDictURL: "./common.txt",
-        fullDictURL: "./full.txt",
-        expandedDictURL: "./expanded.txt",
-        gameDuration: 300
+        hints: { remaining: 3 }
     };
 
     const ui = {};
 
-    // --- 2. Initialization & Safe DOM Binding ---
-    function initDOM() {
-        ui.startScreen = document.getElementById("start-screen");
-        ui.startGameBtn = document.getElementById("start-game-btn");
-        ui.gameContainer = document.getElementById("game-container");
-        ui.gameBoard = document.getElementById("game-board");
-        ui.guessDisplay = document.getElementById("guess-display");
-        ui.keyboardArea = document.getElementById("virtual-keyboard");
-        ui.hintBtn = document.getElementById("hint-btn");
-        ui.inputContainer = document.getElementById("input-container");
-        ui.endEarlyBtn = document.getElementById("end-early-btn");
-        ui.timerDisplay = document.getElementById("timer");
-        ui.scoreTotalDisplay = document.getElementById("score-total-display");
-        ui.scoreBreakdownDisplay = document.getElementById("score-breakdown-display");
-        ui.streakIndicator = document.getElementById("streak-indicator");
-        ui.modeIndicator = document.getElementById("mode-indicator");
-        ui.gameOverSection = document.getElementById("game-over-section");
-        ui.finalScoreText = document.getElementById("final-score");
-        ui.finalScoreBreakdown = document.getElementById("final-score-breakdown");
-        ui.allSolutionsList = document.getElementById("all-solutions-list");
-        ui.playAgainBtn = document.getElementById("play-again-btn");
-
-        let hasUIErrors = false;
-        Object.entries(ui).forEach(([key, element]) => {
-            if (!element) {
-                console.error(`[UI Validation Error] Critical element missing: ${key}`);
-                hasUIErrors = true;
-            }
-        });
-
-        if (hasUIErrors) {
-            if (ui.startGameBtn) {
-                ui.startGameBtn.textContent = "Error: UI Load Failed. Check Console.";
-                ui.startGameBtn.style.backgroundColor = "var(--col5)";
-            }
-            return;
-        }
-
+    function init() {
+        cacheDOM();
+        buildKeyboard();
         attachEventListeners();
-        loadDictionariesBackground(); 
+        loadDictionaries();
     }
 
-    // Updated: Fetch on Main Thread, Parse on Worker Thread to avoid CORS issues
-    async function loadDictionariesBackground() {
+    function cacheDOM() {
+        const ids = [
+            "start-screen", "start-game-btn", "game-container", "game-board",
+            "guess-display", "virtual-keyboard", "hint-btn", "input-container",
+            "end-early-btn", "timer", "score-total-display", "score-breakdown-display",
+            "streak-indicator", "mode-indicator", "game-over-section", "final-score",
+            "final-score-breakdown", "all-solutions-list", "play-again-btn"
+        ];
+        
+        ids.forEach(id => {
+            ui[id] = document.getElementById(id);
+            if (!ui[id]) console.warn(`Missing DOM Element: ${id}`);
+        });
+    }
+
+    async function loadDictionaries() {
         try {
             const cacheBuster = `?t=${Date.now()}`;
             
-            // 1. Download the files on the main thread
-            const [resCommon, resFull, resExpanded] = await Promise.all([
-                fetch(config.commonDictURL + cacheBuster),
-                fetch(config.fullDictURL + cacheBuster),
-                fetch(config.expandedDictURL + cacheBuster).catch(() => ({ ok: false })) 
-            ]);
-
-            if (!resCommon.ok || !resFull.ok) {
-                throw new Error("Failed to locate dictionary files. Ensure they are in the same folder.");
-            }
-            
-            const textCommon = await resCommon.text();
-            const textFull = await resFull.text();
-            let textExpanded = "";
-            if (resExpanded.ok) {
-                textExpanded = await resExpanded.text();
-            }
-
-            // 2. Offload the heavy CPU parsing to the Blob Worker
-            const workerCode = `
-                self.onmessage = function(e) {
-                    try {
-                        const { textCommon, textFull, textExpanded } = e.data;
-                        
-                        const commonWordsList = textCommon.split('\\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
-                        const fullArray = textFull.split('\\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
-                        const validWordsSetArray = [...commonWordsList, ...fullArray];
-
-                        let bonusBarrierSetArray = commonWordsList;
-                        if (textExpanded.length > 0) {
-                            const expandedArray = textExpanded.split('\\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
-                            bonusBarrierSetArray = [...commonWordsList, ...expandedArray];
-                        }
-
-                        self.postMessage({
-                            success: true,
-                            commonWordsList,
-                            validWordsSetArray,
-                            bonusBarrierSetArray
-                        });
-                    } catch (err) {
-                        self.postMessage({ success: false, error: err.message });
-                    }
-                };
-            `;
-
-            const blob = new Blob([workerCode], { type: 'application/javascript' });
-            const worker = new Worker(URL.createObjectURL(blob));
-
-            worker.onmessage = function(e) {
-                if (e.data.success) {
-                    // Rehydrate Sets on the main thread
-                    state.commonWordsList = e.data.commonWordsList;
-                    state.validWordsSet = new Set(e.data.validWordsSetArray);
-                    state.bonusBarrierSet = new Set(e.data.bonusBarrierSetArray);
-
-                    setupGameMode();
-                    ui.modeIndicator.classList.remove("hidden");
-                    ui.startGameBtn.disabled = false;
-                } else {
-                    throw new Error(e.data.error);
-                }
+            const fetchText = async (url) => {
+                const res = await fetch(url + cacheBuster).catch(() => ({ ok: false }));
+                return res.ok ? await res.text() : "";
             };
 
-            // Send raw text to the worker
-            worker.postMessage({ textCommon, textFull, textExpanded });
+            const [textCommon, textFull, textExpanded] = await Promise.all([
+                fetchText(config.commonDictURL),
+                fetchText(config.fullDictURL),
+                fetchText(config.expandedDictURL)
+            ]);
+
+            if (!textCommon || !textFull) throw new Error("Missing required dictionaries.");
+
+            const parseWords = (text) => text.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+
+            state.commonWordsList = parseWords(textCommon);
+            const fullArray = parseWords(textFull);
+            const expandedArray = parseWords(textExpanded);
+
+            state.validWordsSet = new Set([...state.commonWordsList, ...fullArray]);
+            state.bonusBarrierSet = new Set([...state.commonWordsList, ...expandedArray]);
+
+            setupGameMode();
+            ui["mode-indicator"].classList.remove("hidden");
+            ui["start-game-btn"].disabled = false;
 
         } catch (error) {
-            console.error("Initialization Failed:", error);
-            if (ui.startGameBtn) {
-                ui.startGameBtn.textContent = "Error: Missing Files. Tap to Retry.";
-                ui.startGameBtn.style.backgroundColor = "var(--col5)";
-                ui.startGameBtn.disabled = false;
-                ui.startGameBtn.addEventListener("click", () => window.location.reload(), { once: true });
-            }
+            console.error("Dictionary Load Failed:", error);
+            ui["start-game-btn"].textContent = "Data Error. Refresh to retry.";
+            ui["start-game-btn"].style.backgroundColor = "var(--col5)";
         }
     }
 
-    // --- 3. Core Game Mode Selection ---
     function setupGameMode() {
-        let lastPlayedDaily = null;
-        try { lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily"); } catch (e) {}
-
+        const lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily");
+        
         if (lastPlayedDaily != state.daily.currentID) {
             state.daily.isMode = true;
-            ui.modeIndicator.textContent = "★ Daily Challenge";
-            ui.modeIndicator.className = "mode-daily";
+            ui["mode-indicator"].textContent = "★ Daily Challenge";
+            ui["mode-indicator"].className = "mode-daily";
             state.targetWord = state.commonWordsList[state.daily.currentID % state.commonWordsList.length];
-            ui.startGameBtn.textContent = "Start Daily Challenge";
+            ui["start-game-btn"].textContent = "Start Daily Challenge";
         } else {
-            state.daily.isMode = false;
-            ui.modeIndicator.textContent = "Practice Mode";
-            ui.modeIndicator.className = "mode-practice";
-            state.targetWord = state.commonWordsList[Math.floor(Math.random() * state.commonWordsList.length)];
-            ui.startGameBtn.textContent = "Start Practice Mode";
+            setPracticeMode();
         }
     }
 
-    // --- 4. Logic Helpers & Dynamic Combat Text ---
-    function spawnFCT(text, type, trajectory) {
-        const fct = document.createElement("span");
-        fct.textContent = text;
-        fct.className = `fct fct-${type} fct-traj-${trajectory}`;
-        ui.inputContainer.appendChild(fct); 
-        setTimeout(() => fct.remove(), 1200);
+    function setPracticeMode() {
+        state.daily.isMode = false;
+        ui["mode-indicator"].textContent = "Practice Mode";
+        ui["mode-indicator"].className = "mode-practice";
+        state.targetWord = state.commonWordsList[Math.floor(Math.random() * state.commonWordsList.length)];
+        ui["start-game-btn"].textContent = "Start Practice Mode";
     }
 
-    function triggerInputError() {
-        ui.guessDisplay.classList.add("shake"); 
-        setTimeout(() => ui.guessDisplay.classList.remove("shake"), 400); 
-    }
-
-    function updateScoreUI() {
-        state.scores.total = state.scores.base + state.scores.bonus;
-        ui.scoreTotalDisplay.textContent = `Total: ${state.scores.total}`;
-        ui.scoreBreakdownDisplay.textContent = `Base: ${state.scores.base} | Bonus: ${state.scores.bonus}`;
-    }
-
-    function updateHintUI() {
-        ui.hintBtn.textContent = `💡 ${state.hints.remaining}`;
-        ui.hintBtn.disabled = state.hints.remaining <= 0 || !state.active;
-    }
-
-    function resetStreak() {
-        state.streak.count = 0; 
-        state.streak.isActive = false;
-        ui.guessDisplay.classList.remove("streak-active-box"); 
-        ui.streakIndicator.classList.add("hidden");
-    }
-
-    function resetGameState() {
-        state.scores = { base: 0, bonus: 0, total: 0 };
-        state.hints.remaining = 3;
-        state.targetPools = {};
-        state.streak.lastWordTime = 0;
-        state.currentGuess = "";
+    function buildKeyboard() {
+        const frag = document.createDocumentFragment();
         
-        ui.timerDisplay.classList.remove("danger"); 
-        updateGuessDisplay();
-        resetStreak();
-        updateScoreUI();
+        config.keyboardLayout.forEach(row => {
+            const rowDiv = document.createElement("div");
+            rowDiv.className = "keyboard-row";
+            
+            row.forEach(key => {
+                const btn = document.createElement("button");
+                btn.className = `key ${key.length > 1 ? 'action-key' : ''}`;
+                btn.dataset.key = key;
+                btn.textContent = key === "DELETE" ? "⌫" : key;
+                btn.setAttribute("aria-label", key === "DELETE" ? "Delete last character" : key);
+                rowDiv.appendChild(btn);
+            });
+            frag.appendChild(rowDiv);
+        });
+        
+        ui["virtual-keyboard"].appendChild(frag);
     }
 
-    // --- 5. Board Generation ---
     function generateBoard() {
         const letters = state.targetWord.split("");
         const reverseLetters = [...letters].reverse();
-        ui.gameBoard.innerHTML = ""; 
+        ui["game-board"].innerHTML = ""; 
+        state.targetPools = {};
 
-        const fragment = document.createDocumentFragment();
-
-        const seedWrapper = document.createElement("div");
-        seedWrapper.className = "row-wrapper seed-row-wrapper";
-        seedWrapper.dataset.startLetter = letters[0];
-        
-        const seedTilesDiv = document.createElement("div");
-        seedTilesDiv.className = "row-tiles";
-
-        for (let i = 0; i < 5; i++) {
-            const tile = document.createElement("div");
-            tile.className = "tile bg-col1"; 
-            tile.textContent = letters[i];
-            seedTilesDiv.appendChild(tile);
-        }
-        
-        const seedMain = document.createElement("div");
-        seedMain.className = "row-main";
-        seedMain.appendChild(seedTilesDiv);
-        seedWrapper.appendChild(seedMain);
-        fragment.appendChild(seedWrapper);
-        
         const cachedValidWords = Array.from(state.validWordsSet);
 
+        // Pre-calculate target pools
         for (let r = 0; r < 5; r++) {
-            const startL = letters[r]; 
-            const endL = reverseLetters[r]; 
+            const startL = letters[r], endL = reverseLetters[r];
             const key = `${startL}${endL}`; 
             
             if (!state.targetPools[key]) {
@@ -280,158 +170,87 @@ window.onerror = function (msg, url, line) {
             }
         }
 
+        let boardHTML = `
+            <div class="row-wrapper seed-row-wrapper" data-start="${letters[0]}">
+                <div class="row-main">
+                    <div class="row-tiles">
+                        ${letters.map(l => `<div class="tile bg-col1">${l}</div>`).join('')}
+                    </div>
+                </div>
+            </div>`;
+
         for (let r = 0; r < 5; r++) {
-            const startL = letters[r]; 
-            const endL = reverseLetters[r]; 
-            const key = `${startL}${endL}`;
-            const pool = state.targetPools[key];
+            const startL = letters[r], endL = reverseLetters[r];
+            const pool = state.targetPools[`${startL}${endL}`];
             const isDuplicate = pool.rows[0] !== (r + 1); 
             const isDead = pool.validWords.length === 0;
+            const styleClass = (isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass;
+            const counterText = isDead ? "-" : (isDuplicate ? `🔗 ${pool.rows[0]}` : `0/${pool.validWords.length}`);
+            const counterClass = (!isDead && !isDuplicate) ? pool.baseColorClass : "";
 
-            const rowWrapper = document.createElement("div");
-            rowWrapper.className = "row-wrapper";
-            rowWrapper.dataset.startLetter = startL;
-            if (isDead) rowWrapper.classList.add("dead-row", "hidden");
-
-            const rowMain = document.createElement("div");
-            rowMain.className = "row-main";
-
-            const tilesDiv = document.createElement("div");
-            tilesDiv.className = "row-tiles";
-
-            for (let c = 0; c < 5; c++) {
-                const tile = document.createElement("div"); 
-                tile.className = "tile";
-                if (c === 0) {
-                    tile.textContent = startL; 
-                    tile.classList.add((isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass);
-                } else if (c === 4) {
-                    tile.textContent = endL; 
-                    tile.classList.add((isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass);
-                } else {
-                    tile.classList.add("middle-tile"); 
-                    tile.id = `play-tile-${r}-${c}`;
-                    if (!isDead) tile.dataset.startLetter = startL;
-                }
-                tilesDiv.appendChild(tile);
-            }
-            
-            rowMain.appendChild(tilesDiv);
-
-            const counterDiv = document.createElement("div");
-            counterDiv.className = "row-counter";
-            counterDiv.id = `counter-row-${r+1}`;
-            
-            if (isDead) counterDiv.textContent = `-`;
-            else if (isDuplicate) counterDiv.textContent = `🔗 ${pool.rows[0]}`;
-            else {
-                counterDiv.textContent = `0/${pool.validWords.length}`;
-                counterDiv.classList.add(pool.baseColorClass);
-            }
-            
-            rowMain.appendChild(counterDiv);
-            rowWrapper.appendChild(rowMain);
-
-            const inlineWordsDiv = document.createElement("div");
-            inlineWordsDiv.className = "inline-words";
-            inlineWordsDiv.id = `inline-words-${r+1}`;
-            rowWrapper.appendChild(inlineWordsDiv);
-
-            fragment.appendChild(rowWrapper);
+            boardHTML += `
+                <div class="row-wrapper ${isDead ? 'dead-row hidden' : 'active-row'}" data-start="${startL}">
+                    <div class="row-main">
+                        <div class="row-tiles">
+                            <div class="tile ${styleClass}">${startL}</div>
+                            <div class="tile middle-tile" id="tile-${r}-1" data-start="${startL}"></div>
+                            <div class="tile middle-tile" id="tile-${r}-2" data-start="${startL}"></div>
+                            <div class="tile middle-tile" id="tile-${r}-3" data-start="${startL}"></div>
+                            <div class="tile ${styleClass}">${endL}</div>
+                        </div>
+                        <div class="row-counter ${counterClass}" id="counter-row-${r+1}">${counterText}</div>
+                    </div>
+                    <div class="inline-words" id="inline-words-${r+1}"></div>
+                </div>`;
         }
 
-        ui.gameBoard.appendChild(fragment); 
-        
-        state.cachedMiddleTiles = Array.from(document.querySelectorAll(".middle-tile"));
-        state.cachedActiveRows = Array.from(document.querySelectorAll('.row-wrapper:not(.hidden)'));
+        ui["game-board"].insertAdjacentHTML('beforeend', boardHTML);
     }
 
-    // --- 6. Hint System Logic ---
-    function useHint() {
-        if (!state.active || state.hints.remaining <= 0) return;
-
-        let hintableOptions = [];
-        Object.values(state.targetPools).forEach(pool => {
-            pool.validWords.forEach(word => {
-                if (!pool.foundWords.includes(word)) {
-                    const revealedIndices = pool.hintedWords[word] || [];
-                    if (revealedIndices.length < 3) {
-                        hintableOptions.push({ pool, word, revealedIndices });
-                    }
-                }
-            });
-        });
-
-        if (hintableOptions.length === 0) {
-            spawnFCT("No words left!", "error", "down");
-            return;
-        }
-
-        state.hints.remaining--;
-        updateHintUI(); 
-
-        const selected = hintableOptions[Math.floor(Math.random() * hintableOptions.length)];
-        const { pool, word, revealedIndices } = selected;
-
-        const unrevealed = [1, 2, 3].filter(i => !revealedIndices.includes(i));
-        const indexToReveal = unrevealed[Math.floor(Math.random() * unrevealed.length)];
-        
-        pool.hintedWords[word] = [...revealedIndices, indexToReveal];
-
-        let mask = word[0];
-        for (let i = 1; i < 4; i++) {
-            mask += pool.hintedWords[word].includes(i) ? word[i] : "_";
-        }
-        mask += word[4];
-
-        const formattedMask = mask.split('').join(' ');
-
-        let hintCard = null;
-        document.querySelectorAll('.hint-card').forEach(card => {
-            if(card.dataset.hintWord === word) hintCard = card;
-        });
-
-        if (!hintCard) {
-            hintCard = document.createElement("div");
-            hintCard.className = `inline-word-card hint-card ${pool.baseColorClass}`;
-            hintCard.dataset.hintWord = word;
-            document.getElementById(`inline-words-${pool.rows[0]}`).prepend(hintCard);
-        }
-        
-        hintCard.textContent = formattedMask;
-    }
-
-    // --- 7. Input Handling & Virtual Keyboard ---
     function updateGuessDisplay() {
         if (state.currentGuess.length === 0) {
-            ui.guessDisplay.innerHTML = '<span class="guess-placeholder">GUESS...</span>';
+            ui["guess-display"].innerHTML = '<span class="guess-placeholder">GUESS...</span>';
         } else {
-            ui.guessDisplay.textContent = state.currentGuess;
+            ui["guess-display"].textContent = state.currentGuess;
         }
 
-        state.cachedMiddleTiles.forEach(tile => { 
-            tile.textContent = ""; 
-            tile.classList.remove("active-typing"); 
+        // Reset tiles
+        document.querySelectorAll(".middle-tile").forEach(t => {
+            t.textContent = "";
+            t.classList.remove("active-typing");
         });
         
+        // Dimming logic
+        const activeRows = document.querySelectorAll(".row-wrapper:not(.dead-row)");
         if (state.currentGuess.length > 0) {
             const firstL = state.currentGuess[0];
-            state.cachedMiddleTiles.forEach(tile => {
-                if (tile.dataset.startLetter === firstL) {
-                    const colIndex = parseInt(tile.id.split('-')[3]); 
-                    if (state.currentGuess[colIndex]) { 
-                        tile.textContent = state.currentGuess[colIndex]; 
-                        tile.classList.add("active-typing"); 
-                    }
+            document.querySelectorAll(`.middle-tile[data-start="${firstL}"]`).forEach(t => {
+                const colIdx = parseInt(t.id.split('-')[2]);
+                if (state.currentGuess[colIdx]) {
+                    t.textContent = state.currentGuess[colIdx];
+                    t.classList.add("active-typing");
                 }
             });
-            state.cachedActiveRows.forEach(row => {
-                if (row.dataset.startLetter === firstL || row.classList.contains('seed-row-wrapper')) {
-                    row.classList.remove('dimmed');
-                } else { row.classList.add('dimmed'); }
+
+            activeRows.forEach(row => {
+                row.classList.toggle('dimmed', row.dataset.start !== firstL);
             });
         } else {
-            state.cachedActiveRows.forEach(row => row.classList.remove('dimmed'));
+            activeRows.forEach(row => row.classList.remove('dimmed'));
+        }
+    }
+
+    function processInput(key) {
+        if (!state.active) return;
+        
+        if (key === "ENTER") {
+            submitGuess();
+        } else if (key === "DELETE" || key === "BACKSPACE") {
+            state.currentGuess = state.currentGuess.slice(0, -1);
+            updateGuessDisplay();
+        } else if (/^[A-Z]$/.test(key) && state.currentGuess.length < 5) {
+            state.currentGuess += key;
+            updateGuessDisplay();
         }
     }
 
@@ -439,252 +258,235 @@ window.onerror = function (msg, url, line) {
         if (state.currentGuess.length !== 5) return;
         
         const guess = state.currentGuess;
-        const startL = guess[0]; 
-        const endL = guess[4]; 
-        const key = `${startL}${endL}`; 
-        const pool = state.targetPools[key];
+        const pool = state.targetPools[`${guess[0]}${guess[4]}`];
 
-        if (!pool || pool.validWords.length === 0) {
-            spawnFCT("Check letters", "error", "down");
-            triggerInputError();
-            return;
-        }
+        const triggerError = (msg) => {
+            spawnFCT(msg, "error");
+            ui["guess-display"].classList.add("shake");
+            setTimeout(() => ui["guess-display"].classList.remove("shake"), 400);
+        };
 
-        if (pool.foundWords.includes(guess)) {
-            spawnFCT("Already found", "error", "down");
-            triggerInputError();
-            return;
-        }
-
+        if (!pool || pool.validWords.length === 0) return triggerError("Check letters");
+        if (pool.foundWords.includes(guess)) return triggerError("Already found");
         if (!pool.validWords.includes(guess)) {
-            resetStreak(); 
-            spawnFCT("Not in word list", "error", "down");
-            triggerInputError();
-            return;
+            resetStreak();
+            return triggerError("Not in list");
         }
 
-        const now = Date.now();
-        const timeSinceLast = now - state.streak.lastWordTime;
+        handleValidGuess(guess, pool);
+    }
+
+    function handleValidGuess(guess, pool) {
+        manageStreak();
         
-        if (!state.streak.isActive) {
-            if (state.streak.lastWordTime > 0 && timeSinceLast <= 15000) state.streak.count++; 
-            else state.streak.count = 1; 
-        }
-        state.streak.lastWordTime = now;
-
-        if (state.streak.count >= 3 && !state.streak.isActive) {
-            state.streak.isActive = true; 
-            ui.guessDisplay.classList.add("streak-active-box"); 
-            ui.streakIndicator.classList.remove("hidden");
-        }
-
         pool.foundWords.push(guess);
         const multiplier = pool.rows.length; 
         const points = Math.round(1000 / pool.validWords.length) * multiplier;
         state.scores.base += points;
 
         const isObscure = !state.bonusBarrierSet.has(guess); 
-        spawnFCT(`+${points}`, "base", "left");
+        spawnFCT(`+${points}`, "base");
         
         if (isObscure) {
             state.scores.bonus += 50; 
-            setTimeout(() => spawnFCT("+50 ✨", "obscure", "right"), 100); 
+            setTimeout(() => spawnFCT("+50 ✨", "obscure"), 100); 
         }
+        
         if (state.streak.isActive) {
             state.scores.bonus += 5;
-            setTimeout(() => spawnFCT("+5 🔥", "streak", "center"), 200);
+            setTimeout(() => spawnFCT("+5 🔥", "streak"), 200);
         }
 
         updateScoreUI();
         document.getElementById(`counter-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length}/${pool.validWords.length}`;
 
-        document.querySelectorAll('.hint-card').forEach(card => {
-            if (card.dataset.hintWord === guess) card.remove();
-        });
-
-        const inlineCard = document.createElement("div");
-        inlineCard.className = `inline-word-card ${pool.baseColorClass}`;
-        
-        if (isObscure) {
-            inlineCard.classList.add("obscure-word"); 
-            inlineCard.textContent = guess + " ✨";
-        } else {
-            inlineCard.textContent = guess;
-        }
-        
-        document.getElementById(`inline-words-${pool.rows[0]}`).prepend(inlineCard);
+        renderInlineCard(guess, pool, isObscure);
 
         state.currentGuess = "";
         updateGuessDisplay();
     }
 
-    function handleVirtualKey(keyValue) {
-        if (!state.active) return;
+    function renderInlineCard(guess, pool, isObscure) {
+        // Clear hint if present
+        const hints = document.querySelectorAll(`.hint-card[data-word="${guess}"]`);
+        hints.forEach(h => h.remove());
 
-        if (keyValue === "ENTER") {
-            submitGuess();
-        } else if (keyValue === "DELETE") {
-            if (state.currentGuess.length > 0) {
-                state.currentGuess = state.currentGuess.slice(0, -1);
-                updateGuessDisplay();
+        const html = `<div class="inline-word-card ${pool.baseColorClass} ${isObscure ? 'obscure-word' : ''}">${guess}${isObscure ? ' ✨' : ''}</div>`;
+        document.getElementById(`inline-words-${pool.rows[0]}`).insertAdjacentHTML('afterbegin', html);
+    }
+
+    function manageStreak() {
+        const now = Date.now();
+        if (!state.streak.isActive) {
+            if (state.streak.lastWordTime > 0 && (now - state.streak.lastWordTime) <= 15000) {
+                state.streak.count++;
+            } else {
+                state.streak.count = 1;
             }
-        } else {
-            if (state.currentGuess.length < 5) {
-                state.currentGuess += keyValue;
-                updateGuessDisplay();
-            }
+        }
+        state.streak.lastWordTime = now;
+
+        if (state.streak.count >= 3 && !state.streak.isActive) {
+            state.streak.isActive = true; 
+            ui["streak-indicator"].classList.remove("hidden");
         }
     }
 
-    // --- 8. Event Hooks ---
-    function attachEventListeners() {
-        ui.hintBtn.addEventListener("click", () => useHint());
+    function resetStreak() {
+        state.streak.count = 0; 
+        state.streak.isActive = false;
+        ui["streak-indicator"].classList.add("hidden");
+    }
 
-        ui.keyboardArea.addEventListener("click", (e) => {
+    function useHint() {
+        if (!state.active || state.hints.remaining <= 0) return;
+
+        let options = [];
+        Object.values(state.targetPools).forEach(p => {
+            p.validWords.forEach(w => {
+                if (!p.foundWords.includes(w) && (p.hintedWords[w] || []).length < 3) {
+                    options.push({ pool: p, word: w });
+                }
+            });
+        });
+
+        if (!options.length) return spawnFCT("No words left!", "error");
+
+        state.hints.remaining--;
+        ui["hint-btn"].textContent = `💡 ${state.hints.remaining}`;
+        ui["hint-btn"].disabled = state.hints.remaining === 0;
+
+        const { pool, word } = options[Math.floor(Math.random() * options.length)];
+        pool.hintedWords[word] = pool.hintedWords[word] || [];
+        
+        const unrevealed = [1, 2, 3].filter(i => !pool.hintedWords[word].includes(i));
+        pool.hintedWords[word].push(unrevealed[Math.floor(Math.random() * unrevealed.length)]);
+
+        const mask = word.split('').map((l, i) => (i === 0 || i === 4 || pool.hintedWords[word].includes(i)) ? l : "_").join(' ');
+
+        let hintCard = document.querySelector(`.hint-card[data-word="${word}"]`);
+        if (!hintCard) {
+            document.getElementById(`inline-words-${pool.rows[0]}`).insertAdjacentHTML('afterbegin', 
+                `<div class="inline-word-card hint-card ${pool.baseColorClass}" data-word="${word}"></div>`);
+            hintCard = document.querySelector(`.hint-card[data-word="${word}"]`);
+        }
+        hintCard.textContent = mask;
+    }
+
+    function spawnFCT(text, type) {
+        const fct = document.createElement("span");
+        fct.textContent = text;
+        fct.className = `fct fct-${type}`;
+        
+        // Randomize spawn position slightly around the input area
+        const xOffset = (Math.random() - 0.5) * 40;
+        fct.style.left = `calc(50% + ${xOffset}px)`;
+        fct.style.top = '0px';
+
+        ui["input-container"].appendChild(fct);
+        setTimeout(() => fct.remove(), 1000);
+    }
+
+    function updateScoreUI() {
+        state.scores.total = state.scores.base + state.scores.bonus;
+        ui["score-total-display"].textContent = `Total: ${state.scores.total}`;
+        ui["score-breakdown-display"].textContent = `Base: ${state.scores.base} | Bonus: ${state.scores.bonus}`;
+    }
+
+    function attachEventListeners() {
+        ui["hint-btn"].addEventListener("click", useHint);
+        
+        ui["virtual-keyboard"].addEventListener("click", (e) => {
             const keyBtn = e.target.closest('.key');
-            if (!keyBtn) return;
-            handleVirtualKey(keyBtn.dataset.key);
+            if (keyBtn) processInput(keyBtn.dataset.key);
         });
 
         document.addEventListener("keydown", (e) => {
-            if (!state.active) return;
-            const key = e.key.toUpperCase();
-            
-            if (key === "ENTER") {
-                handleVirtualKey("ENTER");
-            } else if (key === "BACKSPACE" || key === "DELETE") {
-                handleVirtualKey("DELETE");
-            } else if (/^[A-Z]$/.test(key)) {
-                handleVirtualKey(key);
+            if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+                processInput(e.key.toUpperCase());
             }
         });
 
-        ui.startGameBtn.addEventListener("click", () => {
-            if (ui.startGameBtn.textContent.includes("Error")) return; 
-            
-            ui.startScreen.classList.add("hidden"); 
-            ui.gameContainer.classList.remove("hidden");
-            
-            generateBoard(); 
-            startTimer();
-            
-            state.active = true; 
-            updateHintUI();
-            updateGuessDisplay();
-        });
-
-        ui.playAgainBtn.addEventListener("click", () => {
-            resetGameState();
-            
-            ui.gameOverSection.classList.add("hidden"); 
-            ui.endEarlyBtn.classList.remove("hidden"); 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            state.daily.isMode = false; 
-            ui.modeIndicator.textContent = "Practice Mode"; 
-            ui.modeIndicator.className = "mode-practice";
-            state.targetWord = state.commonWordsList[Math.floor(Math.random() * state.commonWordsList.length)];
-            
-            generateBoard(); 
-            startTimer();
-            
-            state.active = true; 
-            updateHintUI();
-        });
-
-        ui.endEarlyBtn.addEventListener("click", () => {
-            if (!state.active) return;
-            endGame(); 
-        });
+        ui["start-game-btn"].addEventListener("click", startGame);
+        ui["play-again-btn"].addEventListener("click", resetGame);
+        ui["end-early-btn"].addEventListener("click", endGame);
     }
 
-    // --- 9. Timers & End Game ---
+    function startGame() {
+        ui["start-screen"].classList.add("hidden");
+        ui["game-container"].classList.remove("hidden");
+        generateBoard();
+        startTimer();
+        state.active = true;
+        updateGuessDisplay();
+    }
+
+    function resetGame() {
+        state.scores = { base: 0, bonus: 0, total: 0 };
+        state.hints.remaining = 3;
+        state.currentGuess = "";
+        
+        ui["timer"].classList.remove("danger");
+        ui["hint-btn"].textContent = "💡 3";
+        ui["hint-btn"].disabled = false;
+        
+        updateScoreUI();
+        resetStreak();
+        
+        ui["game-over-section"].classList.add("hidden");
+        ui["end-early-btn"].classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setPracticeMode();
+        startGame();
+    }
+
     function startTimer() {
-        if (state.timer.interval) clearInterval(state.timer.interval); 
-        
+        clearInterval(state.timer.interval);
         state.timer.endTime = Date.now() + (config.gameDuration * 1000);
-        updateTimerDisplay(config.gameDuration);
         
-        state.timer.interval = setInterval(() => {
-            const timeLeft = Math.max(0, Math.ceil((state.timer.endTime - Date.now()) / 1000));
+        const tick = () => {
+            const left = Math.max(0, Math.ceil((state.timer.endTime - Date.now()) / 1000));
+            ui["timer"].textContent = `${String(Math.floor(left/60)).padStart(2,'0')}:${String(left%60).padStart(2,'0')}`;
+            ui["timer"].classList.toggle("danger", left <= 30 && left > 0);
             
-            if (timeLeft <= 30 && timeLeft > 0) {
-                ui.timerDisplay.classList.add("danger");
-            } else {
-                ui.timerDisplay.classList.remove("danger");
-            }
-            
-            const timeSinceLast = Date.now() - state.streak.lastWordTime;
-            
-            if (state.streak.isActive) { 
-                if (timeSinceLast > 20000) resetStreak(); 
-            } else if (state.streak.count > 0) { 
-                if (timeSinceLast > 15000) resetStreak(); 
-            }
+            if (state.streak.isActive && Date.now() - state.streak.lastWordTime > 20000) resetStreak();
+            else if (!state.streak.isActive && state.streak.count > 0 && Date.now() - state.streak.lastWordTime > 15000) resetStreak();
 
-            if (timeLeft <= 0) { 
-                endGame(); 
-            }
-            
-            updateTimerDisplay(timeLeft);
-        }, 500); 
-    }
-
-    function updateTimerDisplay(secondsLeft) {
-        const m = Math.floor(secondsLeft / 60).toString().padStart(2, '0');
-        const s = (secondsLeft % 60).toString().padStart(2, '0');
-        ui.timerDisplay.textContent = `${m}:${s}`;
+            if (left <= 0) endGame();
+        };
+        
+        tick();
+        state.timer.interval = setInterval(tick, 500);
     }
 
     function endGame() {
-        clearInterval(state.timer.interval); 
-        updateTimerDisplay(0); 
-        state.active = false; 
-        ui.hintBtn.disabled = true; 
-        resetStreak(); 
-        ui.endEarlyBtn.classList.add("hidden"); 
+        clearInterval(state.timer.interval);
+        state.active = false;
+        ui["hint-btn"].disabled = true;
+        resetStreak();
+        ui["end-early-btn"].classList.add("hidden");
         
-        try {
-            if (state.daily.isMode) localStorage.setItem("darnWortlerLastDaily", state.daily.currentID);
-        } catch (e) {}
+        if (state.daily.isMode) localStorage.setItem("darnWortlerLastDaily", state.daily.currentID);
         
-        ui.finalScoreText.textContent = `Total Score: ${state.scores.total}`;
-        ui.finalScoreBreakdown.textContent = `Base: ${state.scores.base} | Bonus: ${state.scores.bonus}`;
+        ui["final-score"].textContent = `Total Score: ${state.scores.total}`;
+        ui["final-score-breakdown"].textContent = `Base: ${state.scores.base} | Bonus: ${state.scores.bonus}`;
         
-        const fragment = document.createDocumentFragment();
-
-        Object.keys(state.targetPools).forEach(key => {
-            const pool = state.targetPools[key];
-            pool.validWords.forEach(word => {
-                const card = document.createElement("div"); 
-                card.className = `word-card ${pool.baseColorClass}`;
-                
-                const isFound = pool.foundWords.includes(word); 
-                const isObscure = !state.bonusBarrierSet.has(word);
-                
-                if (isFound) card.classList.add("strikethrough");
-                if (isObscure) { 
-                    card.classList.add("obscure-word"); 
-                    card.textContent = word + " ✨"; 
-                } else { 
-                    card.textContent = word; 
-                }
-                fragment.appendChild(card);
+        let html = '';
+        Object.values(state.targetPools).forEach(p => {
+            p.validWords.forEach(w => {
+                const found = p.foundWords.includes(w);
+                const obscure = !state.bonusBarrierSet.has(w);
+                html += `<div class="word-card ${p.baseColorClass} ${found ? 'strikethrough' : ''} ${obscure ? 'obscure-word' : ''}">${w}${obscure ? ' ✨' : ''}</div>`;
             });
         });
+        ui["all-solutions-list"].innerHTML = html;
         
-        ui.allSolutionsList.innerHTML = ""; 
-        ui.allSolutionsList.appendChild(fragment);
-
-        ui.gameOverSection.classList.remove("hidden"); 
-        ui.gameOverSection.scrollIntoView({ behavior: 'smooth' });
+        ui["game-over-section"].classList.remove("hidden");
+        ui["game-over-section"].scrollIntoView({ behavior: 'smooth' });
     }
 
-    // --- 10. Boot Sequence ---
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initDOM);
-    } else {
-        initDOM();
-    }
-
+    return { init };
 })();
+
+document.addEventListener("DOMContentLoaded", DarnWortler.init);
