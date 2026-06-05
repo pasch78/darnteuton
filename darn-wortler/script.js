@@ -14,6 +14,7 @@ window.onerror = function (msg, url, line) {
     // --- 1. Game State Management ---
     const state = {
         targetWord: "",
+        currentGuess: "", 
         commonWordsList: [],
         validWordsSet: new Set(),
         bonusBarrierSet: new Set(),
@@ -46,7 +47,8 @@ window.onerror = function (msg, url, line) {
         ui.startGameBtn = document.getElementById("start-game-btn");
         ui.gameContainer = document.getElementById("game-container");
         ui.gameBoard = document.getElementById("game-board");
-        ui.omniBox = document.getElementById("omni-box");
+        ui.guessDisplay = document.getElementById("guess-display");
+        ui.keyboardArea = document.getElementById("virtual-keyboard");
         ui.hintBtn = document.getElementById("hint-btn");
         ui.inputContainer = document.getElementById("input-container");
         ui.endEarlyBtn = document.getElementById("end-early-btn");
@@ -78,46 +80,80 @@ window.onerror = function (msg, url, line) {
         }
 
         attachEventListeners();
-        loadDictionaries();
+        loadDictionariesBackground(); 
     }
 
-    async function loadDictionaries() {
+    // Updated: Fetch on Main Thread, Parse on Worker Thread to avoid CORS issues
+    async function loadDictionariesBackground() {
         try {
             const cacheBuster = `?t=${Date.now()}`;
             
+            // 1. Download the files on the main thread
             const [resCommon, resFull, resExpanded] = await Promise.all([
-                fetch(config.commonDictURL + cacheBuster).catch(e => ({ error: true, msg: e.message })),
-                fetch(config.fullDictURL + cacheBuster).catch(e => ({ error: true, msg: e.message })),
-                fetch(config.expandedDictURL + cacheBuster).catch(e => ({ error: true, msg: e.message }))
+                fetch(config.commonDictURL + cacheBuster),
+                fetch(config.fullDictURL + cacheBuster),
+                fetch(config.expandedDictURL + cacheBuster).catch(() => ({ ok: false })) 
             ]);
 
-            if (resCommon.error || resFull.error || !resCommon.ok || !resFull.ok) {
-                throw new Error("Failed to load or locate local dictionary files.");
+            if (!resCommon.ok || !resFull.ok) {
+                throw new Error("Failed to locate dictionary files. Ensure they are in the same folder.");
             }
             
             const textCommon = await resCommon.text();
-            state.commonWordsList = textCommon.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
-            
-            if (state.commonWordsList.length === 0) {
-                throw new Error("Dictionaries parsed as empty.");
-            }
-            
             const textFull = await resFull.text();
-            const fullArray = textFull.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
-            
-            state.validWordsSet = new Set([...state.commonWordsList, ...fullArray]);
-
-            if (!resExpanded.error && resExpanded.ok) {
-                const textExpanded = await resExpanded.text();
-                const expandedArray = textExpanded.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
-                state.bonusBarrierSet = new Set([...state.commonWordsList, ...expandedArray]);
-            } else {
-                state.bonusBarrierSet = new Set(state.commonWordsList);
+            let textExpanded = "";
+            if (resExpanded.ok) {
+                textExpanded = await resExpanded.text();
             }
 
-            setupGameMode();
-            ui.modeIndicator.classList.remove("hidden");
-            ui.startGameBtn.disabled = false;
+            // 2. Offload the heavy CPU parsing to the Blob Worker
+            const workerCode = `
+                self.onmessage = function(e) {
+                    try {
+                        const { textCommon, textFull, textExpanded } = e.data;
+                        
+                        const commonWordsList = textCommon.split('\\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+                        const fullArray = textFull.split('\\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+                        const validWordsSetArray = [...commonWordsList, ...fullArray];
+
+                        let bonusBarrierSetArray = commonWordsList;
+                        if (textExpanded.length > 0) {
+                            const expandedArray = textExpanded.split('\\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
+                            bonusBarrierSetArray = [...commonWordsList, ...expandedArray];
+                        }
+
+                        self.postMessage({
+                            success: true,
+                            commonWordsList,
+                            validWordsSetArray,
+                            bonusBarrierSetArray
+                        });
+                    } catch (err) {
+                        self.postMessage({ success: false, error: err.message });
+                    }
+                };
+            `;
+
+            const blob = new Blob([workerCode], { type: 'application/javascript' });
+            const worker = new Worker(URL.createObjectURL(blob));
+
+            worker.onmessage = function(e) {
+                if (e.data.success) {
+                    // Rehydrate Sets on the main thread
+                    state.commonWordsList = e.data.commonWordsList;
+                    state.validWordsSet = new Set(e.data.validWordsSetArray);
+                    state.bonusBarrierSet = new Set(e.data.bonusBarrierSetArray);
+
+                    setupGameMode();
+                    ui.modeIndicator.classList.remove("hidden");
+                    ui.startGameBtn.disabled = false;
+                } else {
+                    throw new Error(e.data.error);
+                }
+            };
+
+            // Send raw text to the worker
+            worker.postMessage({ textCommon, textFull, textExpanded });
 
         } catch (error) {
             console.error("Initialization Failed:", error);
@@ -160,8 +196,8 @@ window.onerror = function (msg, url, line) {
     }
 
     function triggerInputError() {
-        ui.omniBox.classList.add("shake"); 
-        setTimeout(() => ui.omniBox.classList.remove("shake"), 400); 
+        ui.guessDisplay.classList.add("shake"); 
+        setTimeout(() => ui.guessDisplay.classList.remove("shake"), 400); 
     }
 
     function updateScoreUI() {
@@ -178,7 +214,7 @@ window.onerror = function (msg, url, line) {
     function resetStreak() {
         state.streak.count = 0; 
         state.streak.isActive = false;
-        ui.omniBox.classList.remove("streak-active-box"); 
+        ui.guessDisplay.classList.remove("streak-active-box"); 
         ui.streakIndicator.classList.add("hidden");
     }
 
@@ -187,9 +223,10 @@ window.onerror = function (msg, url, line) {
         state.hints.remaining = 3;
         state.targetPools = {};
         state.streak.lastWordTime = 0;
+        state.currentGuess = "";
         
         ui.timerDisplay.classList.remove("danger"); 
-        
+        updateGuessDisplay();
         resetStreak();
         updateScoreUI();
     }
@@ -231,7 +268,6 @@ window.onerror = function (msg, url, line) {
             
             if (!state.targetPools[key]) {
                 state.targetPools[key] = {
-                    // Word filter applied here to systematically exclude the baseline seed word from answer arrays
                     validWords: cachedValidWords.filter(w => w.startsWith(startL) && w.endsWith(endL) && w !== state.targetWord),
                     foundWords: [], 
                     hintedWords: {}, 
@@ -365,131 +401,162 @@ window.onerror = function (msg, url, line) {
         hintCard.textContent = formattedMask;
     }
 
-    // --- 7. Input & Event Hooks ---
-    function attachEventListeners() {
-        ui.hintBtn.addEventListener("click", () => {
-            useHint();
-            ui.omniBox.focus(); 
-        });
+    // --- 7. Input Handling & Virtual Keyboard ---
+    function updateGuessDisplay() {
+        if (state.currentGuess.length === 0) {
+            ui.guessDisplay.innerHTML = '<span class="guess-placeholder">GUESS...</span>';
+        } else {
+            ui.guessDisplay.textContent = state.currentGuess;
+        }
 
-        ui.omniBox.addEventListener("input", () => {
-            if (!state.active) return;
-            const guess = ui.omniBox.value.toUpperCase().trim();
-            
-            state.cachedMiddleTiles.forEach(tile => { 
-                tile.textContent = ""; 
-                tile.classList.remove("active-typing"); 
-            });
-            
-            if (guess.length > 0) {
-                const firstL = guess[0];
-                state.cachedMiddleTiles.forEach(tile => {
-                    if (tile.dataset.startLetter === firstL) {
-                        const colIndex = parseInt(tile.id.split('-')[3]); 
-                        if (guess[colIndex]) { 
-                            tile.textContent = guess[colIndex]; 
-                            tile.classList.add("active-typing"); 
-                        }
+        state.cachedMiddleTiles.forEach(tile => { 
+            tile.textContent = ""; 
+            tile.classList.remove("active-typing"); 
+        });
+        
+        if (state.currentGuess.length > 0) {
+            const firstL = state.currentGuess[0];
+            state.cachedMiddleTiles.forEach(tile => {
+                if (tile.dataset.startLetter === firstL) {
+                    const colIndex = parseInt(tile.id.split('-')[3]); 
+                    if (state.currentGuess[colIndex]) { 
+                        tile.textContent = state.currentGuess[colIndex]; 
+                        tile.classList.add("active-typing"); 
                     }
-                });
-                state.cachedActiveRows.forEach(row => {
-                    if (row.dataset.startLetter === firstL || row.classList.contains('seed-row-wrapper')) {
-                        row.classList.remove('dimmed');
-                    } else { row.classList.add('dimmed'); }
-                });
-            } else {
-                state.cachedActiveRows.forEach(row => row.classList.remove('dimmed'));
-            }
+                }
+            });
+            state.cachedActiveRows.forEach(row => {
+                if (row.dataset.startLetter === firstL || row.classList.contains('seed-row-wrapper')) {
+                    row.classList.remove('dimmed');
+                } else { row.classList.add('dimmed'); }
+            });
+        } else {
+            state.cachedActiveRows.forEach(row => row.classList.remove('dimmed'));
+        }
+    }
+
+    function submitGuess() {
+        if (state.currentGuess.length !== 5) return;
+        
+        const guess = state.currentGuess;
+        const startL = guess[0]; 
+        const endL = guess[4]; 
+        const key = `${startL}${endL}`; 
+        const pool = state.targetPools[key];
+
+        if (!pool || pool.validWords.length === 0) {
+            spawnFCT("Check letters", "error", "down");
+            triggerInputError();
+            return;
+        }
+
+        if (pool.foundWords.includes(guess)) {
+            spawnFCT("Already found", "error", "down");
+            triggerInputError();
+            return;
+        }
+
+        if (!pool.validWords.includes(guess)) {
+            resetStreak(); 
+            spawnFCT("Not in word list", "error", "down");
+            triggerInputError();
+            return;
+        }
+
+        const now = Date.now();
+        const timeSinceLast = now - state.streak.lastWordTime;
+        
+        if (!state.streak.isActive) {
+            if (state.streak.lastWordTime > 0 && timeSinceLast <= 15000) state.streak.count++; 
+            else state.streak.count = 1; 
+        }
+        state.streak.lastWordTime = now;
+
+        if (state.streak.count >= 3 && !state.streak.isActive) {
+            state.streak.isActive = true; 
+            ui.guessDisplay.classList.add("streak-active-box"); 
+            ui.streakIndicator.classList.remove("hidden");
+        }
+
+        pool.foundWords.push(guess);
+        const multiplier = pool.rows.length; 
+        const points = Math.round(1000 / pool.validWords.length) * multiplier;
+        state.scores.base += points;
+
+        const isObscure = !state.bonusBarrierSet.has(guess); 
+        spawnFCT(`+${points}`, "base", "left");
+        
+        if (isObscure) {
+            state.scores.bonus += 50; 
+            setTimeout(() => spawnFCT("+50 ✨", "obscure", "right"), 100); 
+        }
+        if (state.streak.isActive) {
+            state.scores.bonus += 5;
+            setTimeout(() => spawnFCT("+5 🔥", "streak", "center"), 200);
+        }
+
+        updateScoreUI();
+        document.getElementById(`counter-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length}/${pool.validWords.length}`;
+
+        document.querySelectorAll('.hint-card').forEach(card => {
+            if (card.dataset.hintWord === guess) card.remove();
         });
 
-        ui.omniBox.addEventListener("keydown", (e) => {
-            if (!state.active || e.key !== "Enter") return;
+        const inlineCard = document.createElement("div");
+        inlineCard.className = `inline-word-card ${pool.baseColorClass}`;
+        
+        if (isObscure) {
+            inlineCard.classList.add("obscure-word"); 
+            inlineCard.textContent = guess + " ✨";
+        } else {
+            inlineCard.textContent = guess;
+        }
+        
+        document.getElementById(`inline-words-${pool.rows[0]}`).prepend(inlineCard);
+
+        state.currentGuess = "";
+        updateGuessDisplay();
+    }
+
+    function handleVirtualKey(keyValue) {
+        if (!state.active) return;
+
+        if (keyValue === "ENTER") {
+            submitGuess();
+        } else if (keyValue === "DELETE") {
+            if (state.currentGuess.length > 0) {
+                state.currentGuess = state.currentGuess.slice(0, -1);
+                updateGuessDisplay();
+            }
+        } else {
+            if (state.currentGuess.length < 5) {
+                state.currentGuess += keyValue;
+                updateGuessDisplay();
+            }
+        }
+    }
+
+    // --- 8. Event Hooks ---
+    function attachEventListeners() {
+        ui.hintBtn.addEventListener("click", () => useHint());
+
+        ui.keyboardArea.addEventListener("click", (e) => {
+            const keyBtn = e.target.closest('.key');
+            if (!keyBtn) return;
+            handleVirtualKey(keyBtn.dataset.key);
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (!state.active) return;
+            const key = e.key.toUpperCase();
             
-            const guess = ui.omniBox.value.toUpperCase().trim();
-            ui.omniBox.value = ""; 
-            
-            state.cachedMiddleTiles.forEach(tile => { 
-                tile.textContent = ""; 
-                tile.classList.remove("active-typing"); 
-            });
-            state.cachedActiveRows.forEach(row => row.classList.remove('dimmed'));
-
-            if (guess.length !== 5) return;
-
-            const startL = guess[0]; 
-            const endL = guess[4]; 
-            const key = `${startL}${endL}`; 
-            const pool = state.targetPools[key];
-
-            if (!pool || pool.validWords.length === 0) {
-                spawnFCT("Check letters", "error", "down");
-                triggerInputError();
-                return;
+            if (key === "ENTER") {
+                handleVirtualKey("ENTER");
+            } else if (key === "BACKSPACE" || key === "DELETE") {
+                handleVirtualKey("DELETE");
+            } else if (/^[A-Z]$/.test(key)) {
+                handleVirtualKey(key);
             }
-
-            if (pool.foundWords.includes(guess)) {
-                spawnFCT("Already found", "error", "down");
-                triggerInputError();
-                return;
-            }
-
-            if (!pool.validWords.includes(guess)) {
-                resetStreak(); 
-                spawnFCT("Not in word list", "error", "down");
-                triggerInputError();
-                return;
-            }
-
-            const now = Date.now();
-            const timeSinceLast = now - state.streak.lastWordTime;
-            
-            if (!state.streak.isActive) {
-                if (state.streak.lastWordTime > 0 && timeSinceLast <= 15000) state.streak.count++; 
-                else state.streak.count = 1; 
-            }
-            state.streak.lastWordTime = now;
-
-            if (state.streak.count >= 3 && !state.streak.isActive) {
-                state.streak.isActive = true; 
-                ui.omniBox.classList.add("streak-active-box"); 
-                ui.streakIndicator.classList.remove("hidden");
-            }
-
-            pool.foundWords.push(guess);
-            const multiplier = pool.rows.length; 
-            const points = Math.round(1000 / pool.validWords.length) * multiplier;
-            state.scores.base += points;
-
-            const isObscure = !state.bonusBarrierSet.has(guess); 
-            spawnFCT(`+${points}`, "base", "left");
-            
-            if (isObscure) {
-                state.scores.bonus += 50; 
-                setTimeout(() => spawnFCT("+50 ✨", "obscure", "right"), 100); 
-            }
-            if (state.streak.isActive) {
-                state.scores.bonus += 5;
-                setTimeout(() => spawnFCT("+5 🔥", "streak", "center"), 200);
-            }
-
-            updateScoreUI();
-            document.getElementById(`counter-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length}/${pool.validWords.length}`;
-
-            document.querySelectorAll('.hint-card').forEach(card => {
-                if (card.dataset.hintWord === guess) card.remove();
-            });
-
-            const inlineCard = document.createElement("div");
-            inlineCard.className = `inline-word-card ${pool.baseColorClass}`;
-            
-            if (isObscure) {
-                inlineCard.classList.add("obscure-word"); 
-                inlineCard.textContent = guess + " ✨";
-            } else {
-                inlineCard.textContent = guess;
-            }
-            
-            document.getElementById(`inline-words-${pool.rows[0]}`).prepend(inlineCard);
         });
 
         ui.startGameBtn.addEventListener("click", () => {
@@ -503,15 +570,12 @@ window.onerror = function (msg, url, line) {
             
             state.active = true; 
             updateHintUI();
-            
-            ui.omniBox.disabled = false; 
-            ui.omniBox.focus();
+            updateGuessDisplay();
         });
 
         ui.playAgainBtn.addEventListener("click", () => {
             resetGameState();
             
-            ui.omniBox.value = ""; 
             ui.gameOverSection.classList.add("hidden"); 
             ui.endEarlyBtn.classList.remove("hidden"); 
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -526,9 +590,6 @@ window.onerror = function (msg, url, line) {
             
             state.active = true; 
             updateHintUI();
-            
-            ui.omniBox.disabled = false; 
-            ui.omniBox.focus();
         });
 
         ui.endEarlyBtn.addEventListener("click", () => {
@@ -537,7 +598,7 @@ window.onerror = function (msg, url, line) {
         });
     }
 
-    // --- 8. Timers & End Game ---
+    // --- 9. Timers & End Game ---
     function startTimer() {
         if (state.timer.interval) clearInterval(state.timer.interval); 
         
@@ -579,7 +640,6 @@ window.onerror = function (msg, url, line) {
         clearInterval(state.timer.interval); 
         updateTimerDisplay(0); 
         state.active = false; 
-        ui.omniBox.disabled = true; 
         ui.hintBtn.disabled = true; 
         resetStreak(); 
         ui.endEarlyBtn.classList.add("hidden"); 
@@ -620,7 +680,7 @@ window.onerror = function (msg, url, line) {
         ui.gameOverSection.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // --- 9. Boot Sequence ---
+    // --- 10. Boot Sequence ---
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", initDOM);
     } else {
