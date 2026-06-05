@@ -14,38 +14,32 @@
 </head>
 <body>
     <header class="app-header">
-        <div class="header-container">
+        <div class="header-left">
+            <div id="timer" role="timer" aria-live="off" aria-label="Time remaining">05:00</div>
+        </div>
+        <div class="header-center">
             <h1>Darn Wortler</h1>
             <div id="mode-indicator" class="hidden" aria-live="polite">Loading...</div>
+        </div>
+        <div class="header-right">
+            <div id="score-wrapper">
+                <div id="score-total-display">Total: 0</div>
+                <div id="score-breakdown-display">Base: 0 | Bonus: 0</div>
+            </div>
         </div>
     </header>
 
     <main id="game-container" class="hidden">
         <section id="board-area" aria-label="Game Board">
-            <div id="game-board"></div> 
-        </section>
-
-        <section id="action-zone" aria-label="Game Controls and Stats">
-            <div class="action-stats">
-                <div id="timer" role="timer" aria-live="off" aria-label="Time remaining">05:00</div>
-                <div id="score-wrapper">
-                    <div id="score-total-display">Total: 0</div>
-                    <div id="score-breakdown-display">Base: 0 | Bonus: 0</div>
-                </div>
-            </div>
-            
-            <div id="input-container">
-                <div id="streak-indicator" class="hidden" aria-live="polite">🔥 STREAK ACTIVE! (+5)</div>
-                <div id="guess-display" aria-live="polite" aria-atomic="true"></div>
-                <button id="hint-btn" aria-label="Use Hint" title="Reveal a letter (3 left)" disabled>💡 3</button>
-            </div>
+            <div id="game-board">
+                <!-- Board rows, ghost counters, and Input row are generated dynamically here -->
+            </div> 
         </section>
 
         <section id="keyboard-area" aria-label="Virtual Keyboard">
             <div id="virtual-keyboard"></div>
+            <button id="end-early-btn" class="secondary-btn">Reveal Answers</button>
         </section>
-        
-        <button id="end-early-btn" class="secondary-btn">Reveal Answers</button>
 
         <section id="game-over-section" class="hidden" aria-labelledby="game-over-heading">
             <h2 id="game-over-heading">Time's Up!</h2>

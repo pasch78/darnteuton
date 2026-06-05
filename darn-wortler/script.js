@@ -51,10 +51,9 @@ const DarnWortler = (function () {
     function cacheDOM() {
         const ids = [
             "start-screen", "start-game-btn", "game-container", "game-board",
-            "guess-display", "virtual-keyboard", "hint-btn", "input-container",
-            "end-early-btn", "timer", "score-total-display", "score-breakdown-display",
-            "streak-indicator", "mode-indicator", "game-over-section", "final-score",
-            "final-score-breakdown", "all-solutions-list", "play-again-btn"
+            "virtual-keyboard", "end-early-btn", "timer", "score-total-display", 
+            "score-breakdown-display", "mode-indicator", "game-over-section", 
+            "final-score", "final-score-breakdown", "all-solutions-list", "play-again-btn"
         ];
         
         ids.forEach(id => {
@@ -105,7 +104,7 @@ const DarnWortler = (function () {
         
         if (lastPlayedDaily != state.daily.currentID) {
             state.daily.isMode = true;
-            ui["mode-indicator"].textContent = "★ Daily Challenge";
+            ui["mode-indicator"].textContent = "★ Daily";
             ui["mode-indicator"].className = "mode-daily";
             state.targetWord = state.commonWordsList[state.daily.currentID % state.commonWordsList.length];
             ui["start-game-btn"].textContent = "Start Daily Challenge";
@@ -116,7 +115,7 @@ const DarnWortler = (function () {
 
     function setPracticeMode() {
         state.daily.isMode = false;
-        ui["mode-indicator"].textContent = "Practice Mode";
+        ui["mode-indicator"].textContent = "Practice";
         ui["mode-indicator"].className = "mode-practice";
         state.targetWord = state.commonWordsList[Math.floor(Math.random() * state.commonWordsList.length)];
         ui["start-game-btn"].textContent = "Start Practice Mode";
@@ -170,15 +169,18 @@ const DarnWortler = (function () {
             }
         }
 
+        // THE FIX: Added a "ghost" counter to the seed row to enforce the 5fr/1fr grid constraint
         let boardHTML = `
             <div class="row-wrapper seed-row-wrapper" data-start="${letters[0]}">
                 <div class="row-main">
                     <div class="row-tiles">
                         ${letters.map(l => `<div class="tile bg-col1">${l}</div>`).join('')}
                     </div>
+                    <div class="row-counter" aria-hidden="true"></div>
                 </div>
             </div>`;
 
+        // Build Game Rows
         for (let r = 0; r < 5; r++) {
             const startL = letters[r], endL = reverseLetters[r];
             const pool = state.targetPools[`${startL}${endL}`];
@@ -193,9 +195,9 @@ const DarnWortler = (function () {
                     <div class="row-main">
                         <div class="row-tiles">
                             <div class="tile ${styleClass}">${startL}</div>
-                            <div class="tile middle-tile" id="tile-${r}-1" data-start="${startL}"></div>
-                            <div class="tile middle-tile" id="tile-${r}-2" data-start="${startL}"></div>
-                            <div class="tile middle-tile" id="tile-${r}-3" data-start="${startL}"></div>
+                            <div class="tile"></div>
+                            <div class="tile"></div>
+                            <div class="tile"></div>
                             <div class="tile ${styleClass}">${endL}</div>
                         </div>
                         <div class="row-counter ${counterClass}" id="counter-row-${r+1}">${counterText}</div>
@@ -204,34 +206,37 @@ const DarnWortler = (function () {
                 </div>`;
         }
 
+        // Build New Unified Input Row
+        boardHTML += `
+            <div class="row-wrapper" id="input-row-wrapper">
+                <div class="row-main">
+                    <div class="row-tiles" id="input-tiles">
+                        <div class="tile input-tile"></div>
+                        <div class="tile input-tile"></div>
+                        <div class="tile input-tile"></div>
+                        <div class="tile input-tile"></div>
+                        <div class="tile input-tile"></div>
+                    </div>
+                    <button id="hint-btn" title="Reveal a letter (3 left)" aria-label="Use Hint">💡 3</button>
+                </div>
+            </div>`;
+
         ui["game-board"].insertAdjacentHTML('beforeend', boardHTML);
     }
 
     function updateGuessDisplay() {
-        if (state.currentGuess.length === 0) {
-            ui["guess-display"].innerHTML = '<span class="guess-placeholder">GUESS...</span>';
-        } else {
-            ui["guess-display"].textContent = state.currentGuess;
-        }
-
-        // Reset tiles
-        document.querySelectorAll(".middle-tile").forEach(t => {
-            t.textContent = "";
-            t.classList.remove("active-typing");
-        });
+        const inputTiles = document.querySelectorAll('#input-tiles .tile');
         
-        // Dimming logic
-        const activeRows = document.querySelectorAll(".row-wrapper:not(.dead-row)");
+        // Update tiles in the Input Row
+        for (let i = 0; i < 5; i++) {
+            inputTiles[i].textContent = state.currentGuess[i] || "";
+            inputTiles[i].classList.toggle('active-typing', !!state.currentGuess[i]);
+        }
+        
+        // Dimming logic for the grid above
+        const activeRows = document.querySelectorAll(".row-wrapper.active-row");
         if (state.currentGuess.length > 0) {
             const firstL = state.currentGuess[0];
-            document.querySelectorAll(`.middle-tile[data-start="${firstL}"]`).forEach(t => {
-                const colIdx = parseInt(t.id.split('-')[2]);
-                if (state.currentGuess[colIdx]) {
-                    t.textContent = state.currentGuess[colIdx];
-                    t.classList.add("active-typing");
-                }
-            });
-
             activeRows.forEach(row => {
                 row.classList.toggle('dimmed', row.dataset.start !== firstL);
             });
@@ -259,11 +264,12 @@ const DarnWortler = (function () {
         
         const guess = state.currentGuess;
         const pool = state.targetPools[`${guess[0]}${guess[4]}`];
+        const inputWrapper = document.getElementById("input-row-wrapper");
 
         const triggerError = (msg) => {
             spawnFCT(msg, "error");
-            ui["guess-display"].classList.add("shake");
-            setTimeout(() => ui["guess-display"].classList.remove("shake"), 400);
+            inputWrapper.classList.add("shake");
+            setTimeout(() => inputWrapper.classList.remove("shake"), 400);
         };
 
         if (!pool || pool.validWords.length === 0) return triggerError("Check letters");
@@ -289,12 +295,12 @@ const DarnWortler = (function () {
         
         if (isObscure) {
             state.scores.bonus += 50; 
-            setTimeout(() => spawnFCT("+50 ✨", "obscure"), 100); 
+            setTimeout(() => spawnFCT("+50 ✨", "obscure"), 200); 
         }
         
         if (state.streak.isActive) {
             state.scores.bonus += 5;
-            setTimeout(() => spawnFCT("+5 🔥", "streak"), 200);
+            setTimeout(() => spawnFCT("+5 🔥", "streak"), 400);
         }
 
         updateScoreUI();
@@ -307,7 +313,6 @@ const DarnWortler = (function () {
     }
 
     function renderInlineCard(guess, pool, isObscure) {
-        // Clear hint if present
         const hints = document.querySelectorAll(`.hint-card[data-word="${guess}"]`);
         hints.forEach(h => h.remove());
 
@@ -328,14 +333,16 @@ const DarnWortler = (function () {
 
         if (state.streak.count >= 3 && !state.streak.isActive) {
             state.streak.isActive = true; 
-            ui["streak-indicator"].classList.remove("hidden");
+            document.getElementById("input-row-wrapper").classList.add("streak-active");
+            spawnFCT("🔥 STREAK ACTIVE", "streak");
         }
     }
 
     function resetStreak() {
         state.streak.count = 0; 
         state.streak.isActive = false;
-        ui["streak-indicator"].classList.add("hidden");
+        const inputRow = document.getElementById("input-row-wrapper");
+        if(inputRow) inputRow.classList.remove("streak-active");
     }
 
     function useHint() {
@@ -353,8 +360,9 @@ const DarnWortler = (function () {
         if (!options.length) return spawnFCT("No words left!", "error");
 
         state.hints.remaining--;
-        ui["hint-btn"].textContent = `💡 ${state.hints.remaining}`;
-        ui["hint-btn"].disabled = state.hints.remaining === 0;
+        const hintBtn = document.getElementById("hint-btn");
+        hintBtn.textContent = `💡 ${state.hints.remaining}`;
+        hintBtn.disabled = state.hints.remaining === 0;
 
         const { pool, word } = options[Math.floor(Math.random() * options.length)];
         pool.hintedWords[word] = pool.hintedWords[word] || [];
@@ -378,12 +386,16 @@ const DarnWortler = (function () {
         fct.textContent = text;
         fct.className = `fct fct-${type}`;
         
-        // Randomize spawn position slightly around the input area
-        const xOffset = (Math.random() - 0.5) * 40;
+        const xOffset = (Math.random() - 0.5) * 60;
         fct.style.left = `calc(50% + ${xOffset}px)`;
-        fct.style.top = '0px';
+        fct.style.top = '-20px';
 
-        ui["input-container"].appendChild(fct);
+        const inputWrapper = document.getElementById("input-row-wrapper");
+        if(inputWrapper) {
+            inputWrapper.style.position = 'relative';
+            inputWrapper.appendChild(fct);
+        }
+        
         setTimeout(() => fct.remove(), 1000);
     }
 
@@ -394,7 +406,11 @@ const DarnWortler = (function () {
     }
 
     function attachEventListeners() {
-        ui["hint-btn"].addEventListener("click", useHint);
+        // Delegated event listener for dynamically injected hint button
+        ui["game-board"].addEventListener("click", (e) => {
+            const btn = e.target.closest('#hint-btn');
+            if (btn && !btn.disabled) useHint();
+        });
         
         ui["virtual-keyboard"].addEventListener("click", (e) => {
             const keyBtn = e.target.closest('.key');
@@ -427,8 +443,6 @@ const DarnWortler = (function () {
         state.currentGuess = "";
         
         ui["timer"].classList.remove("danger");
-        ui["hint-btn"].textContent = "💡 3";
-        ui["hint-btn"].disabled = false;
         
         updateScoreUI();
         resetStreak();
@@ -463,9 +477,11 @@ const DarnWortler = (function () {
     function endGame() {
         clearInterval(state.timer.interval);
         state.active = false;
-        ui["hint-btn"].disabled = true;
         resetStreak();
         ui["end-early-btn"].classList.add("hidden");
+        
+        const hintBtn = document.getElementById("hint-btn");
+        if(hintBtn) hintBtn.disabled = true;
         
         if (state.daily.isMode) localStorage.setItem("darnWortlerLastDaily", state.daily.currentID);
         
