@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+	const CURRENT_YEAR = new Date().getFullYear();
+	const HIST_END_YEAR = CURRENT_YEAR - 1; // The last fully completed year
+	const OVERLAP_START_YEAR = HIST_END_YEAR - 9; // 10-year rolling overlap for the Delta Method bias correction
 	const inputForm = document.getElementById('input-form');
 	const analyzeBtn = document.getElementById('analyze-btn');
 	const resetBtn = document.getElementById('reset-btn');
@@ -32,6 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	Chart.defaults.color = colorGray;
 
 	// --- 1. GLOBAL CITY GEOLOCATION AUTOCOMPLETE ENGINE ---
+	// State variable to hold our abort controller
+	let geocodeAborter = null;
+	
+	// --- 1. GLOBAL CITY GEOLOCATION AUTOCOMPLETE ENGINE ---
 	locationInput.addEventListener('input', () => {
 		clearTimeout(debounceTimeout);
 		const query = locationInput.value.trim();
@@ -40,17 +47,27 @@ document.addEventListener('DOMContentLoaded', () => {
 			autocompleteDropdown.classList.add('hidden');
 			return;
 		}
-
+	
 		debounceTimeout = setTimeout(async () => {
+			// 1. Abort any pending fetch request before starting a new one
+			if (geocodeAborter) geocodeAborter.abort();
+			
+			// 2. Create a fresh controller for the new request
+			geocodeAborter = new AbortController();
+	
 			try {
-				const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`);
+				// 3. Pass the controller's signal to the fetch call
+				const res = await fetch(
+					`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`,
+					{ signal: geocodeAborter.signal }
+				);
 				const data = await res.json();
 				
 				if (!data.results || data.results.length === 0) {
 					autocompleteDropdown.classList.add('hidden');
 					return;
 				}
-
+	
 				autocompleteDropdown.innerHTML = '';
 				data.results.forEach(city => {
 					const div = document.createElement('div');
@@ -71,7 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 				autocompleteDropdown.classList.remove('hidden');
 			} catch (e) {
-				console.error("Geocoding fetch bottleneck encountered:", e);
+				// 4. Silently catch AbortErrors, but log actual network failures
+				if (e.name === 'AbortError') {
+					// The fetch was intentionally aborted; do nothing.
+				} else {
+					console.error("Geocoding fetch bottleneck encountered:", e);
+				}
 			}
 		}, 300); 
 	});
@@ -106,8 +128,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!selectedLocation) {
 			return showError("Please select a valid hometown from the dropdown list suggestions.");
 		}
-		if (!birthYear || birthYear < 1920 || birthYear > (currentYear - 6)) {
-			return showError(`Please enter a birth year between 1920 and ${currentYear - 6}.`);
+		if (!birthYear || birthYear < 1940 || birthYear > (currentYear - 6)) {
+			return showError(`Please enter a birth year between 1940 and ${currentYear - 6}.`);
 		}
 
 		showError("");
@@ -133,7 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		try {
-			const histStart = birthYear - 2;
+			let histStart = birthYear - 2;
+			if (histStart < 1940) histStart = 1940; // Open-Meteo's earliest available record
 			const tempUnit = isMetric ? 'celsius' : 'fahrenheit';
 			const precipUnit = isMetric ? 'mm' : 'inch';
 			
@@ -142,14 +165,20 @@ document.addEventListener('DOMContentLoaded', () => {
 			const baseClimateApi = `https://climate-api.open-meteo.com/v1/climate?latitude=${selectedLocation.lat}&longitude=${selectedLocation.lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,snowfall_sum&models=MPI_ESM1_2_XR&start_date=2016-01-01&end_date=2050-12-31&temperature_unit=${tempUnit}&precipitation_unit=${precipUnit}`;
 			
 			const [dataResHist, dataResFuture] = await Promise.all([
-				fetch(`${baseArchiveApi}&start_date=${histStart}-01-01&end_date=2025-12-31`),
+				fetch(`${baseArchiveApi}&start_date=${histStart}-01-01&end_date=${HIST_END_YEAR}-12-31`),
 				fetch(baseClimateApi)
 			]);
 			
-			if (dataResHist.status === 429 || dataResFuture.status === 429) {
-				throw new Error("Database server catching its breath! Please wait 1 minute and hit generate again.");
+			// --- ROBUST API RESPONSE VALIDATION ---
+			if (!dataResHist.ok || !dataResFuture.ok) {
+				// Handle specific rate-limiting first
+				if (dataResHist.status === 429 || dataResFuture.status === 429) {
+					throw new Error("Database server catching its breath! Please wait 1 minute and hit generate again.");
+				}
+				// Catch all other server failures (500, 502, 504, etc.) gracefully
+				throw new Error("The climate database is currently unavailable. Please try again later.");
 			}
-
+			
 			const rawHist = await dataResHist.json();
 			const rawFuture = await dataResFuture.json();
 
@@ -171,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// 1A. Calculate Volume Offsets
 			metrics.forEach(metric => {
 				let histSum = 0, modelSum = 0, count = 0;
-				for (let y = 2016; y <= 2025; y++) {
+				for (let y = OVERLAP_START_YEAR; y <= HIST_END_YEAR; y++) {
 					if (histYearly[y] && rawModelYearly[y]) {
 						histSum += histYearly[y][metric];
 						modelSum += rawModelYearly[y][metric];
@@ -182,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 			
 			// 1B. Calculate Frost Date (DOY) Offsets
-			for (let y = 2016; y <= 2025; y++) {
+			for (let y = OVERLAP_START_YEAR; y <= HIST_END_YEAR; y++) {
 				if (histYearly[y] && rawModelYearly[y] && histYearly[y].springFrost > 0 && rawModelYearly[y].springFrost > 0) {
 					sfHistSum += histYearly[y].springFrost;
 					sfModelSum += rawModelYearly[y].springFrost;
@@ -194,9 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			const sfOffset = fCount > 0 ? (sfHistSum / fCount) - (sfModelSum / fCount) : 0;
 			const ffOffset = fCount > 0 ? (ffHistSum / fCount) - (ffModelSum / fCount) : 0;
 			
-			// 2. Apply offsets to correct the future projections (2026 - 2050)
+			// 2. Apply offsets to correct the future projections
 			const futureYearlyBase = {};
-			for (let y = 2026; y <= 2050; y++) {
+			for (let y = CURRENT_YEAR; y <= 2050; y++) {
 				if (rawModelYearly[y]) {
 					futureYearlyBase[y] = {};
 					metrics.forEach(metric => {
@@ -213,8 +242,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			const payloadToCache = { displayName: selectedLocation.displayName, histYearly, scenarios };
 			activeDashboardData = payloadToCache;
-			localStorage.setItem(cacheKey, JSON.stringify(payloadToCache));
-
+			
+			// --- SAFE CACHING IMPLEMENTATION ---
+			try {
+				localStorage.setItem(cacheKey, JSON.stringify(payloadToCache));
+			} catch (storageErr) {
+				console.warn("Local storage quota exceeded or disabled. Proceeding without caching.", storageErr);
+				// Optional: In the future, you could trigger a function here to loop through 
+				// localStorage and delete the oldest 'darn_sim_v4_' keys to free up space.
+			}
+			
 			displayDashboard(selectedLocation.displayName, payloadToCache, birthYear, isMetric);
 
 		} catch (err) {
@@ -233,12 +270,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// --- 4. SSP SCENARIO SIMULATOR ---
 	function generateScenarios(baseFuture) {
-		const ssp126 = {}, ssp245 = {}, ssp585 = {};
-		for (const [yearStr, data] of Object.entries(baseFuture)) {
-			const y = parseInt(yearStr);
-			const progression = (y - 2025) / 25;
-			
-			ssp585[y] = { ...data }; 
+	const ssp126 = {}, ssp245 = {}, ssp585 = {};
+	for (const [yearStr, data] of Object.entries(baseFuture)) {
+		const y = parseInt(yearStr);
+		// Calculate how far into the future projection we are
+		const progression = (y - HIST_END_YEAR) / (2050 - HIST_END_YEAR);
+		
+		ssp585[y] = { ...data }; 
 			ssp245[y] = {
 				heat: Math.max(0, data.heat - (data.heat * 0.15 * progression)),
 				muggy: Math.max(0, data.muggy - (data.muggy * 0.15 * progression)),
@@ -301,37 +339,37 @@ function displayDashboard(locationName, dataPayload, birthYear, isMetric) {
 	function buildMetricArrays(metricKey, activeScenario) {
 		const allYears = [];
 		for(let y = activeBirthYear - 2; y <= 2050; y++) allYears.push(y);
-
-		const histData = allYears.map(y => y <= 2025 && activeDashboardData.histYearly[y] ? activeDashboardData.histYearly[y][metricKey] : null);
-		const futureData = allYears.map(y => y >= 2026 && activeDashboardData.scenarios[activeScenario][y] ? activeDashboardData.scenarios[activeScenario][y][metricKey] : null);
+	
+		const histData = allYears.map(y => y <= HIST_END_YEAR && activeDashboardData.histYearly[y] ? activeDashboardData.histYearly[y][metricKey] : null);
+		const futureData = allYears.map(y => y >= CURRENT_YEAR && activeDashboardData.scenarios[activeScenario][y] ? activeDashboardData.scenarios[activeScenario][y][metricKey] : null);
 		
-		const trend = calculateLinearRegression(allYears.filter(y => y <= 2025), histData.filter(v => v !== null));
-		const paddedTrend = allYears.map(y => y <= 2025 ? trend.shift() : null);
+		const trend = calculateLinearRegression(allYears.filter(y => y <= HIST_END_YEAR), histData.filter(v => v !== null));
+		const paddedTrend = allYears.map(y => y <= HIST_END_YEAR ? trend.shift() : null);
 		
 		const rollingHist = calculateRollingAverage(histData.filter(v => v !== null), 5);
-		const paddedRollingHist = allYears.map(y => y <= 2025 ? rollingHist.shift() : null);
+		const paddedRollingHist = allYears.map(y => y <= HIST_END_YEAR ? rollingHist.shift() : null);
 		
 		const rollingFuture = calculateRollingAverage(futureData.filter(v => v !== null), 5);
 		// To connect the lines visually, overlap the last historical point
 		const lastHistVal = paddedRollingHist.slice().reverse().find(v => v !== null);
 		const paddedRollingFuture = allYears.map(y => {
-			if (y === 2025) return lastHistVal;
-			if (y >= 2026) return rollingFuture.shift();
+			if (y === HIST_END_YEAR) return lastHistVal;
+			if (y >= CURRENT_YEAR) return rollingFuture.shift();
 			return null;
 		});
-
+	
 		return { allYears, histData, paddedRollingHist, paddedTrend, paddedRollingFuture };
 	}
-
+	
 	function renderDashboardCharts(data, birthYear, scenario, isMetric) {
 		// 1. Calculate Dynamic UI Averages
-		const histStart = birthYear - 2;
-		const histMetrics = getAverages(data.histYearly, histStart, histStart + 4);
-		const recentMetrics = getAverages(data.histYearly, 2021, 2025);
+			const histStart = birthYear - 2;
+	const histMetrics = getAverages(data.histYearly, histStart, histStart + 4);
+		const recentMetrics = getAverages(data.histYearly, HIST_END_YEAR - 4, HIST_END_YEAR);
 		const futureMetrics = getAverages(data.scenarios[scenario], 2046, 2050); 
 	
 		const lHist = `~${birthYear}`;
-		const lRecent = `~2025`;
+		const lRecent = `~${HIST_END_YEAR}`;
 		const lFuture = `~2050`;
 	
 		// 2. Render Cards with 3 Data Points
@@ -399,10 +437,7 @@ function displayDashboard(locationName, dataPayload, birthYear, isMetric) {
 		if (!canvas) return;
 		const ctx = canvas.getContext('2d');
 		
-		if (chartInstances[id]) {
-			chartInstances[id].destroy();
-		}
-
+		// 1. Map the raw data to the specific visual styles for Chart.js
 		const chartDatasets = datasets.map(ds => {
 			let baseConfig = {
 				label: ds.label,
@@ -412,7 +447,7 @@ function displayDashboard(locationName, dataPayload, birthYear, isMetric) {
 				tension: 0.2,
 				spanGaps: true
 			};
-
+	
 			if (ds.type === 'dots') {
 				baseConfig.showLine = false;
 				baseConfig.pointRadius = 3;
@@ -441,13 +476,22 @@ function displayDashboard(locationName, dataPayload, birthYear, isMetric) {
 			}
 			return baseConfig;
 		});
-
+	
+		// --- THE REFACTOR: UPDATE INSTEAD OF DESTROY ---
+		if (chartInstances[id]) {
+			// Instead of destroying, just swap the data and trigger an update animation
+			chartInstances[id].data.labels = labels;
+			chartInstances[id].data.datasets = chartDatasets;
+			chartInstances[id].update();
+			return; // Exit early, we don't need to rebuild the canvas!
+		}
+	
 		// Visual vertical line plugin for 'Present Day' boundary
 		const futureShadingPlugin = {
-			id: 'futureShading',
-			beforeDraw: chart => {
-				const xIndex = chart.data.labels.findIndex(l => l === 2026);
-				if (xIndex === -1) return;
+		id: 'futureShading',
+		beforeDraw: chart => {
+			const xIndex = chart.data.labels.findIndex(l => l === CURRENT_YEAR);
+			if (xIndex === -1) return;
 				const xAxis = chart.scales.x;
 				const yAxis = chart.scales.y;
 				const xPixel = xAxis.getPixelForValue(xIndex);
@@ -469,7 +513,8 @@ function displayDashboard(locationName, dataPayload, birthYear, isMetric) {
 				ctx.restore();
 			}
 		};
-
+	
+		// Only runs once per metric card on initial load
 		chartInstances[id] = new Chart(ctx, {
 			type: 'line',
 			data: { labels: labels, datasets: chartDatasets },
@@ -500,7 +545,7 @@ function displayDashboard(locationName, dataPayload, birthYear, isMetric) {
 			plugins: [futureShadingPlugin]
 		});
 	}
-
+	
 	// --- 7. COMPUTATION ENGINE ---
 	function aggregateYearlyData(daily, isMetric) {
 		const yearly = {};

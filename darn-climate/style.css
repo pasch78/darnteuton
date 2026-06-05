@@ -1,5 +1,6 @@
 /* --- Global Variables & Reset --- */
 :root {
+	/* Primary Palette */
 	--col1: #4a7c8c; 
 	--col2: #c86b3c; 
 	--col3: #5c8262; 
@@ -8,12 +9,29 @@
 	--col-muggy: #b85a32;    
 	--col-mosquito: #6e733b; 
 	
+	/* Neutral & Structural Palette */
 	--bg-color: #f6f0e2; 
 	--card-bg: #fffbf0;
 	--text-color: #3e3128; 
 	--border-color: #c9bda5; 
 	--grayed-out: #635b4f; 
+	--white: #ffffff;
 
+	/* Transparent Overlays for UI States */
+	--ssp245-hover: rgba(212, 154, 54, 0.15);
+	--ssp245-active: rgba(212, 154, 54, 0.35);
+	--ssp126-hover: rgba(92, 130, 98, 0.15);
+	--ssp126-active: rgba(92, 130, 98, 0.35);
+	--ssp585-hover: rgba(168, 70, 70, 0.15);
+	--ssp585-active: rgba(168, 70, 70, 0.35);
+	--frost-cold-bg: rgba(74, 124, 140, 0.25);
+	--frost-warm-bg: rgba(92, 130, 98, 0.75);
+	--frost-badge-bg: rgba(92, 130, 98, 0.15);
+
+	/* Z-Index Hierarchy */
+	--z-dropdown: 100;
+
+	/* Fluid Spacing Scale */
 	--space-xs: clamp(2px, 0.5svh, 4px);
 	--space-sm: clamp(4px, 1svh, 8px);
 	--space-md: clamp(8px, 1.5svh, 16px);
@@ -110,7 +128,7 @@ label {
 }
 
 input {
-	font-family: 'Play', Arial, sans-serif;
+	font-family: inherit;
 	padding: 0.75rem; 
 	font-size: 1.1rem; 
 	border: 2px solid var(--border-color); 
@@ -132,11 +150,11 @@ input:focus {
 	top: 100%;
 	left: 0;
 	right: 0;
-	background-color: #ffffff;
+	background-color: var(--white);
 	border: 2px solid var(--border-color);
 	border-top: none;
 	border-radius: 0 0 4px 4px;
-	z-index: 999;
+	z-index: var(--z-dropdown);
 	max-height: 200px;
 	overflow-y: auto;
 	box-shadow: 0 8px 16px rgba(0,0,0,0.08);
@@ -215,29 +233,33 @@ input:focus {
 	transform: translateX(100%);
 }
 
-.switch-container input:not(:checked) + .switch-slider span:first-of-type { color: #f6f0e2; }
-.switch-container input:checked + .switch-slider span:last-of-type { color: #f6f0e2; }
+.switch-container input:not(:checked) + .switch-slider span:first-of-type { color: var(--bg-color); }
+.switch-container input:checked + .switch-slider span:last-of-type { color: var(--bg-color); }
 
 /* --- Dashboard Modules --- */
 button { 
+	font-family: inherit;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	padding: clamp(0.8rem, 2.5svh, 1rem) clamp(1.5rem, 5vw, 2.5rem); 
 	font-size: clamp(1.1rem, 3svh, 1.2rem); 
 	font-weight: bold; 
-	color: #f6f0e2; 
+	color: var(--bg-color); 
 	background-color: var(--col3); 
 	border: none; 
 	border-radius: 6px; 
 	cursor: pointer;
 	transition: all 0.2s ease;
-	font-family: 'Play', Arial, sans-serif;
 }
 
 button:hover:not(:disabled) { 
 	background-color: #46664b; 
 	transform: translateY(-2px);
+}
+
+button:active:not(:disabled) {
+	transform: translateY(0);
 }
 
 button:disabled { 
@@ -311,9 +333,9 @@ button:disabled {
 }
 
 /* Color-coded bullets to match the tabs below */
-.scenario-list li:nth-child(1)::before { color: var(--col3); } /* Greenish */
-.scenario-list li:nth-child(2)::before { color: #d49a36; }     /* Yellowish */
-.scenario-list li:nth-child(3)::before { color: var(--col5); } /* Reddish */
+.scenario-list li:nth-child(1)::before { color: var(--col3); } 
+.scenario-list li:nth-child(2)::before { color: #d49a36; }     
+.scenario-list li:nth-child(3)::before { color: var(--col5); } 
 
 .scenario-tabs {
 	display: flex;
@@ -324,6 +346,7 @@ button:disabled {
 }
 
 .tab-btn {
+	font-family: inherit;
 	flex: 1;
 	padding: 0.6rem;
 	font-size: clamp(0.75rem, 3vw, 0.85rem);
@@ -333,19 +356,19 @@ button:disabled {
 	border-radius: 4px;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	font-family: 'Play', Arial, sans-serif;
 	font-weight: bold;
 }
 
-/* Dynamic Hover & Active States with Lighter Shading */
-.tab-btn[data-scenario="ssp245"]:hover { background-color: rgba(212, 154, 54, 0.15); border-color: #d49a36; }
-.tab-btn[data-scenario="ssp245"].active { background-color: rgba(212, 154, 54, 0.35); border-color: #d49a36; }
+/* Dynamic Hover & Active States with Theme Variables */
+.tab-btn[data-scenario="ssp245"]:hover { background-color: var(--ssp245-hover); border-color: #d49a36; }
+.tab-btn[data-scenario="ssp245"].active { background-color: var(--ssp245-active); border-color: #d49a36; }
 
-.tab-btn[data-scenario="ssp126"]:hover { background-color: rgba(92, 130, 98, 0.15); border-color: var(--col3); }
-.tab-btn[data-scenario="ssp126"].active { background-color: rgba(92, 130, 98, 0.35); border-color: var(--col3); }
+.tab-btn[data-scenario="ssp126"]:hover { background-color: var(--ssp126-hover); border-color: var(--col3); }
+.tab-btn[data-scenario="ssp126"].active { background-color: var(--ssp126-active); border-color: var(--col3); }
 
-.tab-btn[data-scenario="ssp585"]:hover { background-color: rgba(168, 70, 70, 0.15); border-color: var(--col5); }
-.tab-btn[data-scenario="ssp585"].active { background-color: rgba(168, 70, 70, 0.35); border-color: var(--col5); }
+.tab-btn[data-scenario="ssp585"]:hover { background-color: var(--ssp585-hover); border-color: var(--col5); }
+.tab-btn[data-scenario="ssp585"].active { background-color: var(--ssp585-active); border-color: var(--col5); }
+
 /* --- Metric Cards --- */
 .metric-card {
 	background-color: var(--card-bg);
@@ -469,7 +492,7 @@ button:disabled {
 
 .frost-duration-badge {
 	font-size: 0.8rem;
-	background-color: rgba(92, 130, 98, 0.15);
+	background-color: var(--frost-badge-bg);
 	color: var(--col3);
 	padding: 2px 6px;
 	border-radius: 4px;
@@ -491,11 +514,11 @@ button:disabled {
 }
 
 .frost-cold-zone {
-	background-color: rgba(74, 124, 140, 0.25); 
+	background-color: var(--frost-cold-bg); 
 }
 
 .frost-warm-zone {
-	background-color: rgba(92, 130, 98, 0.75); 
+	background-color: var(--frost-warm-bg); 
 	position: relative;
 	display: flex;
 	justify-content: space-between;
@@ -505,7 +528,7 @@ button:disabled {
 .frost-date-marker {
 	font-size: 0.7rem;
 	font-weight: bold;
-	color: #ffffff;
+	color: var(--white);
 	background-color: var(--text-color);
 	padding: 1px 4px;
 	border-radius: 3px;
@@ -527,4 +550,23 @@ button:disabled {
 	font-size: 0.9rem; 
 	text-align: center; 
 	font-weight: bold; 
+}
+
+/* --- Accessibility: Keyboard Focus States --- */
+button:focus-visible,
+input:focus-visible,
+.tab-btn:focus-visible {
+	outline: 2px solid var(--col1); 
+	outline-offset: 2px;
+}
+
+.switch-container input:focus-visible + .switch-slider {
+	outline: 2px solid var(--col1);
+	outline-offset: 2px;
+}
+
+.autocomplete-item:focus-visible {
+	background-color: var(--bg-color);
+	outline: 2px solid var(--col1);
+	outline-offset: -2px; 
 }
