@@ -174,15 +174,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				fetch(baseClimateApi)
 			]);
 			
-			// --- ROBUST API RESPONSE VALIDATION ---
-			if (!dataResHist.ok || !dataResFuture.ok) {
-				// Handle specific rate-limiting first
-				if (dataResHist.status === 429 || dataResFuture.status === 429) {
-					throw new Error("Database server catching its breath! Please wait 1 minute and hit generate again.");
-				}
-				// Catch all other server failures (500, 502, 504, etc.) gracefully
-				throw new Error("The climate database is currently unavailable. Please try again later.");
+		// --- ROBUST API RESPONSE VALIDATION ---
+		if (!dataResHist.ok || !dataResFuture.ok) {
+			// Handle specific rate-limiting first
+			if (dataResHist.status === 429 || dataResFuture.status === 429) {
+				throw new Error("Simulation quota reached! To protect server limits, please wait an hour before trying another location.");
 			}
+			// Catch all other server failures (500, 502, 504, etc.) gracefully
+			throw new Error("The climate database is currently unavailable. Please try again later.");
+		}
 			
 			const rawHist = await dataResHist.json();
 			const rawFuture = await dataResFuture.json();

@@ -570,3 +570,12 @@ input:focus-visible,
 	outline: 2px solid var(--col1);
 	outline-offset: -2px; 
 }
+
+.rate-limit-disclaimer {
+	font-size: 0.8rem;
+	color: var(--grayed-out);
+	line-height: 1.4;
+	border-left: 3px solid var(--border-color);
+	padding-left: var(--space-sm);
+	margin-top: var(--space-xs);
+}
