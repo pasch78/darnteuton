@@ -14,7 +14,7 @@
 	--card-bg: #fffbf0;
 	--text-color: #3e3128; 
 	--border-color: #c9bda5; 
-	--grayed-out: #a39b8b; 
+	--grayed-out: #635b4f; /* High contrast dark gray for optimal accessibility */
 
 	/* Fluid Design Tokens */
 	--space-xs: clamp(2px, 0.5svh, 4px);
@@ -33,7 +33,7 @@
 body { 
 	background-color: var(--bg-color); 
 	color: var(--text-color); 
-	font-family: 'Play', Arial, sans-serif; /* Aligned to brand body font */
+	font-family: 'Play', Arial, sans-serif; 
 	display: flex; 
 	flex-direction: column; 
 	align-items: center; 
@@ -55,9 +55,9 @@ header {
 }
 
 header h1 { 
-	font-family: 'Arvo', serif; /* Aligned to brand header font */
+	font-family: 'Arvo', serif; 
 	font-size: clamp(2rem, 6vw, 2.5rem); 
-	color: var(--text-color); /* Swapped from col3 to brand standard */
+	color: var(--text-color); 
 	letter-spacing: -1px; 
 }
 
@@ -66,7 +66,7 @@ header p {
 	color: var(--grayed-out); 
 	max-width: 400px; 
 	line-height: 1.4; 
-	font-style: italic; /* Aligned to brand taglines */
+	font-style: italic; 
 }
 
 .container {
@@ -82,7 +82,7 @@ header p {
 	background-color: var(--card-bg); 
 	padding: var(--space-lg); 
 	border-radius: 8px; 
-	border: 2px dashed var(--border-color); /* Aligned to brand card styling */
+	border: 2px dashed var(--border-color); 
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-lg);
@@ -118,7 +118,6 @@ input:focus {
 	border-color: var(--col3); 
 }
 
-/* Aligned exactly to the cover page play-button */
 button { 
 	display: inline-flex;
 	align-items: center;
@@ -170,7 +169,7 @@ button:disabled {
 
 .metric-card {
 	background-color: var(--card-bg);
-	border: 2px dashed var(--border-color); /* Thematic framing */
+	border: 2px dashed var(--border-color); 
 	border-radius: 8px;
 	padding: var(--space-lg);
 	display: flex;
@@ -197,7 +196,7 @@ button:disabled {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	background-color: var(--bg-color); /* Replaced translucent white for brand consistency */
+	background-color: var(--bg-color); 
 	padding: var(--space-md);
 	border: 1px solid var(--border-color);
 	border-radius: 4px;
@@ -241,6 +240,103 @@ button:disabled {
 	height: 160px; 
 	width: 100%;
 	margin-top: var(--space-md);
+}
+
+/* --- Re-engineered Seasonal Frost Slider UI --- */
+.frost-timeline-container {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-md);
+	margin-top: var(--space-sm);
+	background-color: var(--bg-color);
+	padding: var(--space-md);
+	border: 1px solid var(--border-color);
+	border-radius: 6px;
+}
+
+.timeline-axis-labels {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.75rem;
+	font-weight: bold;
+	color: var(--grayed-out);
+	text-transform: uppercase;
+	border-bottom: 1px solid var(--border-color);
+	padding-bottom: var(--space-xs);
+	margin-bottom: var(--space-xs);
+}
+
+.frost-timeline-row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+}
+
+.frost-row-meta {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.frost-row-year {
+	font-size: 0.85rem;
+	font-weight: bold;
+}
+
+.frost-duration-badge {
+	font-size: 0.8rem;
+	background-color: rgba(92, 130, 98, 0.15);
+	color: var(--col3);
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-weight: bold;
+}
+
+.frost-slider-track {
+	display: flex;
+	height: 28px;
+	width: 100%;
+	border-radius: 4px;
+	overflow: visible; /* Allows date markers to look balanced */
+	border: 1px solid var(--border-color);
+}
+
+.frost-segment {
+	height: 100%;
+	transition: width 0.5s ease-in-out;
+}
+
+.frost-cold-zone {
+	background-color: rgba(74, 124, 140, 0.25); /* Translucent Cold Blue */
+}
+
+.frost-warm-zone {
+	background-color: rgba(92, 130, 98, 0.75); /* Deep Growing Green */
+	position: relative;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.frost-date-marker {
+	font-size: 0.7rem;
+	font-weight: bold;
+	color: #ffffff;
+	background-color: var(--text-color);
+	padding: 1px 4px;
+	border-radius: 3px;
+	position: absolute;
+	white-space: nowrap;
+	bottom: -20px; /* Offset dates directly under visual color split lines */
+	transform: translateX(-50%);
+}
+
+.frost-date-marker.date-start { left: 0%; }
+.frost-date-marker.date-end   { left: 100%; }
+
+/* Space wrapper to ensure dates don't bleed into items below the bar track rows */
+.frost-timeline-row:not(:last-child) {
+	margin-bottom: var(--space-md);
 }
 
 .error-msg { 

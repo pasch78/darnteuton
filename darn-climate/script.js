@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	const colorGray = rootStyles.getPropertyValue('--grayed-out').trim();
 	const colorBorder = rootStyles.getPropertyValue('--border-color').trim();
 
+	const colorMuggy = rootStyles.getPropertyValue('--col-muggy').trim();
+	const colorMosquito = rootStyles.getPropertyValue('--col-mosquito').trim();
+
 	Chart.defaults.font.family = "'Play', Arial, sans-serif";
 	Chart.defaults.color = colorGray;
 
@@ -34,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		analyzeBtn.disabled = true;
 		analyzeBtn.innerText = "Crunching decades of data...";
 
-		// --- 1. LOCAL STORAGE CACHE CHECK ---
 		const cacheKey = `darn_climate_${zip}_${birthYear}`;
 		const cachedData = localStorage.getItem(cacheKey);
 
@@ -43,14 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
 				const parsedCache = JSON.parse(cachedData);
 				console.log("🚀 Serving climate data from browser local cache!");
 				displayDashboard(parsedCache.city, parsedCache.state, parsedCache.yearlyData, birthYear, recentStartYear, recentEndYear);
-				return; // Stop execution here, we are done!
+				return; 
 			} catch (e) {
-				localStorage.removeItem(cacheKey); // Wipe corrupted cache if parsing fails
+				localStorage.removeItem(cacheKey); 
 			}
 		}
 
 		try {
-			// 2. Geocode Location
+			// 1. Geocode Location
 			const geoRes = await fetch(`https://api.zippopotam.us/us/${zip}`);
 			if (!geoRes.ok) throw new Error("Could not find that Zip Code.");
 			const geoData = await geoRes.json();
@@ -59,13 +61,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			const city = geoData.places[0]['place name'];
 			const state = geoData.places[0]['state abbreviation'];
 
-			// 3. Fetch Continuous Climate Timeline Data
+			// 2. Fetch Continuous Climate Timeline Data
 			const histStart = birthYear - 2;
 			const baseApi = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&daily=apparent_temperature_max,temperature_2m_min,precipitation_sum,snowfall_sum&timezone=auto&temperature_unit=fahrenheit&precipitation_unit=inch`;
 			
 			const dataRes = await fetch(`${baseApi}&start_date=${histStart}-01-01&end_date=${recentEndYear}-12-31`);
 			
-			// --- 2. GRACEFUL RATE LIMIT INTERCEPTION ---
 			if (dataRes.status === 429) {
 				throw new Error("Server catching its breath! Requesting decades of daily records triggers a rate-limit. Please wait 1–2 minutes and click generate again.");
 			}
@@ -73,14 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			const rawData = await dataRes.json();
 			if (rawData.error || !rawData.daily) throw new Error("Climate data unavailable for this location.");
 
-			// 4. Aggregate into Yearly Performance Structures
+			// 3. Aggregate into Yearly Performance Structures
 			const yearlyData = aggregateYearlyData(rawData.daily);
 
-			// --- 3. SAVE TO LOCAL STORAGE CACHE ---
+			// 4. Save to Local Storage Cache
 			const payloadToCache = { city, state, yearlyData };
 			localStorage.setItem(cacheKey, JSON.stringify(payloadToCache));
 
-			// 5. Process and Display
+			// 5. Process and Display Dashboard Content
 			displayDashboard(city, state, yearlyData, birthYear, recentStartYear, recentEndYear);
 
 		} catch (err) {
@@ -96,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		inputSection.classList.remove('hidden');
 	});
 
-	// Factored out dashboard population so it can be cleanly fed by the API or the Cache
 	function displayDashboard(city, state, yearlyData, birthYear, recentStartYear, recentEndYear) {
 		const histStart = birthYear - 2;
 		document.getElementById('location-display').innerText = `Data for ${city}, ${state}`;
@@ -119,9 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		renderCard("heat", labelHist, labelRecent, Math.round(histMetrics.heat), Math.round(recentMetrics.heat), " days");
 		if(histMetrics.heat > 0 || recentMetrics.heat > 0) {
 			const trend = calculateLinearRegression(yearsArr, heatArr);
+			const rolling = calculateRollingAverage(heatArr, 5);
 			renderChart("heat", yearsArr, [
-				{ label: "Yearly Count", data: heatArr, color: colorHeat, dashed: false },
-				{ label: "Long-term Trend", data: trend, color: colorGray, dashed: true }
+				{ label: "Annual Data (Weather)", data: heatArr, color: colorHeat, type: 'dots' },
+				{ label: "5-Year Average (Climate)", data: rolling, color: colorHeat, type: 'rolling' },
+				{ label: "Long-term Trend", data: trend, color: colorGray, type: 'trend' }
 			]);
 		}
 
@@ -129,9 +131,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		renderCard("muggy", labelHist, labelRecent, Math.round(histMetrics.muggy), Math.round(recentMetrics.muggy), " nights");
 		if(histMetrics.muggy > 0 || recentMetrics.muggy > 0) {
 			const trend = calculateLinearRegression(yearsArr, muggyArr);
+			const rolling = calculateRollingAverage(muggyArr, 5);
 			renderChart("muggy", yearsArr, [
-				{ label: "Yearly Count", data: muggyArr, color: rootStyles.getPropertyValue('--col-muggy').trim(), dashed: false },
-				{ label: "Long-term Trend", data: trend, color: colorGray, dashed: true }
+				{ label: "Annual Data (Weather)", data: muggyArr, color: colorMuggy, type: 'dots' },
+				{ label: "5-Year Average (Climate)", data: rolling, color: colorMuggy, type: 'rolling' },
+				{ label: "Long-term Trend", data: trend, color: colorGray, type: 'trend' }
 			]);
 		}
 		
@@ -139,9 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		renderCard("dry", labelHist, labelRecent, Math.round(histMetrics.dry), Math.round(recentMetrics.dry), " days");
 		if(histMetrics.dry > 0 || recentMetrics.dry > 0) {
 			const trend = calculateLinearRegression(yearsArr, dryArr);
+			const rolling = calculateRollingAverage(dryArr, 5);
 			renderChart("dry", yearsArr, [
-				{ label: "Longest Streak", data: dryArr, color: colorDry, dashed: false },
-				{ label: "Long-term Trend", data: trend, color: colorGray, dashed: true }
+				{ label: "Annual Data (Weather)", data: dryArr, color: colorDry, type: 'dots' },
+				{ label: "5-Year Average (Climate)", data: rolling, color: colorDry, type: 'rolling' },
+				{ label: "Long-term Trend", data: trend, color: colorGray, type: 'trend' }
 			]);
 		}
 
@@ -149,9 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		renderCard("mosquito", labelHist, labelRecent, Math.round(histMetrics.mosquito), Math.round(recentMetrics.mosquito), " days");
 		if(histMetrics.mosquito > 0 || recentMetrics.mosquito > 0) {
 			const trend = calculateLinearRegression(yearsArr, mosquitoArr);
+			const rolling = calculateRollingAverage(mosquitoArr, 5);
 			renderChart("mosquito", yearsArr, [
-				{ label: "Yearly Count", data: mosquitoArr, color: rootStyles.getPropertyValue('--col-mosquito').trim(), dashed: false },
-				{ label: "Long-term Trend", data: trend, color: colorGray, dashed: true }
+				{ label: "Annual Data (Weather)", data: mosquitoArr, color: colorMosquito, type: 'dots' },
+				{ label: "5-Year Average (Climate)", data: rolling, color: colorMosquito, type: 'rolling' },
+				{ label: "Long-term Trend", data: trend, color: colorGray, type: 'trend' }
 			]);
 		}
 		
@@ -159,9 +167,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		renderCard("rain", labelHist, labelRecent, Math.round(histMetrics.rain), Math.round(recentMetrics.rain), " days");
 		if(histMetrics.rain > 0 || recentMetrics.rain > 0) {
 			const trend = calculateLinearRegression(yearsArr, rainArr);
+			const rolling = calculateRollingAverage(rainArr, 5);
 			renderChart("rain", yearsArr, [
-				{ label: "Yearly Count", data: rainArr, color: colorMild, dashed: false },
-				{ label: "Long-term Trend", data: trend, color: colorGray, dashed: true }
+				{ label: "Annual Data (Weather)", data: rainArr, color: colorMild, type: 'dots' },
+				{ label: "5-Year Average (Climate)", data: rolling, color: colorMild, type: 'rolling' },
+				{ label: "Long-term Trend", data: trend, color: colorGray, type: 'trend' }
 			]);
 		}
 
@@ -169,26 +179,67 @@ document.addEventListener('DOMContentLoaded', () => {
 		renderCard("snow", labelHist, labelRecent, Math.round(histMetrics.snow), Math.round(recentMetrics.snow), " days");
 		if(histMetrics.snow > 0 || recentMetrics.snow > 0) {
 			const trend = calculateLinearRegression(yearsArr, snowArr);
+			const rolling = calculateRollingAverage(snowArr, 5);
 			renderChart("snow", yearsArr, [
-				{ label: "Yearly Count", data: snowArr, color: colorCold, dashed: false },
-				{ label: "Long-term Trend", data: trend, color: colorGray, dashed: true }
+				{ label: "Annual Data (Weather)", data: snowArr, color: colorCold, type: 'dots' },
+				{ label: "5-Year Average (Climate)", data: rolling, color: colorCold, type: 'rolling' },
+				{ label: "Long-term Trend", data: trend, color: colorGray, type: 'trend' }
 			]);
 		}
 
-		// Frost Module
+		// --- OVERHAULED OPTION 1: SLIDER TIMELINE IMPLEMENTATION ---
 		const cardFrost = document.getElementById('card-frost');
 		if (histMetrics.hasFrost || recentMetrics.hasFrost) {
 			cardFrost.classList.remove('hidden');
-			document.getElementById('year1-label-frost').innerText = labelHist;
-			document.getElementById('year2-label-frost').innerText = labelRecent;
-			document.getElementById('val1-frost').innerHTML = `${formatDOY(histMetrics.springFrost)}<br>to<br>${formatDOY(histMetrics.fallFrost)}`;
-			document.getElementById('val2-frost').innerHTML = `${formatDOY(recentMetrics.springFrost)}<br>to<br>${formatDOY(recentMetrics.fallFrost)}`;
+			
+			// Inject Title Rows
+			document.getElementById('timeline-label-hist').innerText = labelHist;
+			document.getElementById('timeline-label-recent').innerText = labelRecent;
+
+			// Calculate Total Frost-Free Days
+			const durationHist = Math.round(recentMetrics.fallFrost) - Math.round(recentMetrics.springFrost); // Fall DOY minus Spring DOY
+			const durationRecent = Math.round(recentMetrics.fallFrost) - Math.round(recentMetrics.springFrost);
+			
+			// Adjusting fallback calculation logic if entries lack distinct frost occurrences (e.g. tropical climates)
+			const getDurationDays = (spring, fall) => (spring && fall) ? Math.round(fall - spring) : 365;
+			document.getElementById('frost-duration-hist').innerText = `${getDurationDays(histMetrics.springFrost, histMetrics.fallFrost)} growing days`;
+			document.getElementById('frost-duration-recent').innerText = `${getDurationDays(recentMetrics.springFrost, recentMetrics.fallFrost)} growing days`;
+
+			// Render Split Dates Above Slider
+			document.getElementById('hist-date-start').innerText = formatDOY(histMetrics.springFrost);
+			document.getElementById('hist-date-end').innerText = formatDOY(histMetrics.fallFrost);
+			document.getElementById('recent-date-start').innerText = formatDOY(recentMetrics.springFrost);
+			document.getElementById('recent-date-end').innerText = formatDOY(recentMetrics.fallFrost);
+
+			// Render Percentage Segment Width Layouts Natively
+			applyTrackSegments("hist", histMetrics.springFrost, histMetrics.fallFrost);
+			applyTrackSegments("recent", recentMetrics.springFrost, recentMetrics.fallFrost);
 		} else {
 			cardFrost.classList.add('hidden');
 		}
 
 		inputSection.classList.add('hidden');
 		dashboard.classList.remove('hidden');
+	}
+
+	function applyTrackSegments(prefix, springDOY, fallDOY) {
+		const totalDays = 365;
+		let leftPct = 0, midPct = 100, rightPct = 0;
+
+		if (springDOY && fallDOY) {
+			leftPct = (springDOY / totalDays) * 100;
+			rightPct = ((totalDays - fallDOY) / totalDays) * 100;
+			midPct = 100 - leftPct - rightPct;
+		} else if (!springDOY && !fallDOY) {
+			// Zero frost days discovered all year
+			leftPct = 0;
+			midPct = 100;
+			rightPct = 0;
+		}
+
+		document.getElementById(`${prefix}-seg-left`).style.width = `${leftPct}%`;
+		document.getElementById(`${prefix}-seg-mid`).style.width = `${midPct}%`;
+		document.getElementById(`${prefix}-seg-right`).style.width = `${rightPct}%`;
 	}
 
 	function aggregateYearlyData(daily) {
@@ -281,6 +332,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		};
 	}
 
+	function calculateRollingAverage(arr, windowSize) {
+		return arr.map((_, idx) => {
+			const start = Math.max(0, idx - windowSize + 1);
+			const slice = arr.slice(start, idx + 1);
+			const sum = slice.reduce((a, b) => a + b, 0);
+			return sum / slice.length;
+		});
+	}
+
 	function calculateLinearRegression(xArr, yArr) {
 		const n = xArr.length;
 		if (n === 0) return [];
@@ -312,10 +372,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			card.classList.add('hidden'); 
 		} else {
 			card.classList.remove('hidden');
-			document.getElementById(`year1-label-${id}`).innerText = label1;
-			document.getElementById(`year2-label-${id}`).innerText = label2;
 			document.getElementById(`val1-${id}`).innerText = val1 + suffix;
 			document.getElementById(`val2-${id}`).innerText = val2 + suffix;
+			
+			// Safeguard logic mapping matching V2 structure
+			const year1El = document.getElementById(`year1-label-${id}`);
+			const year2El = document.getElementById(`year2-label-${id}`);
+			if(year1El) year1El.innerText = label1;
+			if(year2El) year2El.innerText = label2;
 		}
 	}
 
@@ -328,17 +392,36 @@ document.addEventListener('DOMContentLoaded', () => {
 			chartInstances[id].destroy();
 		}
 
-		const chartDatasets = datasets.map(ds => ({
-			label: ds.label,
-			data: ds.data,
-			borderColor: ds.borderColor || ds.color,
-			backgroundColor: ds.color,
-			borderWidth: ds.dashed ? 1.5 : 2,
-			borderDash: ds.dashed ? [5, 5] : [],
-			pointRadius: 0,
-			pointHoverRadius: ds.dashed ? 0 : 5, 
-			tension: ds.dashed ? 0 : 0.2 
-		}));
+		const chartDatasets = datasets.map(ds => {
+			let baseConfig = {
+				label: ds.label,
+				data: ds.data,
+				borderColor: ds.color,
+				backgroundColor: ds.color,
+				tension: 0.2
+			};
+
+			if (ds.type === 'dots') {
+				baseConfig.showLine = false;
+				baseConfig.pointRadius = 3;
+				baseConfig.pointHoverRadius = 5;
+				baseConfig.backgroundColor = ds.color + '60'; 
+				baseConfig.borderColor = 'transparent'; 
+			} else if (ds.type === 'rolling') {
+				baseConfig.borderWidth = 3;
+				baseConfig.pointRadius = 0;
+				baseConfig.pointHoverRadius = 4;
+				baseConfig.tension = 0.4; 
+			} else if (ds.type === 'trend') {
+				baseConfig.borderWidth = 1.5;
+				baseConfig.borderDash = [5, 5];
+				baseConfig.pointRadius = 0;
+				baseConfig.pointHoverRadius = 0;
+				baseConfig.tension = 0; 
+			}
+
+			return baseConfig;
+		});
 
 		chartInstances[id] = new Chart(ctx, {
 			type: 'line',
@@ -351,7 +434,12 @@ document.addEventListener('DOMContentLoaded', () => {
 					legend: { 
 						display: true, 
 						position: 'top',
-						labels: { boxWidth: 12, boxHeight: 2, font: { size: 10 } }
+						labels: { 
+							boxWidth: 12, 
+							boxHeight: 2, 
+							font: { size: 10 },
+							usePointStyle: true 
+						}
 					},
 					tooltip: { backgroundColor: 'rgba(62, 49, 40, 0.9)' }
 				},

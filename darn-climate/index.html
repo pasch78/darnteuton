@@ -152,16 +152,41 @@
 
 			<div class="metric-card hidden" id="card-frost">
 				<div class="metric-title">The Seasonal Shift</div>
-				<div class="metric-desc">Average dates of the last spring frost and first fall frost (Temperatures below 32°F).</div>
-				<div class="metric-comparison">
-					<div class="data-point">
-						<span class="data-year" id="year1-label-frost">---</span>
-						<span class="data-value text-cold" style="font-size: 1.1rem; text-align: center;" id="val1-frost">--</span>
+				<div class="metric-desc">The visual extension of your hometown's frost-free growing season (dates tracking last spring frost to first fall frost).</div>
+				
+				<div class="frost-timeline-container">
+					<div class="timeline-axis-labels">
+						<span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span><span>Dec</span>
 					</div>
-					<div class="arrow">→</div>
-					<div class="data-point">
-						<span class="data-year" id="year2-label-frost">---</span>
-						<span class="data-value text-cold" style="font-size: 1.1rem; text-align: center;" id="val2-frost">--</span>
+
+					<div class="frost-timeline-row">
+						<div class="frost-row-meta">
+							<span class="frost-row-year" id="timeline-label-hist">~1980</span>
+							<span class="frost-duration-badge" id="frost-duration-hist">-- days</span>
+						</div>
+						<div class="frost-slider-track" id="track-hist">
+							<div class="frost-segment frost-cold-zone" id="hist-seg-left"></div>
+							<div class="frost-segment frost-warm-zone" id="hist-seg-mid">
+								<span class="frost-date-marker date-start" id="hist-date-start">--</span>
+								<span class="frost-date-marker date-end" id="hist-date-end">--</span>
+							</div>
+							<div class="frost-segment frost-cold-zone" id="hist-seg-right"></div>
+						</div>
+					</div>
+
+					<div class="frost-timeline-row">
+						<div class="frost-row-meta">
+							<span class="frost-row-year" id="timeline-label-recent">~2025</span>
+							<span class="frost-duration-badge" id="frost-duration-recent">-- days</span>
+						</div>
+						<div class="frost-slider-track" id="track-recent">
+							<div class="frost-segment frost-cold-zone" id="recent-seg-left"></div>
+							<div class="frost-segment frost-warm-zone" id="recent-seg-mid">
+								<span class="frost-date-marker date-start" id="recent-date-start">--</span>
+								<span class="frost-date-marker date-end" id="recent-date-end">--</span>
+							</div>
+							<div class="frost-segment frost-cold-zone" id="recent-seg-right"></div>
+						</div>
 					</div>
 				</div>
 			</div>
