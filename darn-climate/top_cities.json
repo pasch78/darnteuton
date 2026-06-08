@@ -1,0 +1,3161 @@
+[
+  {
+    "city": "Abidjan",
+    "lat": 5.3167,
+    "lon": -4.0333,
+    "country": "Côte d’Ivoire",
+    "admin_name": "Abidjan",
+    "population": 4980000,
+    "slug": "abidjan-c-te-d-ivoire"
+  },
+  {
+    "city": "Abu Dhabi",
+    "lat": 24.4667,
+    "lon": 54.3667,
+    "country": "United Arab Emirates",
+    "admin_name": "Abū Z̧aby",
+    "population": 1483000,
+    "slug": "abu-dhabi-united-arab-emirates"
+  },
+  {
+    "city": "Abuja",
+    "lat": 9.0667,
+    "lon": 7.4833,
+    "country": "Nigeria",
+    "admin_name": "Federal Capital Territory",
+    "population": 3770000,
+    "slug": "abuja-nigeria"
+  },
+  {
+    "city": "Accra",
+    "lat": 5.55,
+    "lon": -0.2,
+    "country": "Ghana",
+    "admin_name": "Greater Accra",
+    "population": 2388000,
+    "slug": "accra-ghana"
+  },
+  {
+    "city": "Adamstown",
+    "lat": -25.0667,
+    "lon": -130.1,
+    "country": "Pitcairn Islands",
+    "admin_name": null,
+    "population": 47,
+    "slug": "adamstown-pitcairn-islands"
+  },
+  {
+    "city": "Addis Ababa",
+    "lat": 9.03,
+    "lon": 38.74,
+    "country": "Ethiopia",
+    "admin_name": "Ādīs Ābeba",
+    "population": 3041002,
+    "slug": "addis-ababa-ethiopia"
+  },
+  {
+    "city": "Albany",
+    "lat": 42.6664,
+    "lon": -73.7987,
+    "country": "United States",
+    "admin_name": "New York",
+    "population": 590694,
+    "slug": "albany-united-states"
+  },
+  {
+    "city": "Albuquerque",
+    "lat": 35.1054,
+    "lon": -106.6465,
+    "country": "United States",
+    "admin_name": "New Mexico",
+    "population": 769986,
+    "slug": "albuquerque-united-states"
+  },
+  {
+    "city": "Algiers",
+    "lat": 36.7539,
+    "lon": 3.0589,
+    "country": "Algeria",
+    "admin_name": "Alger",
+    "population": 3415811,
+    "slug": "algiers-algeria"
+  },
+  {
+    "city": "Alofi",
+    "lat": -19.056,
+    "lon": -169.921,
+    "country": "Niue",
+    "admin_name": null,
+    "population": 597,
+    "slug": "alofi-niue"
+  },
+  {
+    "city": "Amman",
+    "lat": 31.9497,
+    "lon": 35.9328,
+    "country": "Jordan",
+    "admin_name": "Al ‘Āşimah",
+    "population": 4007526,
+    "slug": "amman-jordan"
+  },
+  {
+    "city": "Amsterdam",
+    "lat": 52.3728,
+    "lon": 4.8936,
+    "country": "Netherlands",
+    "admin_name": "Noord-Holland",
+    "population": 1459402,
+    "slug": "amsterdam-netherlands"
+  },
+  {
+    "city": "Andorra la Vella",
+    "lat": 42.5,
+    "lon": 1.5,
+    "country": "Andorra",
+    "admin_name": "Andorra la Vella",
+    "population": 22615,
+    "slug": "andorra-la-vella-andorra"
+  },
+  {
+    "city": "Ankara",
+    "lat": 39.93,
+    "lon": 32.85,
+    "country": "Turkey",
+    "admin_name": "Ankara",
+    "population": 5503985,
+    "slug": "ankara-turkey"
+  },
+  {
+    "city": "Annapolis",
+    "lat": 38.9706,
+    "lon": -76.5047,
+    "country": "United States",
+    "admin_name": "Maryland",
+    "population": 40719,
+    "slug": "annapolis-united-states"
+  },
+  {
+    "city": "Antananarivo",
+    "lat": -18.91,
+    "lon": 47.525,
+    "country": "Madagascar",
+    "admin_name": "Antananarivo",
+    "population": 2300000,
+    "slug": "antananarivo-madagascar"
+  },
+  {
+    "city": "Apia",
+    "lat": -13.8333,
+    "lon": -171.75,
+    "country": "Samoa",
+    "admin_name": "Tuamasaga",
+    "population": 37708,
+    "slug": "apia-samoa"
+  },
+  {
+    "city": "Ashgabat",
+    "lat": 37.9375,
+    "lon": 58.38,
+    "country": "Turkmenistan",
+    "admin_name": "Aşgabat",
+    "population": 1030063,
+    "slug": "ashgabat-turkmenistan"
+  },
+  {
+    "city": "Asmara",
+    "lat": 15.3228,
+    "lon": 38.925,
+    "country": "Eritrea",
+    "admin_name": "Ma’ĭkel",
+    "population": 963000,
+    "slug": "asmara-eritrea"
+  },
+  {
+    "city": "Astana",
+    "lat": 51.1472,
+    "lon": 71.4222,
+    "country": "Kazakhstan",
+    "admin_name": "Nur-Sultan",
+    "population": 1078362,
+    "slug": "astana-kazakhstan"
+  },
+  {
+    "city": "Asunción",
+    "lat": -25.3,
+    "lon": -57.6333,
+    "country": "Paraguay",
+    "admin_name": "Asunción",
+    "population": 477346,
+    "slug": "asunci-n-paraguay"
+  },
+  {
+    "city": "Athens",
+    "lat": 37.9842,
+    "lon": 23.7281,
+    "country": "Greece",
+    "admin_name": "Attikí",
+    "population": 3059764,
+    "slug": "athens-greece"
+  },
+  {
+    "city": "Atlanta",
+    "lat": 33.7628,
+    "lon": -84.422,
+    "country": "United States",
+    "admin_name": "Georgia",
+    "population": 5180179,
+    "slug": "atlanta-united-states"
+  },
+  {
+    "city": "Augusta",
+    "lat": 44.3341,
+    "lon": -69.7319,
+    "country": "United States",
+    "admin_name": "Maine",
+    "population": 18938,
+    "slug": "augusta-united-states"
+  },
+  {
+    "city": "Austin",
+    "lat": 30.3005,
+    "lon": -97.7522,
+    "country": "United States",
+    "admin_name": "Texas",
+    "population": 1905945,
+    "slug": "austin-united-states"
+  },
+  {
+    "city": "Avarua",
+    "lat": -21.207,
+    "lon": -159.771,
+    "country": "Cook Islands",
+    "admin_name": null,
+    "population": 4009,
+    "slug": "avarua-cook-islands"
+  },
+  {
+    "city": "Baghdad",
+    "lat": 33.3153,
+    "lon": 44.3661,
+    "country": "Iraq",
+    "admin_name": "Baghdād",
+    "population": 6183000,
+    "slug": "baghdad-iraq"
+  },
+  {
+    "city": "Baku",
+    "lat": 40.3953,
+    "lon": 49.8822,
+    "country": "Azerbaijan",
+    "admin_name": "Bakı",
+    "population": 2300500,
+    "slug": "baku-azerbaijan"
+  },
+  {
+    "city": "Baltimore",
+    "lat": 39.3051,
+    "lon": -76.6144,
+    "country": "United States",
+    "admin_name": "Maryland",
+    "population": 2196524,
+    "slug": "baltimore-united-states"
+  },
+  {
+    "city": "Bamako",
+    "lat": 12.6392,
+    "lon": -8.0028,
+    "country": "Mali",
+    "admin_name": "Bamako",
+    "population": 4227569,
+    "slug": "bamako-mali"
+  },
+  {
+    "city": "Bandar Seri Begawan",
+    "lat": 4.8903,
+    "lon": 114.9422,
+    "country": "Brunei",
+    "admin_name": "Brunei dan Muara",
+    "population": 50000,
+    "slug": "bandar-seri-begawan-brunei"
+  },
+  {
+    "city": "Bangkok",
+    "lat": 13.7525,
+    "lon": 100.4942,
+    "country": "Thailand",
+    "admin_name": "Krung Thep Maha Nakhon",
+    "population": 18007000,
+    "slug": "bangkok-thailand"
+  },
+  {
+    "city": "Bangui",
+    "lat": 4.3733,
+    "lon": 18.5628,
+    "country": "Central African Republic",
+    "admin_name": "Bangui",
+    "population": 889231,
+    "slug": "bangui-central-african-republic"
+  },
+  {
+    "city": "Banjul",
+    "lat": 13.4531,
+    "lon": -16.5775,
+    "country": "Gambia, The",
+    "admin_name": "Banjul",
+    "population": 413397,
+    "slug": "banjul-gambia-the"
+  },
+  {
+    "city": "Basse-Terre",
+    "lat": 16.0104,
+    "lon": -61.7055,
+    "country": "Guadeloupe",
+    "admin_name": null,
+    "population": 307,
+    "slug": "basse-terre-guadeloupe"
+  },
+  {
+    "city": "Basseterre",
+    "lat": 17.3,
+    "lon": -62.7333,
+    "country": "Saint Kitts and Nevis",
+    "admin_name": "Saint George Basseterre",
+    "population": 13220,
+    "slug": "basseterre-saint-kitts-and-nevis"
+  },
+  {
+    "city": "Baton Rouge",
+    "lat": 30.442,
+    "lon": -91.1311,
+    "country": "United States",
+    "admin_name": "Louisiana",
+    "population": 635671,
+    "slug": "baton-rouge-united-states"
+  },
+  {
+    "city": "Beijing",
+    "lat": 39.9067,
+    "lon": 116.3975,
+    "country": "China",
+    "admin_name": "Beijing",
+    "population": 18522000,
+    "slug": "beijing-china"
+  },
+  {
+    "city": "Beirut",
+    "lat": 33.8983,
+    "lon": 35.5057,
+    "country": "Lebanon",
+    "admin_name": "Beyrouth",
+    "population": 2421354,
+    "slug": "beirut-lebanon"
+  },
+  {
+    "city": "Belgrade",
+    "lat": 44.82,
+    "lon": 20.46,
+    "country": "Serbia",
+    "admin_name": "Beograd",
+    "population": 1197714,
+    "slug": "belgrade-serbia"
+  },
+  {
+    "city": "Belmopan",
+    "lat": 17.2514,
+    "lon": -88.7669,
+    "country": "Belize",
+    "admin_name": "Cayo",
+    "population": 17222,
+    "slug": "belmopan-belize"
+  },
+  {
+    "city": "Berlin",
+    "lat": 52.52,
+    "lon": 13.405,
+    "country": "Germany",
+    "admin_name": "Berlin",
+    "population": 4890363,
+    "slug": "berlin-germany"
+  },
+  {
+    "city": "Bern",
+    "lat": 46.9481,
+    "lon": 7.4475,
+    "country": "Switzerland",
+    "admin_name": "Bern",
+    "population": 134506,
+    "slug": "bern-switzerland"
+  },
+  {
+    "city": "Birmingham",
+    "lat": 33.5279,
+    "lon": -86.7971,
+    "country": "United States",
+    "admin_name": "Alabama",
+    "population": 782111,
+    "slug": "birmingham-united-states"
+  },
+  {
+    "city": "Bishkek",
+    "lat": 42.8747,
+    "lon": 74.6122,
+    "country": "Kyrgyzstan",
+    "admin_name": "Bishkek",
+    "population": 1120827,
+    "slug": "bishkek-kyrgyzstan"
+  },
+  {
+    "city": "Bismarck",
+    "lat": 46.8143,
+    "lon": -100.7694,
+    "country": "United States",
+    "admin_name": "North Dakota",
+    "population": 99433,
+    "slug": "bismarck-united-states"
+  },
+  {
+    "city": "Bissau",
+    "lat": 11.85,
+    "lon": -15.5667,
+    "country": "Guinea-Bissau",
+    "admin_name": "Bissau",
+    "population": 492004,
+    "slug": "bissau-guinea-bissau"
+  },
+  {
+    "city": "Bloemfontein",
+    "lat": -29.1167,
+    "lon": 26.2167,
+    "country": "South Africa",
+    "admin_name": "Free State",
+    "population": 256185,
+    "slug": "bloemfontein-south-africa"
+  },
+  {
+    "city": "Bogotá",
+    "lat": 4.7111,
+    "lon": -74.0722,
+    "country": "Colombia",
+    "admin_name": "Bogotá",
+    "population": 7968095,
+    "slug": "bogot-colombia"
+  },
+  {
+    "city": "Boise",
+    "lat": 43.6005,
+    "lon": -116.2308,
+    "country": "United States",
+    "admin_name": "Idaho",
+    "population": 449776,
+    "slug": "boise-united-states"
+  },
+  {
+    "city": "Boston",
+    "lat": 42.3188,
+    "lon": -71.0852,
+    "country": "United States",
+    "admin_name": "Massachusetts",
+    "population": 4328315,
+    "slug": "boston-united-states"
+  },
+  {
+    "city": "Brades",
+    "lat": 16.7928,
+    "lon": -62.2106,
+    "country": "Montserrat",
+    "admin_name": "Saint Peter",
+    "population": 391,
+    "slug": "brades-montserrat"
+  },
+  {
+    "city": "Brasília",
+    "lat": -15.7939,
+    "lon": -47.8828,
+    "country": "Brazil",
+    "admin_name": "Distrito Federal",
+    "population": 2817068,
+    "slug": "bras-lia-brazil"
+  },
+  {
+    "city": "Bratislava",
+    "lat": 48.1439,
+    "lon": 17.1097,
+    "country": "Slovakia",
+    "admin_name": "Bratislava",
+    "population": 475503,
+    "slug": "bratislava-slovakia"
+  },
+  {
+    "city": "Brazzaville",
+    "lat": -4.2694,
+    "lon": 15.2711,
+    "country": "Congo (Brazzaville)",
+    "admin_name": "Brazzaville",
+    "population": 1733263,
+    "slug": "brazzaville-congo-brazzaville"
+  },
+  {
+    "city": "Bridgeport",
+    "lat": 41.1918,
+    "lon": -73.1954,
+    "country": "United States",
+    "admin_name": "Connecticut",
+    "population": 908251,
+    "slug": "bridgeport-united-states"
+  },
+  {
+    "city": "Bridgetown",
+    "lat": 13.0975,
+    "lon": -59.6167,
+    "country": "Barbados",
+    "admin_name": "Saint Michael",
+    "population": 110000,
+    "slug": "bridgetown-barbados"
+  },
+  {
+    "city": "Bronx",
+    "lat": 40.8501,
+    "lon": -73.8662,
+    "country": "United States",
+    "admin_name": "New York",
+    "population": 1472654,
+    "slug": "bronx-united-states"
+  },
+  {
+    "city": "Brooklyn",
+    "lat": 40.6501,
+    "lon": -73.9496,
+    "country": "United States",
+    "admin_name": "New York",
+    "population": 2736074,
+    "slug": "brooklyn-united-states"
+  },
+  {
+    "city": "Brussels",
+    "lat": 50.8467,
+    "lon": 4.3525,
+    "country": "Belgium",
+    "admin_name": "Brussels-Capital Region",
+    "population": 1235192,
+    "slug": "brussels-belgium"
+  },
+  {
+    "city": "Bucharest",
+    "lat": 44.4325,
+    "lon": 26.1039,
+    "country": "Romania",
+    "admin_name": "Bucureşti",
+    "population": 2412530,
+    "slug": "bucharest-romania"
+  },
+  {
+    "city": "Budapest",
+    "lat": 47.4925,
+    "lon": 19.0514,
+    "country": "Hungary",
+    "admin_name": "Budapest",
+    "population": 2997958,
+    "slug": "budapest-hungary"
+  },
+  {
+    "city": "Buenos Aires",
+    "lat": -34.6033,
+    "lon": -58.3817,
+    "country": "Argentina",
+    "admin_name": "Buenos Aires, Ciudad Autónoma de",
+    "population": 16710000,
+    "slug": "buenos-aires-argentina"
+  },
+  {
+    "city": "Buffalo",
+    "lat": 42.9018,
+    "lon": -78.8487,
+    "country": "United States",
+    "admin_name": "New York",
+    "population": 944589,
+    "slug": "buffalo-united-states"
+  },
+  {
+    "city": "Bujumbura",
+    "lat": -3.3833,
+    "lon": 29.3667,
+    "country": "Burundi",
+    "admin_name": "Bujumbura Mairie",
+    "population": 1143202,
+    "slug": "bujumbura-burundi"
+  },
+  {
+    "city": "Cairo",
+    "lat": 30.0444,
+    "lon": 31.2358,
+    "country": "Egypt",
+    "admin_name": "Al Qāhirah",
+    "population": 20296000,
+    "slug": "cairo-egypt"
+  },
+  {
+    "city": "Canberra",
+    "lat": -35.2931,
+    "lon": 149.1269,
+    "country": "Australia",
+    "admin_name": "Australian Capital Territory",
+    "population": 381488,
+    "slug": "canberra-australia"
+  },
+  {
+    "city": "Cape Town",
+    "lat": -33.9253,
+    "lon": 18.4239,
+    "country": "South Africa",
+    "admin_name": "Western Cape",
+    "population": 4770313,
+    "slug": "cape-town-south-africa"
+  },
+  {
+    "city": "Capitol Hill",
+    "lat": 15.2137,
+    "lon": 145.7546,
+    "country": "Northern Mariana Islands",
+    "admin_name": null,
+    "population": 2500,
+    "slug": "capitol-hill-northern-mariana-islands"
+  },
+  {
+    "city": "Caracas",
+    "lat": 10.4806,
+    "lon": -66.9036,
+    "country": "Venezuela",
+    "admin_name": "Distrito Capital",
+    "population": 2245744,
+    "slug": "caracas-venezuela"
+  },
+  {
+    "city": "Carson City",
+    "lat": 39.1511,
+    "lon": -119.7476,
+    "country": "United States",
+    "admin_name": "Nevada",
+    "population": 58249,
+    "slug": "carson-city-united-states"
+  },
+  {
+    "city": "Castries",
+    "lat": 14.0167,
+    "lon": -60.9833,
+    "country": "Saint Lucia",
+    "admin_name": "Castries",
+    "population": 70000,
+    "slug": "castries-saint-lucia"
+  },
+  {
+    "city": "Cayenne",
+    "lat": 4.933,
+    "lon": -52.33,
+    "country": "French Guiana",
+    "admin_name": null,
+    "population": 61550,
+    "slug": "cayenne-french-guiana"
+  },
+  {
+    "city": "Charleston",
+    "lat": 38.3484,
+    "lon": -81.6322,
+    "country": "United States",
+    "admin_name": "West Virginia",
+    "population": 129754,
+    "slug": "charleston-united-states"
+  },
+  {
+    "city": "Charleston",
+    "lat": 32.8168,
+    "lon": -79.9687,
+    "country": "United States",
+    "admin_name": "South Carolina",
+    "population": 706884,
+    "slug": "charleston-united-states"
+  },
+  {
+    "city": "Charlotte",
+    "lat": 35.2083,
+    "lon": -80.8303,
+    "country": "United States",
+    "admin_name": "North Carolina",
+    "population": 1427444,
+    "slug": "charlotte-united-states"
+  },
+  {
+    "city": "Charlotte Amalie",
+    "lat": 18.342,
+    "lon": -64.9331,
+    "country": "U.S. Virgin Islands",
+    "admin_name": "Virgin Islands",
+    "population": 0,
+    "slug": "charlotte-amalie-u-s-virgin-islands"
+  },
+  {
+    "city": "Cheyenne",
+    "lat": 41.135,
+    "lon": -104.7902,
+    "country": "United States",
+    "admin_name": "Wyoming",
+    "population": 78204,
+    "slug": "cheyenne-united-states"
+  },
+  {
+    "city": "Chicago",
+    "lat": 41.8375,
+    "lon": -87.6866,
+    "country": "United States",
+    "admin_name": "Illinois",
+    "population": 8497759,
+    "slug": "chicago-united-states"
+  },
+  {
+    "city": "Chisinau",
+    "lat": 47.0228,
+    "lon": 28.8353,
+    "country": "Moldova",
+    "admin_name": "Chişinău",
+    "population": 702300,
+    "slug": "chisinau-moldova"
+  },
+  {
+    "city": "Cincinnati",
+    "lat": 39.1413,
+    "lon": -84.506,
+    "country": "United States",
+    "admin_name": "Ohio",
+    "population": 1692702,
+    "slug": "cincinnati-united-states"
+  },
+  {
+    "city": "Cleveland",
+    "lat": 41.4764,
+    "lon": -81.6805,
+    "country": "United States",
+    "admin_name": "Ohio",
+    "population": 1680247,
+    "slug": "cleveland-united-states"
+  },
+  {
+    "city": "Colombo",
+    "lat": 6.9344,
+    "lon": 79.8428,
+    "country": "Sri Lanka",
+    "admin_name": "Western",
+    "population": 2323826,
+    "slug": "colombo-sri-lanka"
+  },
+  {
+    "city": "Columbia",
+    "lat": 34.0378,
+    "lon": -80.9036,
+    "country": "United States",
+    "admin_name": "South Carolina",
+    "population": 604065,
+    "slug": "columbia-united-states"
+  },
+  {
+    "city": "Columbus",
+    "lat": 39.9862,
+    "lon": -82.9855,
+    "country": "United States",
+    "admin_name": "Ohio",
+    "population": 1572546,
+    "slug": "columbus-united-states"
+  },
+  {
+    "city": "Conakry",
+    "lat": 9.5092,
+    "lon": -13.7122,
+    "country": "Guinea",
+    "admin_name": "Conakry",
+    "population": 1667864,
+    "slug": "conakry-guinea"
+  },
+  {
+    "city": "Concord",
+    "lat": 43.2305,
+    "lon": -71.5595,
+    "country": "United States",
+    "admin_name": "New Hampshire",
+    "population": 44049,
+    "slug": "concord-united-states"
+  },
+  {
+    "city": "Copenhagen",
+    "lat": 55.6761,
+    "lon": 12.5683,
+    "country": "Denmark",
+    "admin_name": "Hovedstaden",
+    "population": 1366301,
+    "slug": "copenhagen-denmark"
+  },
+  {
+    "city": "Cotonou",
+    "lat": 6.3667,
+    "lon": 2.4333,
+    "country": "Benin",
+    "admin_name": "Littoral",
+    "population": 679012,
+    "slug": "cotonou-benin"
+  },
+  {
+    "city": "Dakar",
+    "lat": 14.6928,
+    "lon": -17.4467,
+    "country": "Senegal",
+    "admin_name": "Dakar",
+    "population": 1438725,
+    "slug": "dakar-senegal"
+  },
+  {
+    "city": "Dallas",
+    "lat": 32.7935,
+    "lon": -96.7667,
+    "country": "United States",
+    "admin_name": "Texas",
+    "population": 5830932,
+    "slug": "dallas-united-states"
+  },
+  {
+    "city": "Damascus",
+    "lat": 33.5131,
+    "lon": 36.2919,
+    "country": "Syria",
+    "admin_name": "Dimashq",
+    "population": 2584771,
+    "slug": "damascus-syria"
+  },
+  {
+    "city": "Denver",
+    "lat": 39.762,
+    "lon": -104.8758,
+    "country": "United States",
+    "admin_name": "Colorado",
+    "population": 2687458,
+    "slug": "denver-united-states"
+  },
+  {
+    "city": "Des Moines",
+    "lat": 41.5725,
+    "lon": -93.6105,
+    "country": "United States",
+    "admin_name": "Iowa",
+    "population": 548926,
+    "slug": "des-moines-united-states"
+  },
+  {
+    "city": "Detroit",
+    "lat": 42.3834,
+    "lon": -83.1024,
+    "country": "United States",
+    "admin_name": "Michigan",
+    "population": 3725908,
+    "slug": "detroit-united-states"
+  },
+  {
+    "city": "Dhaka",
+    "lat": 23.7639,
+    "lon": 90.3889,
+    "country": "Bangladesh",
+    "admin_name": "Dhaka",
+    "population": 18627000,
+    "slug": "dhaka-bangladesh"
+  },
+  {
+    "city": "Dili",
+    "lat": -8.5536,
+    "lon": 125.5783,
+    "country": "Timor-Leste",
+    "admin_name": "Díli",
+    "population": 222323,
+    "slug": "dili-timor-leste"
+  },
+  {
+    "city": "Djibouti",
+    "lat": 11.5883,
+    "lon": 43.145,
+    "country": "Djibouti",
+    "admin_name": "Djibouti",
+    "population": 603900,
+    "slug": "djibouti-djibouti"
+  },
+  {
+    "city": "Dodoma",
+    "lat": -6.1731,
+    "lon": 35.7419,
+    "country": "Tanzania",
+    "admin_name": "Dodoma",
+    "population": 45807,
+    "slug": "dodoma-tanzania"
+  },
+  {
+    "city": "Doha",
+    "lat": 25.2867,
+    "lon": 51.5333,
+    "country": "Qatar",
+    "admin_name": "Ad Dawḩah",
+    "population": 1186023,
+    "slug": "doha-qatar"
+  },
+  {
+    "city": "Douglas",
+    "lat": 54.15,
+    "lon": -4.4775,
+    "country": "Isle of Man",
+    "admin_name": null,
+    "population": 27938,
+    "slug": "douglas-isle-of-man"
+  },
+  {
+    "city": "Dover",
+    "lat": 39.161,
+    "lon": -75.5202,
+    "country": "United States",
+    "admin_name": "Delaware",
+    "population": 130186,
+    "slug": "dover-united-states"
+  },
+  {
+    "city": "Dublin",
+    "lat": 53.35,
+    "lon": -6.2603,
+    "country": "Ireland",
+    "admin_name": "Dublin",
+    "population": 1263219,
+    "slug": "dublin-ireland"
+  },
+  {
+    "city": "Dushanbe",
+    "lat": 38.5367,
+    "lon": 68.78,
+    "country": "Tajikistan",
+    "admin_name": "Dushanbe",
+    "population": 863400,
+    "slug": "dushanbe-tajikistan"
+  },
+  {
+    "city": "El Paso",
+    "lat": 31.8476,
+    "lon": -106.43,
+    "country": "United States",
+    "admin_name": "Texas",
+    "population": 865270,
+    "slug": "el-paso-united-states"
+  },
+  {
+    "city": "Flying Fish Cove",
+    "lat": -10.4261,
+    "lon": 105.6728,
+    "country": "Christmas Island",
+    "admin_name": null,
+    "population": 1599,
+    "slug": "flying-fish-cove-christmas-island"
+  },
+  {
+    "city": "Fort Worth",
+    "lat": 32.7817,
+    "lon": -97.3474,
+    "country": "United States",
+    "admin_name": "Texas",
+    "population": 924663,
+    "slug": "fort-worth-united-states"
+  },
+  {
+    "city": "Fort-de-France",
+    "lat": 14.6,
+    "lon": -61.0667,
+    "country": "Martinique",
+    "admin_name": null,
+    "population": 253995,
+    "slug": "fort-de-france-martinique"
+  },
+  {
+    "city": "Frankfort",
+    "lat": 38.1924,
+    "lon": -84.8643,
+    "country": "United States",
+    "admin_name": "Kentucky",
+    "population": 28460,
+    "slug": "frankfort-united-states"
+  },
+  {
+    "city": "Freetown",
+    "lat": 8.4844,
+    "lon": -13.2344,
+    "country": "Sierra Leone",
+    "admin_name": "Western Area",
+    "population": 951000,
+    "slug": "freetown-sierra-leone"
+  },
+  {
+    "city": "Fresno",
+    "lat": 36.783,
+    "lon": -119.7939,
+    "country": "United States",
+    "admin_name": "California",
+    "population": 725276,
+    "slug": "fresno-united-states"
+  },
+  {
+    "city": "Funafuti",
+    "lat": -8.5167,
+    "lon": 179.2,
+    "country": "Tuvalu",
+    "admin_name": "Funafuti",
+    "population": 6025,
+    "slug": "funafuti-tuvalu"
+  },
+  {
+    "city": "Gaborone",
+    "lat": -24.6581,
+    "lon": 25.9122,
+    "country": "Botswana",
+    "admin_name": "Gaborone",
+    "population": 235884,
+    "slug": "gaborone-botswana"
+  },
+  {
+    "city": "Gaza",
+    "lat": 31.5069,
+    "lon": 34.456,
+    "country": "Gaza Strip",
+    "admin_name": null,
+    "population": 590481,
+    "slug": "gaza-gaza-strip"
+  },
+  {
+    "city": "George Town",
+    "lat": 19.2866,
+    "lon": -81.3744,
+    "country": "Cayman Islands",
+    "admin_name": null,
+    "population": 27704,
+    "slug": "george-town-cayman-islands"
+  },
+  {
+    "city": "Georgetown",
+    "lat": 6.8058,
+    "lon": -58.1508,
+    "country": "Guyana",
+    "admin_name": "Demerara-Mahaica",
+    "population": 200500,
+    "slug": "georgetown-guyana"
+  },
+  {
+    "city": "Gibraltar",
+    "lat": 36.14,
+    "lon": -5.35,
+    "country": "Gibraltar",
+    "admin_name": null,
+    "population": 34003,
+    "slug": "gibraltar-gibraltar"
+  },
+  {
+    "city": "Gitega",
+    "lat": -3.4283,
+    "lon": 29.925,
+    "country": "Burundi",
+    "admin_name": "Gitega",
+    "population": 135467,
+    "slug": "gitega-burundi"
+  },
+  {
+    "city": "Grand Turk",
+    "lat": 21.459,
+    "lon": -71.139,
+    "country": "Turks and Caicos Islands",
+    "admin_name": null,
+    "population": 3700,
+    "slug": "grand-turk-turks-and-caicos-islands"
+  },
+  {
+    "city": "Guatemala City",
+    "lat": 14.6133,
+    "lon": -90.5353,
+    "country": "Guatemala",
+    "admin_name": "Guatemala",
+    "population": 3014000,
+    "slug": "guatemala-city-guatemala"
+  },
+  {
+    "city": "Gustavia",
+    "lat": 17.8979,
+    "lon": -62.8506,
+    "country": "Saint Barthelemy",
+    "admin_name": null,
+    "population": 2300,
+    "slug": "gustavia-saint-barthelemy"
+  },
+  {
+    "city": "Hagåtña",
+    "lat": 13.4745,
+    "lon": 144.7504,
+    "country": "Guam",
+    "admin_name": null,
+    "population": 1051,
+    "slug": "hag-t-a-guam"
+  },
+  {
+    "city": "Hamilton",
+    "lat": 32.293,
+    "lon": -64.782,
+    "country": "Bermuda",
+    "admin_name": "Hamilton",
+    "population": 854,
+    "slug": "hamilton-bermuda"
+  },
+  {
+    "city": "Hanoi",
+    "lat": 21,
+    "lon": 105.85,
+    "country": "Vietnam",
+    "admin_name": "Hà Nội",
+    "population": 8246600,
+    "slug": "hanoi-vietnam"
+  },
+  {
+    "city": "Harare",
+    "lat": -17.8292,
+    "lon": 31.0522,
+    "country": "Zimbabwe",
+    "admin_name": "Harare",
+    "population": 2150000,
+    "slug": "harare-zimbabwe"
+  },
+  {
+    "city": "Harrisburg",
+    "lat": 40.2752,
+    "lon": -76.8843,
+    "country": "United States",
+    "admin_name": "Pennsylvania",
+    "population": 498329,
+    "slug": "harrisburg-united-states"
+  },
+  {
+    "city": "Hartford",
+    "lat": 41.7661,
+    "lon": -72.6834,
+    "country": "United States",
+    "admin_name": "Connecticut",
+    "population": 974684,
+    "slug": "hartford-united-states"
+  },
+  {
+    "city": "Havana",
+    "lat": 23.1367,
+    "lon": -82.3589,
+    "country": "Cuba",
+    "admin_name": "La Habana",
+    "population": 2089532,
+    "slug": "havana-cuba"
+  },
+  {
+    "city": "Helena",
+    "lat": 46.5965,
+    "lon": -112.0202,
+    "country": "United States",
+    "admin_name": "Montana",
+    "population": 32529,
+    "slug": "helena-united-states"
+  },
+  {
+    "city": "Helsinki",
+    "lat": 60.1708,
+    "lon": 24.9375,
+    "country": "Finland",
+    "admin_name": "Uusimaa",
+    "population": 1360075,
+    "slug": "helsinki-finland"
+  },
+  {
+    "city": "Hempstead",
+    "lat": 40.6629,
+    "lon": -73.6089,
+    "country": "United States",
+    "admin_name": "New York",
+    "population": 789763,
+    "slug": "hempstead-united-states"
+  },
+  {
+    "city": "Hong Kong",
+    "lat": 22.3,
+    "lon": 114.2,
+    "country": "Hong Kong",
+    "admin_name": null,
+    "population": 7450000,
+    "slug": "hong-kong-hong-kong"
+  },
+  {
+    "city": "Honiara",
+    "lat": -9.4319,
+    "lon": 159.9556,
+    "country": "Solomon Islands",
+    "admin_name": "Honiara",
+    "population": 84520,
+    "slug": "honiara-solomon-islands"
+  },
+  {
+    "city": "Honolulu",
+    "lat": 21.3294,
+    "lon": -157.846,
+    "country": "United States",
+    "admin_name": "Hawaii",
+    "population": 348547,
+    "slug": "honolulu-united-states"
+  },
+  {
+    "city": "Houston",
+    "lat": 29.786,
+    "lon": -95.3885,
+    "country": "United States",
+    "admin_name": "Texas",
+    "population": 5970127,
+    "slug": "houston-united-states"
+  },
+  {
+    "city": "Indianapolis",
+    "lat": 39.7771,
+    "lon": -86.1458,
+    "country": "United States",
+    "admin_name": "Indiana",
+    "population": 1729849,
+    "slug": "indianapolis-united-states"
+  },
+  {
+    "city": "Islamabad",
+    "lat": 33.6931,
+    "lon": 73.0639,
+    "country": "Pakistan",
+    "admin_name": "Islamabad",
+    "population": 1014825,
+    "slug": "islamabad-pakistan"
+  },
+  {
+    "city": "Jackson",
+    "lat": 32.3157,
+    "lon": -90.2125,
+    "country": "United States",
+    "admin_name": "Mississippi",
+    "population": 335171,
+    "slug": "jackson-united-states"
+  },
+  {
+    "city": "Jacksonville",
+    "lat": 30.3322,
+    "lon": -81.6749,
+    "country": "United States",
+    "admin_name": "Florida",
+    "population": 1288298,
+    "slug": "jacksonville-united-states"
+  },
+  {
+    "city": "Jakarta",
+    "lat": -6.175,
+    "lon": 106.8275,
+    "country": "Indonesia",
+    "admin_name": "Jakarta",
+    "population": 33756000,
+    "slug": "jakarta-indonesia"
+  },
+  {
+    "city": "Jamestown",
+    "lat": -15.9251,
+    "lon": -5.7179,
+    "country": "Saint Helena, Ascension, and Tristan da Cunha",
+    "admin_name": "Saint Helena",
+    "population": 714,
+    "slug": "jamestown-saint-helena-ascension-and-tristan-da-cunha"
+  },
+  {
+    "city": "Jefferson City",
+    "lat": 38.5676,
+    "lon": -92.1759,
+    "country": "United States",
+    "admin_name": "Missouri",
+    "population": 42644,
+    "slug": "jefferson-city-united-states"
+  },
+  {
+    "city": "Jerusalem",
+    "lat": 31.7789,
+    "lon": 35.2256,
+    "country": "Israel",
+    "admin_name": "Jerusalem",
+    "population": 936425,
+    "slug": "jerusalem-israel"
+  },
+  {
+    "city": "Juba",
+    "lat": 4.85,
+    "lon": 31.6,
+    "country": "South Sudan",
+    "admin_name": "Central Equatoria",
+    "population": 459342,
+    "slug": "juba-south-sudan"
+  },
+  {
+    "city": "Juneau",
+    "lat": 58.4546,
+    "lon": -134.1739,
+    "country": "United States",
+    "admin_name": "Alaska",
+    "population": 32108,
+    "slug": "juneau-united-states"
+  },
+  {
+    "city": "Kabul",
+    "lat": 34.5253,
+    "lon": 69.1783,
+    "country": "Afghanistan",
+    "admin_name": "Kābul",
+    "population": 4273156,
+    "slug": "kabul-afghanistan"
+  },
+  {
+    "city": "Kampala",
+    "lat": 0.3136,
+    "lon": 32.5811,
+    "country": "Uganda",
+    "admin_name": "Kampala",
+    "population": 1680600,
+    "slug": "kampala-uganda"
+  },
+  {
+    "city": "Kansas City",
+    "lat": 39.1238,
+    "lon": -94.5541,
+    "country": "United States",
+    "admin_name": "Missouri",
+    "population": 1689556,
+    "slug": "kansas-city-united-states"
+  },
+  {
+    "city": "Kathmandu",
+    "lat": 27.71,
+    "lon": 85.32,
+    "country": "Nepal",
+    "admin_name": null,
+    "population": 845767,
+    "slug": "kathmandu-nepal"
+  },
+  {
+    "city": "Khartoum",
+    "lat": 15.6,
+    "lon": 32.5,
+    "country": "Sudan",
+    "admin_name": "Khartoum",
+    "population": 7869000,
+    "slug": "khartoum-sudan"
+  },
+  {
+    "city": "Kigali",
+    "lat": -1.9439,
+    "lon": 30.0594,
+    "country": "Rwanda",
+    "admin_name": "Kigali",
+    "population": 1518632,
+    "slug": "kigali-rwanda"
+  },
+  {
+    "city": "King Edward Point",
+    "lat": -54.2833,
+    "lon": -36.5,
+    "country": "South Georgia And South Sandwich Islands",
+    "admin_name": null,
+    "population": 0,
+    "slug": "king-edward-point-south-georgia-and-south-sandwich-islands"
+  },
+  {
+    "city": "Kingston",
+    "lat": -29.0606,
+    "lon": 167.9619,
+    "country": "Norfolk Island",
+    "admin_name": null,
+    "population": 341,
+    "slug": "kingston-norfolk-island"
+  },
+  {
+    "city": "Kingston",
+    "lat": 17.9714,
+    "lon": -76.7931,
+    "country": "Jamaica",
+    "admin_name": "Kingston",
+    "population": 580000,
+    "slug": "kingston-jamaica"
+  },
+  {
+    "city": "Kingstown",
+    "lat": 13.1578,
+    "lon": -61.225,
+    "country": "Saint Vincent and the Grenadines",
+    "admin_name": "Saint George",
+    "population": 13857,
+    "slug": "kingstown-saint-vincent-and-the-grenadines"
+  },
+  {
+    "city": "Kinshasa",
+    "lat": -4.3219,
+    "lon": 15.3119,
+    "country": "Congo (Kinshasa)",
+    "admin_name": "Kinshasa",
+    "population": 12836000,
+    "slug": "kinshasa-congo-kinshasa"
+  },
+  {
+    "city": "Kuala Lumpur",
+    "lat": 3.1478,
+    "lon": 101.6953,
+    "country": "Malaysia",
+    "admin_name": "Kuala Lumpur",
+    "population": 8911000,
+    "slug": "kuala-lumpur-malaysia"
+  },
+  {
+    "city": "Kuwait City",
+    "lat": 29.3697,
+    "lon": 47.9783,
+    "country": "Kuwait",
+    "admin_name": "Al ‘Āşimah",
+    "population": 3000000,
+    "slug": "kuwait-city-kuwait"
+  },
+  {
+    "city": "Kyiv",
+    "lat": 50.45,
+    "lon": 30.5233,
+    "country": "Ukraine",
+    "admin_name": "Kyiv, Misto",
+    "population": 2952301,
+    "slug": "kyiv-ukraine"
+  },
+  {
+    "city": "La Paz",
+    "lat": -16.4958,
+    "lon": -68.1333,
+    "country": "Bolivia",
+    "admin_name": "La Paz",
+    "population": 2867504,
+    "slug": "la-paz-bolivia"
+  },
+  {
+    "city": "Lansing",
+    "lat": 42.7142,
+    "lon": -84.5601,
+    "country": "United States",
+    "admin_name": "Michigan",
+    "population": 322561,
+    "slug": "lansing-united-states"
+  },
+  {
+    "city": "Las Vegas",
+    "lat": 36.2333,
+    "lon": -115.2654,
+    "country": "United States",
+    "admin_name": "Nevada",
+    "population": 2248047,
+    "slug": "las-vegas-united-states"
+  },
+  {
+    "city": "Libreville",
+    "lat": 0.3903,
+    "lon": 9.4542,
+    "country": "Gabon",
+    "admin_name": "Estuaire",
+    "population": 797003,
+    "slug": "libreville-gabon"
+  },
+  {
+    "city": "Lilongwe",
+    "lat": -13.9833,
+    "lon": 33.7833,
+    "country": "Malawi",
+    "admin_name": "Lilongwe",
+    "population": 989318,
+    "slug": "lilongwe-malawi"
+  },
+  {
+    "city": "Lima",
+    "lat": -12.06,
+    "lon": -77.0375,
+    "country": "Peru",
+    "admin_name": "Lima",
+    "population": 10320000,
+    "slug": "lima-peru"
+  },
+  {
+    "city": "Lincoln",
+    "lat": 40.8099,
+    "lon": -96.6784,
+    "country": "United States",
+    "admin_name": "Nebraska",
+    "population": 290531,
+    "slug": "lincoln-united-states"
+  },
+  {
+    "city": "Lisbon",
+    "lat": 38.7253,
+    "lon": -9.15,
+    "country": "Portugal",
+    "admin_name": "Lisboa",
+    "population": 548703,
+    "slug": "lisbon-portugal"
+  },
+  {
+    "city": "Little Rock",
+    "lat": 34.7256,
+    "lon": -92.3577,
+    "country": "United States",
+    "admin_name": "Arkansas",
+    "population": 459409,
+    "slug": "little-rock-united-states"
+  },
+  {
+    "city": "Ljubljana",
+    "lat": 46.0514,
+    "lon": 14.5061,
+    "country": "Slovenia",
+    "admin_name": "Ljubljana",
+    "population": 284293,
+    "slug": "ljubljana-slovenia"
+  },
+  {
+    "city": "Lobamba",
+    "lat": -26.4465,
+    "lon": 31.2064,
+    "country": "Eswatini",
+    "admin_name": "Hhohho",
+    "population": 5800,
+    "slug": "lobamba-eswatini"
+  },
+  {
+    "city": "Lomé",
+    "lat": 6.1319,
+    "lon": 1.2228,
+    "country": "Togo",
+    "admin_name": "Maritime",
+    "population": 33000,
+    "slug": "lom-togo"
+  },
+  {
+    "city": "London",
+    "lat": 51.5072,
+    "lon": -0.1275,
+    "country": "United Kingdom",
+    "admin_name": "London, City of",
+    "population": 11262000,
+    "slug": "london-united-kingdom"
+  },
+  {
+    "city": "Longyearbyen",
+    "lat": 78.22,
+    "lon": 15.65,
+    "country": "Svalbard",
+    "admin_name": null,
+    "population": 1753,
+    "slug": "longyearbyen-svalbard"
+  },
+  {
+    "city": "Los Angeles",
+    "lat": 34.1141,
+    "lon": -118.4068,
+    "country": "United States",
+    "admin_name": "California",
+    "population": 11922389,
+    "slug": "los-angeles-united-states"
+  },
+  {
+    "city": "Louisville",
+    "lat": 38.1663,
+    "lon": -85.6485,
+    "country": "United States",
+    "admin_name": "Kentucky",
+    "population": 963812,
+    "slug": "louisville-united-states"
+  },
+  {
+    "city": "Luanda",
+    "lat": -8.8383,
+    "lon": 13.2344,
+    "country": "Angola",
+    "admin_name": "Luanda",
+    "population": 9051000,
+    "slug": "luanda-angola"
+  },
+  {
+    "city": "Lusaka",
+    "lat": -15.4167,
+    "lon": 28.2833,
+    "country": "Zambia",
+    "admin_name": "Lusaka",
+    "population": 2467563,
+    "slug": "lusaka-zambia"
+  },
+  {
+    "city": "Luxembourg",
+    "lat": 49.6117,
+    "lon": 6.1319,
+    "country": "Luxembourg",
+    "admin_name": "Luxembourg",
+    "population": 132780,
+    "slug": "luxembourg-luxembourg"
+  },
+  {
+    "city": "Madison",
+    "lat": 43.0822,
+    "lon": -89.393,
+    "country": "United States",
+    "admin_name": "Wisconsin",
+    "population": 451652,
+    "slug": "madison-united-states"
+  },
+  {
+    "city": "Madrid",
+    "lat": 40.4169,
+    "lon": -3.7033,
+    "country": "Spain",
+    "admin_name": "Madrid",
+    "population": 6211000,
+    "slug": "madrid-spain"
+  },
+  {
+    "city": "Majuro",
+    "lat": 7.0833,
+    "lon": 171.3833,
+    "country": "Marshall Islands",
+    "admin_name": "Majuro",
+    "population": 30000,
+    "slug": "majuro-marshall-islands"
+  },
+  {
+    "city": "Malabo",
+    "lat": 3.7456,
+    "lon": 8.7744,
+    "country": "Equatorial Guinea",
+    "admin_name": "Bioko Norte",
+    "population": 297000,
+    "slug": "malabo-equatorial-guinea"
+  },
+  {
+    "city": "Male",
+    "lat": 4.1753,
+    "lon": 73.5089,
+    "country": "Maldives",
+    "admin_name": "Maale",
+    "population": 133019,
+    "slug": "male-maldives"
+  },
+  {
+    "city": "Mamoudzou",
+    "lat": -12.7806,
+    "lon": 45.2278,
+    "country": "Mayotte",
+    "admin_name": null,
+    "population": 71437,
+    "slug": "mamoudzou-mayotte"
+  },
+  {
+    "city": "Managua",
+    "lat": 12.1364,
+    "lon": -86.2514,
+    "country": "Nicaragua",
+    "admin_name": "Managua",
+    "population": 1051236,
+    "slug": "managua-nicaragua"
+  },
+  {
+    "city": "Manama",
+    "lat": 26.225,
+    "lon": 50.5775,
+    "country": "Bahrain",
+    "admin_name": "Al ‘Āşimah",
+    "population": 635000,
+    "slug": "manama-bahrain"
+  },
+  {
+    "city": "Manhattan",
+    "lat": 40.7834,
+    "lon": -73.9662,
+    "country": "United States",
+    "admin_name": "New York",
+    "population": 1694263,
+    "slug": "manhattan-united-states"
+  },
+  {
+    "city": "Manila",
+    "lat": 14.5958,
+    "lon": 120.9772,
+    "country": "Philippines",
+    "admin_name": "Manila",
+    "population": 24922000,
+    "slug": "manila-philippines"
+  },
+  {
+    "city": "Maputo",
+    "lat": -25.9667,
+    "lon": 32.5833,
+    "country": "Mozambique",
+    "admin_name": "Maputo",
+    "population": 1133200,
+    "slug": "maputo-mozambique"
+  },
+  {
+    "city": "Marigot",
+    "lat": 18.0706,
+    "lon": -63.0847,
+    "country": "Saint Martin",
+    "admin_name": null,
+    "population": 5700,
+    "slug": "marigot-saint-martin"
+  },
+  {
+    "city": "Maseru",
+    "lat": -29.31,
+    "lon": 27.48,
+    "country": "Lesotho",
+    "admin_name": "Maseru",
+    "population": 343541,
+    "slug": "maseru-lesotho"
+  },
+  {
+    "city": "Mata-Utu",
+    "lat": -13.2833,
+    "lon": -176.1833,
+    "country": "Wallis and Futuna",
+    "admin_name": "Uvea",
+    "population": 1029,
+    "slug": "mata-utu-wallis-and-futuna"
+  },
+  {
+    "city": "Mbabane",
+    "lat": -26.3167,
+    "lon": 31.1333,
+    "country": "Eswatini",
+    "admin_name": "Hhohho",
+    "population": 60691,
+    "slug": "mbabane-eswatini"
+  },
+  {
+    "city": "McAllen",
+    "lat": 26.2252,
+    "lon": -98.2467,
+    "country": "United States",
+    "admin_name": "Texas",
+    "population": 797341,
+    "slug": "mcallen-united-states"
+  },
+  {
+    "city": "Memphis",
+    "lat": 35.1087,
+    "lon": -89.9663,
+    "country": "United States",
+    "admin_name": "Tennessee",
+    "population": 1037998,
+    "slug": "memphis-united-states"
+  },
+  {
+    "city": "Mexico City",
+    "lat": 19.4333,
+    "lon": -99.1333,
+    "country": "Mexico",
+    "admin_name": "Ciudad de México",
+    "population": 21804000,
+    "slug": "mexico-city-mexico"
+  },
+  {
+    "city": "Miami",
+    "lat": 25.784,
+    "lon": -80.2101,
+    "country": "United States",
+    "admin_name": "Florida",
+    "population": 6080145,
+    "slug": "miami-united-states"
+  },
+  {
+    "city": "Milwaukee",
+    "lat": 43.0642,
+    "lon": -87.9675,
+    "country": "United States",
+    "admin_name": "Wisconsin",
+    "population": 1290940,
+    "slug": "milwaukee-united-states"
+  },
+  {
+    "city": "Minneapolis",
+    "lat": 44.9635,
+    "lon": -93.2678,
+    "country": "United States",
+    "admin_name": "Minnesota",
+    "population": 2892569,
+    "slug": "minneapolis-united-states"
+  },
+  {
+    "city": "Minsk",
+    "lat": 53.9,
+    "lon": 27.5667,
+    "country": "Belarus",
+    "admin_name": "Minsk",
+    "population": 1995471,
+    "slug": "minsk-belarus"
+  },
+  {
+    "city": "Mogadishu",
+    "lat": 2.0392,
+    "lon": 45.3419,
+    "country": "Somalia",
+    "admin_name": "Banaadir",
+    "population": 2610483,
+    "slug": "mogadishu-somalia"
+  },
+  {
+    "city": "Monaco",
+    "lat": 43.7333,
+    "lon": 7.4167,
+    "country": "Monaco",
+    "admin_name": null,
+    "population": 36371,
+    "slug": "monaco-monaco"
+  },
+  {
+    "city": "Monrovia",
+    "lat": 6.3133,
+    "lon": -10.8014,
+    "country": "Liberia",
+    "admin_name": "Montserrado",
+    "population": 1021762,
+    "slug": "monrovia-liberia"
+  },
+  {
+    "city": "Montevideo",
+    "lat": -34.8836,
+    "lon": -56.1819,
+    "country": "Uruguay",
+    "admin_name": "Montevideo",
+    "population": 1719453,
+    "slug": "montevideo-uruguay"
+  },
+  {
+    "city": "Montgomery",
+    "lat": 32.3482,
+    "lon": -86.2668,
+    "country": "United States",
+    "admin_name": "Alabama",
+    "population": 251158,
+    "slug": "montgomery-united-states"
+  },
+  {
+    "city": "Montpelier",
+    "lat": 44.2659,
+    "lon": -72.5717,
+    "country": "United States",
+    "admin_name": "Vermont",
+    "population": 8030,
+    "slug": "montpelier-united-states"
+  },
+  {
+    "city": "Moroni",
+    "lat": -11.699,
+    "lon": 43.256,
+    "country": "Comoros",
+    "admin_name": "Grande Comore",
+    "population": 17267,
+    "slug": "moroni-comoros"
+  },
+  {
+    "city": "Moscow",
+    "lat": 55.7558,
+    "lon": 37.6172,
+    "country": "Russia",
+    "admin_name": "Moskva",
+    "population": 17332000,
+    "slug": "moscow-russia"
+  },
+  {
+    "city": "Muscat",
+    "lat": 23.6139,
+    "lon": 58.5922,
+    "country": "Oman",
+    "admin_name": "Masqaţ",
+    "population": 1421409,
+    "slug": "muscat-oman"
+  },
+  {
+    "city": "Nairobi",
+    "lat": -1.2864,
+    "lon": 36.8172,
+    "country": "Kenya",
+    "admin_name": "Nairobi City",
+    "population": 5545000,
+    "slug": "nairobi-kenya"
+  },
+  {
+    "city": "Nashville",
+    "lat": 36.1715,
+    "lon": -86.7842,
+    "country": "United States",
+    "admin_name": "Tennessee",
+    "population": 1177657,
+    "slug": "nashville-united-states"
+  },
+  {
+    "city": "Nassau",
+    "lat": 25.0781,
+    "lon": -77.3386,
+    "country": "Bahamas, The",
+    "admin_name": null,
+    "population": 274400,
+    "slug": "nassau-bahamas-the"
+  },
+  {
+    "city": "Nay Pyi Taw",
+    "lat": 19.7475,
+    "lon": 96.115,
+    "country": "Burma",
+    "admin_name": "Nay Pyi Taw",
+    "population": 1160242,
+    "slug": "nay-pyi-taw-burma"
+  },
+  {
+    "city": "New Delhi",
+    "lat": 28.6139,
+    "lon": 77.2089,
+    "country": "India",
+    "admin_name": "Delhi",
+    "population": 249998,
+    "slug": "new-delhi-india"
+  },
+  {
+    "city": "New Orleans",
+    "lat": 30.0687,
+    "lon": -89.9288,
+    "country": "United States",
+    "admin_name": "Louisiana",
+    "population": 932759,
+    "slug": "new-orleans-united-states"
+  },
+  {
+    "city": "New York",
+    "lat": 40.6943,
+    "lon": -73.9249,
+    "country": "United States",
+    "admin_name": "New York",
+    "population": 18908608,
+    "slug": "new-york-united-states"
+  },
+  {
+    "city": "Ngerulmud",
+    "lat": 7.5006,
+    "lon": 134.6242,
+    "country": "Palau",
+    "admin_name": "Melekeok",
+    "population": 271,
+    "slug": "ngerulmud-palau"
+  },
+  {
+    "city": "Niamey",
+    "lat": 13.515,
+    "lon": 2.1175,
+    "country": "Niger",
+    "admin_name": "Niamey",
+    "population": 1026848,
+    "slug": "niamey-niger"
+  },
+  {
+    "city": "Nicosia",
+    "lat": 35.1725,
+    "lon": 33.365,
+    "country": "Cyprus",
+    "admin_name": "Lefkosía",
+    "population": 330000,
+    "slug": "nicosia-cyprus"
+  },
+  {
+    "city": "Nouakchott",
+    "lat": 18.0858,
+    "lon": -15.9785,
+    "country": "Mauritania",
+    "admin_name": "Nouakchott Ouest",
+    "population": 1077169,
+    "slug": "nouakchott-mauritania"
+  },
+  {
+    "city": "Nouméa",
+    "lat": -22.2758,
+    "lon": 166.458,
+    "country": "New Caledonia",
+    "admin_name": "Province Sud",
+    "population": 182341,
+    "slug": "noum-a-new-caledonia"
+  },
+  {
+    "city": "Nuku‘alofa",
+    "lat": -21.1333,
+    "lon": -175.2,
+    "country": "Tonga",
+    "admin_name": "Tongatapu",
+    "population": 23221,
+    "slug": "nuku-alofa-tonga"
+  },
+  {
+    "city": "Nuuk",
+    "lat": 64.1814,
+    "lon": -51.6942,
+    "country": "Greenland",
+    "admin_name": "Sermersooq",
+    "population": 18326,
+    "slug": "nuuk-greenland"
+  },
+  {
+    "city": "N’Djamena",
+    "lat": 12.11,
+    "lon": 15.05,
+    "country": "Chad",
+    "admin_name": "N’Djamena",
+    "population": 1092066,
+    "slug": "n-djamena-chad"
+  },
+  {
+    "city": "Oklahoma City",
+    "lat": 35.4676,
+    "lon": -97.5136,
+    "country": "United States",
+    "admin_name": "Oklahoma",
+    "population": 998806,
+    "slug": "oklahoma-city-united-states"
+  },
+  {
+    "city": "Olympia",
+    "lat": 47.0417,
+    "lon": -122.8959,
+    "country": "United States",
+    "admin_name": "Washington",
+    "population": 210877,
+    "slug": "olympia-united-states"
+  },
+  {
+    "city": "Omaha",
+    "lat": 41.2627,
+    "lon": -96.0529,
+    "country": "United States",
+    "admin_name": "Nebraska",
+    "population": 821345,
+    "slug": "omaha-united-states"
+  },
+  {
+    "city": "Oranjestad",
+    "lat": 12.5186,
+    "lon": -70.0358,
+    "country": "Aruba",
+    "admin_name": null,
+    "population": 34980,
+    "slug": "oranjestad-aruba"
+  },
+  {
+    "city": "Orlando",
+    "lat": 28.4773,
+    "lon": -81.337,
+    "country": "United States",
+    "admin_name": "Florida",
+    "population": 1882705,
+    "slug": "orlando-united-states"
+  },
+  {
+    "city": "Oslo",
+    "lat": 59.9133,
+    "lon": 10.7389,
+    "country": "Norway",
+    "admin_name": "Oslo",
+    "population": 1064235,
+    "slug": "oslo-norway"
+  },
+  {
+    "city": "Ottawa",
+    "lat": 45.4247,
+    "lon": -75.695,
+    "country": "Canada",
+    "admin_name": "Ontario",
+    "population": 1068821,
+    "slug": "ottawa-canada"
+  },
+  {
+    "city": "Ouagadougou",
+    "lat": 12.3686,
+    "lon": -1.5275,
+    "country": "Burkina Faso",
+    "admin_name": "Centre",
+    "population": 2453496,
+    "slug": "ouagadougou-burkina-faso"
+  },
+  {
+    "city": "Pago Pago",
+    "lat": -14.274,
+    "lon": -170.7046,
+    "country": "American Samoa",
+    "admin_name": null,
+    "population": 12576,
+    "slug": "pago-pago-american-samoa"
+  },
+  {
+    "city": "Palikir",
+    "lat": 6.9172,
+    "lon": 158.1589,
+    "country": "Micronesia, Federated States of",
+    "admin_name": "Pohnpei",
+    "population": 6227,
+    "slug": "palikir-micronesia-federated-states-of"
+  },
+  {
+    "city": "Panama City",
+    "lat": 8.9833,
+    "lon": -79.5167,
+    "country": "Panama",
+    "admin_name": "Panamá",
+    "population": 1500189,
+    "slug": "panama-city-panama"
+  },
+  {
+    "city": "Papeete",
+    "lat": -17.5334,
+    "lon": -149.5667,
+    "country": "French Polynesia",
+    "admin_name": "Îles du Vent",
+    "population": 131695,
+    "slug": "papeete-french-polynesia"
+  },
+  {
+    "city": "Paramaribo",
+    "lat": 5.8522,
+    "lon": -55.2039,
+    "country": "Suriname",
+    "admin_name": "Paramaribo",
+    "population": 223757,
+    "slug": "paramaribo-suriname"
+  },
+  {
+    "city": "Paris",
+    "lat": 48.8567,
+    "lon": 2.3522,
+    "country": "France",
+    "admin_name": "Île-de-France",
+    "population": 11060000,
+    "slug": "paris-france"
+  },
+  {
+    "city": "Philadelphia",
+    "lat": 40.0077,
+    "lon": -75.1339,
+    "country": "United States",
+    "admin_name": "Pennsylvania",
+    "population": 5683533,
+    "slug": "philadelphia-united-states"
+  },
+  {
+    "city": "Philipsburg",
+    "lat": 18.0237,
+    "lon": -63.0458,
+    "country": "Sint Maarten",
+    "admin_name": null,
+    "population": 1894,
+    "slug": "philipsburg-sint-maarten"
+  },
+  {
+    "city": "Phnom Penh",
+    "lat": 11.5694,
+    "lon": 104.9211,
+    "country": "Cambodia",
+    "admin_name": "Phnom Penh",
+    "population": 2129371,
+    "slug": "phnom-penh-cambodia"
+  },
+  {
+    "city": "Phoenix",
+    "lat": 33.5722,
+    "lon": -112.0892,
+    "country": "United States",
+    "admin_name": "Arizona",
+    "population": 4064275,
+    "slug": "phoenix-united-states"
+  },
+  {
+    "city": "Pierre",
+    "lat": 44.3748,
+    "lon": -100.3205,
+    "country": "United States",
+    "admin_name": "South Dakota",
+    "population": 14105,
+    "slug": "pierre-united-states"
+  },
+  {
+    "city": "Pittsburgh",
+    "lat": 40.4397,
+    "lon": -79.9763,
+    "country": "United States",
+    "admin_name": "Pennsylvania",
+    "population": 1749091,
+    "slug": "pittsburgh-united-states"
+  },
+  {
+    "city": "Plymouth",
+    "lat": 16.7064,
+    "lon": -62.2158,
+    "country": "Montserrat",
+    "admin_name": "Saint Anthony",
+    "population": 0,
+    "slug": "plymouth-montserrat"
+  },
+  {
+    "city": "Podgorica",
+    "lat": 42.4414,
+    "lon": 19.2628,
+    "country": "Montenegro",
+    "admin_name": "Podgorica",
+    "population": 173024,
+    "slug": "podgorica-montenegro"
+  },
+  {
+    "city": "Port Louis",
+    "lat": -20.1644,
+    "lon": 57.5042,
+    "country": "Mauritius",
+    "admin_name": "Port Louis",
+    "population": 149194,
+    "slug": "port-louis-mauritius"
+  },
+  {
+    "city": "Port Moresby",
+    "lat": -9.4789,
+    "lon": 147.1494,
+    "country": "Papua New Guinea",
+    "admin_name": "National Capital",
+    "population": 700000,
+    "slug": "port-moresby-papua-new-guinea"
+  },
+  {
+    "city": "Port of Spain",
+    "lat": 10.6667,
+    "lon": -61.5167,
+    "country": "Trinidad and Tobago",
+    "admin_name": "Port of Spain",
+    "population": 81142,
+    "slug": "port-of-spain-trinidad-and-tobago"
+  },
+  {
+    "city": "Port-Vila",
+    "lat": -17.7333,
+    "lon": 168.3167,
+    "country": "Vanuatu",
+    "admin_name": "Shefa",
+    "population": 49034,
+    "slug": "port-vila-vanuatu"
+  },
+  {
+    "city": "Port-au-Prince",
+    "lat": 18.5333,
+    "lon": -72.3333,
+    "country": "Haiti",
+    "admin_name": "Ouest",
+    "population": 987310,
+    "slug": "port-au-prince-haiti"
+  },
+  {
+    "city": "Portland",
+    "lat": 45.5371,
+    "lon": -122.65,
+    "country": "United States",
+    "admin_name": "Oregon",
+    "population": 2095808,
+    "slug": "portland-united-states"
+  },
+  {
+    "city": "Porto-Novo",
+    "lat": 6.4972,
+    "lon": 2.605,
+    "country": "Benin",
+    "admin_name": "Ouémé",
+    "population": 133168,
+    "slug": "porto-novo-benin"
+  },
+  {
+    "city": "Prague",
+    "lat": 50.0875,
+    "lon": 14.4214,
+    "country": "Czechia",
+    "admin_name": "Praha",
+    "population": 1357326,
+    "slug": "prague-czechia"
+  },
+  {
+    "city": "Praia",
+    "lat": 14.918,
+    "lon": -23.509,
+    "country": "Cabo Verde",
+    "admin_name": "Praia",
+    "population": 61644,
+    "slug": "praia-cabo-verde"
+  },
+  {
+    "city": "Pretoria",
+    "lat": -25.7461,
+    "lon": 28.1881,
+    "country": "South Africa",
+    "admin_name": "Gauteng",
+    "population": 741651,
+    "slug": "pretoria-south-africa"
+  },
+  {
+    "city": "Pristina",
+    "lat": 42.6633,
+    "lon": 21.1622,
+    "country": "Kosovo",
+    "admin_name": "Prishtinë",
+    "population": 198897,
+    "slug": "pristina-kosovo"
+  },
+  {
+    "city": "Providence",
+    "lat": 41.823,
+    "lon": -71.4187,
+    "country": "United States",
+    "admin_name": "Rhode Island",
+    "population": 1290271,
+    "slug": "providence-united-states"
+  },
+  {
+    "city": "Putrajaya",
+    "lat": 2.93,
+    "lon": 101.69,
+    "country": "Malaysia",
+    "admin_name": "Putrajaya",
+    "population": 67964,
+    "slug": "putrajaya-malaysia"
+  },
+  {
+    "city": "Pyongyang",
+    "lat": 39.0167,
+    "lon": 125.7475,
+    "country": "Korea, North",
+    "admin_name": "P’yŏngyang",
+    "population": 2863000,
+    "slug": "pyongyang-korea-north"
+  },
+  {
+    "city": "Queens",
+    "lat": 40.7498,
+    "lon": -73.7976,
+    "country": "United States",
+    "admin_name": "New York",
+    "population": 2405464,
+    "slug": "queens-united-states"
+  },
+  {
+    "city": "Quito",
+    "lat": -0.22,
+    "lon": -78.5125,
+    "country": "Ecuador",
+    "admin_name": "Pichincha",
+    "population": 1763275,
+    "slug": "quito-ecuador"
+  },
+  {
+    "city": "Rabat",
+    "lat": 34.0209,
+    "lon": -6.8416,
+    "country": "Morocco",
+    "admin_name": "Rabat-Salé-Kénitra",
+    "population": 572717,
+    "slug": "rabat-morocco"
+  },
+  {
+    "city": "Raleigh",
+    "lat": 35.8324,
+    "lon": -78.6429,
+    "country": "United States",
+    "admin_name": "North Carolina",
+    "population": 1163152,
+    "slug": "raleigh-united-states"
+  },
+  {
+    "city": "Rangoon",
+    "lat": 16.795,
+    "lon": 96.16,
+    "country": "Burma",
+    "admin_name": "Yangon",
+    "population": 5209541,
+    "slug": "rangoon-burma"
+  },
+  {
+    "city": "Reykjavík",
+    "lat": 64.1467,
+    "lon": -21.94,
+    "country": "Iceland",
+    "admin_name": "Reykjavík",
+    "population": 139875,
+    "slug": "reykjav-k-iceland"
+  },
+  {
+    "city": "Richmond",
+    "lat": 37.5295,
+    "lon": -77.4756,
+    "country": "United States",
+    "admin_name": "Virginia",
+    "population": 1073223,
+    "slug": "richmond-united-states"
+  },
+  {
+    "city": "Riga",
+    "lat": 56.9489,
+    "lon": 24.1064,
+    "country": "Latvia",
+    "admin_name": "Rīga",
+    "population": 920643,
+    "slug": "riga-latvia"
+  },
+  {
+    "city": "Riverside",
+    "lat": 33.9381,
+    "lon": -117.3949,
+    "country": "United States",
+    "admin_name": "California",
+    "population": 2332836,
+    "slug": "riverside-united-states"
+  },
+  {
+    "city": "Riyadh",
+    "lat": 24.6333,
+    "lon": 46.7167,
+    "country": "Saudi Arabia",
+    "admin_name": "Ar Riyāḑ",
+    "population": 7237000,
+    "slug": "riyadh-saudi-arabia"
+  },
+  {
+    "city": "Road Town",
+    "lat": 18.4167,
+    "lon": -64.6167,
+    "country": "Virgin Islands, British",
+    "admin_name": null,
+    "population": 12603,
+    "slug": "road-town-virgin-islands-british"
+  },
+  {
+    "city": "Rochester",
+    "lat": 43.168,
+    "lon": -77.6162,
+    "country": "United States",
+    "admin_name": "New York",
+    "population": 699921,
+    "slug": "rochester-united-states"
+  },
+  {
+    "city": "Rome",
+    "lat": 41.8933,
+    "lon": 12.4828,
+    "country": "Italy",
+    "admin_name": "Lazio",
+    "population": 2748109,
+    "slug": "rome-italy"
+  },
+  {
+    "city": "Roseau",
+    "lat": 15.3014,
+    "lon": -61.3883,
+    "country": "Dominica",
+    "admin_name": "Saint George",
+    "population": 14725,
+    "slug": "roseau-dominica"
+  },
+  {
+    "city": "Sacramento",
+    "lat": 38.5677,
+    "lon": -121.4685,
+    "country": "United States",
+    "admin_name": "California",
+    "population": 1957738,
+    "slug": "sacramento-united-states"
+  },
+  {
+    "city": "Saint George’s",
+    "lat": 12.05,
+    "lon": -61.75,
+    "country": "Grenada",
+    "admin_name": "Saint George",
+    "population": 4315,
+    "slug": "saint-george-s-grenada"
+  },
+  {
+    "city": "Saint Helier",
+    "lat": 49.1858,
+    "lon": -2.11,
+    "country": "Jersey",
+    "admin_name": null,
+    "population": 33522,
+    "slug": "saint-helier-jersey"
+  },
+  {
+    "city": "Saint John’s",
+    "lat": 17.1167,
+    "lon": -61.85,
+    "country": "Antigua and Barbuda",
+    "admin_name": "Saint John",
+    "population": 22219,
+    "slug": "saint-john-s-antigua-and-barbuda"
+  },
+  {
+    "city": "Saint Peter Port",
+    "lat": 49.4555,
+    "lon": -2.5368,
+    "country": "Guernsey",
+    "admin_name": null,
+    "population": 18958,
+    "slug": "saint-peter-port-guernsey"
+  },
+  {
+    "city": "Saint-Denis",
+    "lat": -20.8789,
+    "lon": 55.4481,
+    "country": "Reunion",
+    "admin_name": null,
+    "population": 315080,
+    "slug": "saint-denis-reunion"
+  },
+  {
+    "city": "Saint-Pierre",
+    "lat": 46.7778,
+    "lon": -56.1778,
+    "country": "Saint Pierre and Miquelon",
+    "admin_name": null,
+    "population": 5394,
+    "slug": "saint-pierre-saint-pierre-and-miquelon"
+  },
+  {
+    "city": "Salem",
+    "lat": 44.9233,
+    "lon": -123.0244,
+    "country": "United States",
+    "admin_name": "Oregon",
+    "population": 266420,
+    "slug": "salem-united-states"
+  },
+  {
+    "city": "Salt Lake City",
+    "lat": 40.7776,
+    "lon": -111.9311,
+    "country": "United States",
+    "admin_name": "Utah",
+    "population": 1173879,
+    "slug": "salt-lake-city-united-states"
+  },
+  {
+    "city": "San Antonio",
+    "lat": 29.4632,
+    "lon": -98.5238,
+    "country": "United States",
+    "admin_name": "Texas",
+    "population": 2058444,
+    "slug": "san-antonio-united-states"
+  },
+  {
+    "city": "San Diego",
+    "lat": 32.8313,
+    "lon": -117.1222,
+    "country": "United States",
+    "admin_name": "California",
+    "population": 3046560,
+    "slug": "san-diego-united-states"
+  },
+  {
+    "city": "San Francisco",
+    "lat": 37.7558,
+    "lon": -122.4449,
+    "country": "United States",
+    "admin_name": "California",
+    "population": 3364979,
+    "slug": "san-francisco-united-states"
+  },
+  {
+    "city": "San Jose",
+    "lat": 37.3012,
+    "lon": -121.848,
+    "country": "United States",
+    "admin_name": "California",
+    "population": 1771413,
+    "slug": "san-jose-united-states"
+  },
+  {
+    "city": "San José",
+    "lat": 9.9325,
+    "lon": -84.08,
+    "country": "Costa Rica",
+    "admin_name": "San José",
+    "population": 1543000,
+    "slug": "san-jos-costa-rica"
+  },
+  {
+    "city": "San Juan",
+    "lat": 18.3985,
+    "lon": -66.061,
+    "country": "Puerto Rico",
+    "admin_name": "Puerto Rico",
+    "population": 1814587,
+    "slug": "san-juan-puerto-rico"
+  },
+  {
+    "city": "San Marino",
+    "lat": 43.9346,
+    "lon": 12.4473,
+    "country": "San Marino",
+    "admin_name": "San Marino Città",
+    "population": 4040,
+    "slug": "san-marino-san-marino"
+  },
+  {
+    "city": "San Salvador",
+    "lat": 13.6989,
+    "lon": -89.1914,
+    "country": "El Salvador",
+    "admin_name": "San Salvador",
+    "population": 316090,
+    "slug": "san-salvador-el-salvador"
+  },
+  {
+    "city": "Sanaa",
+    "lat": 15.3483,
+    "lon": 44.2064,
+    "country": "Yemen",
+    "admin_name": "Amānat al ‘Āşimah",
+    "population": 2957000,
+    "slug": "sanaa-yemen"
+  },
+  {
+    "city": "Santa Fe",
+    "lat": 35.6619,
+    "lon": -105.9819,
+    "country": "United States",
+    "admin_name": "New Mexico",
+    "population": 93165,
+    "slug": "santa-fe-united-states"
+  },
+  {
+    "city": "Santiago",
+    "lat": -33.4372,
+    "lon": -70.6506,
+    "country": "Chile",
+    "admin_name": "Región Metropolitana",
+    "population": 7171000,
+    "slug": "santiago-chile"
+  },
+  {
+    "city": "Santo Domingo",
+    "lat": 18.4667,
+    "lon": -69.95,
+    "country": "Dominican Republic",
+    "admin_name": "Ozama",
+    "population": 1128678,
+    "slug": "santo-domingo-dominican-republic"
+  },
+  {
+    "city": "Sarajevo",
+    "lat": 43.8564,
+    "lon": 18.4131,
+    "country": "Bosnia and Herzegovina",
+    "admin_name": "Bosnia and Herzegovina, Federation of",
+    "population": 419957,
+    "slug": "sarajevo-bosnia-and-herzegovina"
+  },
+  {
+    "city": "Seattle",
+    "lat": 47.6211,
+    "lon": -122.3244,
+    "country": "United States",
+    "admin_name": "Washington",
+    "population": 3561397,
+    "slug": "seattle-united-states"
+  },
+  {
+    "city": "Seoul",
+    "lat": 37.56,
+    "lon": 126.99,
+    "country": "Korea, South",
+    "admin_name": "Seoul",
+    "population": 23016000,
+    "slug": "seoul-korea-south"
+  },
+  {
+    "city": "Singapore",
+    "lat": 1.3,
+    "lon": 103.8,
+    "country": "Singapore",
+    "admin_name": null,
+    "population": 5983000,
+    "slug": "singapore-singapore"
+  },
+  {
+    "city": "Skopje",
+    "lat": 41.9961,
+    "lon": 21.4317,
+    "country": "North Macedonia",
+    "admin_name": "Skopje",
+    "population": 526502,
+    "slug": "skopje-north-macedonia"
+  },
+  {
+    "city": "Sofia",
+    "lat": 42.7,
+    "lon": 23.33,
+    "country": "Bulgaria",
+    "admin_name": "Sofia-Grad",
+    "population": 1547779,
+    "slug": "sofia-bulgaria"
+  },
+  {
+    "city": "Springfield",
+    "lat": 39.7709,
+    "lon": -89.654,
+    "country": "United States",
+    "admin_name": "Illinois",
+    "population": 159671,
+    "slug": "springfield-united-states"
+  },
+  {
+    "city": "Sri Jayewardenepura Kotte",
+    "lat": 6.9108,
+    "lon": 79.8878,
+    "country": "Sri Lanka",
+    "admin_name": "Western",
+    "population": 115826,
+    "slug": "sri-jayewardenepura-kotte-sri-lanka"
+  },
+  {
+    "city": "St. Louis",
+    "lat": 38.6359,
+    "lon": -90.2451,
+    "country": "United States",
+    "admin_name": "Missouri",
+    "population": 2130881,
+    "slug": "st-louis-united-states"
+  },
+  {
+    "city": "St. Paul",
+    "lat": 44.9478,
+    "lon": -93.1039,
+    "country": "United States",
+    "admin_name": "Minnesota",
+    "population": 308806,
+    "slug": "st-paul-united-states"
+  },
+  {
+    "city": "Stanley",
+    "lat": -51.7,
+    "lon": -57.85,
+    "country": "Falkland Islands (Islas Malvinas)",
+    "admin_name": null,
+    "population": 2213,
+    "slug": "stanley-falkland-islands-islas-malvinas"
+  },
+  {
+    "city": "Stockholm",
+    "lat": 59.3294,
+    "lon": 18.0686,
+    "country": "Sweden",
+    "admin_name": "Stockholm",
+    "population": 2121000,
+    "slug": "stockholm-sweden"
+  },
+  {
+    "city": "Sucre",
+    "lat": -19.0475,
+    "lon": -65.26,
+    "country": "Bolivia",
+    "admin_name": "Chuquisaca",
+    "population": 300000,
+    "slug": "sucre-bolivia"
+  },
+  {
+    "city": "Suva",
+    "lat": -18.1416,
+    "lon": 178.4419,
+    "country": "Fiji",
+    "admin_name": "Rewa",
+    "population": 185913,
+    "slug": "suva-fiji"
+  },
+  {
+    "city": "São Tomé",
+    "lat": 0.3361,
+    "lon": 6.7306,
+    "country": "Sao Tome and Principe",
+    "admin_name": "Água Grande",
+    "population": 65468,
+    "slug": "s-o-tom-sao-tome-and-principe"
+  },
+  {
+    "city": "Taipei",
+    "lat": 25.0375,
+    "lon": 121.5625,
+    "country": "Taiwan",
+    "admin_name": "Taipei",
+    "population": 2603150,
+    "slug": "taipei-taiwan"
+  },
+  {
+    "city": "Tallahassee",
+    "lat": 30.4551,
+    "lon": -84.2527,
+    "country": "United States",
+    "admin_name": "Florida",
+    "population": 258696,
+    "slug": "tallahassee-united-states"
+  },
+  {
+    "city": "Tallinn",
+    "lat": 59.4372,
+    "lon": 24.7453,
+    "country": "Estonia",
+    "admin_name": "Tallinn",
+    "population": 614561,
+    "slug": "tallinn-estonia"
+  },
+  {
+    "city": "Tampa",
+    "lat": 27.9945,
+    "lon": -82.4447,
+    "country": "United States",
+    "admin_name": "Florida",
+    "population": 2861173,
+    "slug": "tampa-united-states"
+  },
+  {
+    "city": "Tarawa",
+    "lat": 1.3382,
+    "lon": 173.0176,
+    "country": "Kiribati",
+    "admin_name": null,
+    "population": 28802,
+    "slug": "tarawa-kiribati"
+  },
+  {
+    "city": "Tashkent",
+    "lat": 41.3111,
+    "lon": 69.2797,
+    "country": "Uzbekistan",
+    "admin_name": "Toshkent",
+    "population": 2956384,
+    "slug": "tashkent-uzbekistan"
+  },
+  {
+    "city": "Tbilisi",
+    "lat": 41.7225,
+    "lon": 44.7925,
+    "country": "Georgia",
+    "admin_name": "Tbilisi",
+    "population": 1118035,
+    "slug": "tbilisi-georgia"
+  },
+  {
+    "city": "Tegucigalpa",
+    "lat": 14.1058,
+    "lon": -87.2047,
+    "country": "Honduras",
+    "admin_name": "Francisco Morazán",
+    "population": 1682725,
+    "slug": "tegucigalpa-honduras"
+  },
+  {
+    "city": "Tehran",
+    "lat": 35.6892,
+    "lon": 51.3889,
+    "country": "Iran",
+    "admin_name": "Tehrān",
+    "population": 14148000,
+    "slug": "tehran-iran"
+  },
+  {
+    "city": "The Hague",
+    "lat": 52.08,
+    "lon": 4.31,
+    "country": "Netherlands",
+    "admin_name": "Zuid-Holland",
+    "population": 548320,
+    "slug": "the-hague-netherlands"
+  },
+  {
+    "city": "The Valley",
+    "lat": 18.2208,
+    "lon": -63.0517,
+    "country": "Anguilla",
+    "admin_name": null,
+    "population": 3269,
+    "slug": "the-valley-anguilla"
+  },
+  {
+    "city": "Thimphu",
+    "lat": 27.4722,
+    "lon": 89.6361,
+    "country": "Bhutan",
+    "admin_name": "Thimphu",
+    "population": 114551,
+    "slug": "thimphu-bhutan"
+  },
+  {
+    "city": "Tifariti",
+    "lat": 26.158,
+    "lon": -10.567,
+    "country": "Morocco",
+    "admin_name": "Laâyoune-Sakia El Hamra",
+    "population": 3000,
+    "slug": "tifariti-morocco"
+  },
+  {
+    "city": "Tirana",
+    "lat": 41.3289,
+    "lon": 19.8178,
+    "country": "Albania",
+    "admin_name": "Tiranë",
+    "population": 418495,
+    "slug": "tirana-albania"
+  },
+  {
+    "city": "Tokyo",
+    "lat": 35.6897,
+    "lon": 139.6922,
+    "country": "Japan",
+    "admin_name": "Tōkyō",
+    "population": 37732000,
+    "slug": "tokyo-japan"
+  },
+  {
+    "city": "Topeka",
+    "lat": 39.0346,
+    "lon": -95.6955,
+    "country": "United States",
+    "admin_name": "Kansas",
+    "population": 148185,
+    "slug": "topeka-united-states"
+  },
+  {
+    "city": "Trenton",
+    "lat": 40.2237,
+    "lon": -74.7641,
+    "country": "United States",
+    "admin_name": "New Jersey",
+    "population": 362179,
+    "slug": "trenton-united-states"
+  },
+  {
+    "city": "Tripoli",
+    "lat": 32.8872,
+    "lon": 13.1914,
+    "country": "Libya",
+    "admin_name": "Ţarābulus",
+    "population": 1183000,
+    "slug": "tripoli-libya"
+  },
+  {
+    "city": "Tucson",
+    "lat": 32.1541,
+    "lon": -110.8787,
+    "country": "United States",
+    "admin_name": "Arizona",
+    "population": 878320,
+    "slug": "tucson-united-states"
+  },
+  {
+    "city": "Tulsa",
+    "lat": 36.1283,
+    "lon": -95.9042,
+    "country": "United States",
+    "admin_name": "Oklahoma",
+    "population": 731743,
+    "slug": "tulsa-united-states"
+  },
+  {
+    "city": "Tunis",
+    "lat": 36.8064,
+    "lon": 10.1817,
+    "country": "Tunisia",
+    "admin_name": "Tunis",
+    "population": 602560,
+    "slug": "tunis-tunisia"
+  },
+  {
+    "city": "Tórshavn",
+    "lat": 62,
+    "lon": -6.7833,
+    "country": "Faroe Islands",
+    "admin_name": "Tórshavn",
+    "population": 13326,
+    "slug": "t-rshavn-faroe-islands"
+  },
+  {
+    "city": "Ulaanbaatar",
+    "lat": 47.9203,
+    "lon": 106.9172,
+    "country": "Mongolia",
+    "admin_name": "Ulaanbaatar",
+    "population": 1396288,
+    "slug": "ulaanbaatar-mongolia"
+  },
+  {
+    "city": "Vaduz",
+    "lat": 47.141,
+    "lon": 9.521,
+    "country": "Liechtenstein",
+    "admin_name": "Vaduz",
+    "population": 5696,
+    "slug": "vaduz-liechtenstein"
+  },
+  {
+    "city": "Valletta",
+    "lat": 35.8983,
+    "lon": 14.5125,
+    "country": "Malta",
+    "admin_name": "Valletta",
+    "population": 480134,
+    "slug": "valletta-malta"
+  },
+  {
+    "city": "Vatican City",
+    "lat": 41.904,
+    "lon": 12.453,
+    "country": "Vatican City",
+    "admin_name": null,
+    "population": 825,
+    "slug": "vatican-city-vatican-city"
+  },
+  {
+    "city": "Victoria",
+    "lat": -4.6231,
+    "lon": 55.4525,
+    "country": "Seychelles",
+    "admin_name": "Mont Buxton",
+    "population": 24701,
+    "slug": "victoria-seychelles"
+  },
+  {
+    "city": "Vienna",
+    "lat": 48.2083,
+    "lon": 16.3725,
+    "country": "Austria",
+    "admin_name": "Wien",
+    "population": 2223236,
+    "slug": "vienna-austria"
+  },
+  {
+    "city": "Vientiane",
+    "lat": 17.98,
+    "lon": 102.63,
+    "country": "Laos",
+    "admin_name": "Viangchan",
+    "population": 948487,
+    "slug": "vientiane-laos"
+  },
+  {
+    "city": "Vilnius",
+    "lat": 54.6872,
+    "lon": 25.28,
+    "country": "Lithuania",
+    "admin_name": "Vilniaus Miestas",
+    "population": 716856,
+    "slug": "vilnius-lithuania"
+  },
+  {
+    "city": "Virginia Beach",
+    "lat": 36.7335,
+    "lon": -76.0435,
+    "country": "United States",
+    "admin_name": "Virginia",
+    "population": 1443020,
+    "slug": "virginia-beach-united-states"
+  },
+  {
+    "city": "Warsaw",
+    "lat": 52.23,
+    "lon": 21.0111,
+    "country": "Poland",
+    "admin_name": "Mazowieckie",
+    "population": 1860281,
+    "slug": "warsaw-poland"
+  },
+  {
+    "city": "Washington",
+    "lat": 38.9047,
+    "lon": -77.0163,
+    "country": "United States",
+    "admin_name": "District of Columbia",
+    "population": 5116378,
+    "slug": "washington-united-states"
+  },
+  {
+    "city": "Wellington",
+    "lat": -41.2889,
+    "lon": 174.7772,
+    "country": "New Zealand",
+    "admin_name": "Wellington",
+    "population": 216200,
+    "slug": "wellington-new-zealand"
+  },
+  {
+    "city": "Willemstad",
+    "lat": 12.108,
+    "lon": -68.935,
+    "country": "Curaçao",
+    "admin_name": null,
+    "population": 150000,
+    "slug": "willemstad-cura-ao"
+  },
+  {
+    "city": "Windhoek",
+    "lat": -22.57,
+    "lon": 17.0836,
+    "country": "Namibia",
+    "admin_name": "Khomas",
+    "population": 431000,
+    "slug": "windhoek-namibia"
+  },
+  {
+    "city": "Yamoussoukro",
+    "lat": 6.8161,
+    "lon": -5.2742,
+    "country": "Côte d’Ivoire",
+    "admin_name": "Yamoussoukro",
+    "population": 37253,
+    "slug": "yamoussoukro-c-te-d-ivoire"
+  },
+  {
+    "city": "Yaoundé",
+    "lat": 3.8667,
+    "lon": 11.5167,
+    "country": "Cameroon",
+    "admin_name": "Centre",
+    "population": 2440462,
+    "slug": "yaound-cameroon"
+  },
+  {
+    "city": "Yaren",
+    "lat": -0.5477,
+    "lon": 166.9209,
+    "country": "Nauru",
+    "admin_name": "Yaren",
+    "population": 747,
+    "slug": "yaren-nauru"
+  },
+  {
+    "city": "Yerevan",
+    "lat": 40.1814,
+    "lon": 44.5144,
+    "country": "Armenia",
+    "admin_name": "Yerevan",
+    "population": 1075800,
+    "slug": "yerevan-armenia"
+  },
+  {
+    "city": "Zagreb",
+    "lat": 45.8131,
+    "lon": 15.9775,
+    "country": "Croatia",
+    "admin_name": "Zagreb, Grad",
+    "population": 767131,
+    "slug": "zagreb-croatia"
+  }
+]

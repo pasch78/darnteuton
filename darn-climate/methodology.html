@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Methodology | Darn Climate</title>
+	
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@700&family=Play:wght@400;700&display=swap" rel="stylesheet">
+	
+	<link rel="stylesheet" href="style.css">
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+	<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+</head>
+<body>
+
+	<header>
+		<h1>The Science</h1>
+		<p>How Darn Climate translates massive global datasets into localized realities.</p>
+	</header>
+
+	<main class="container">
+		
+		<section class="scenario-container">
+			<h2 class="scenario-heading">1. The Data Sources</h2>
+			<p class="methodology-text">To ensure our projections are scientifically sound and directly relevant to where you live, our processing pipeline integrates observed historical weather patterns with predictive global modeling blueprints.</p>
+			
+			<ul class="scenario-list mb-0">
+				<li>
+					<strong>Historical Climate Records (1940–2025):</strong> Built using the ERA5 Reanalysis dataset from the European Centre for Medium-Range Weather Forecasts (ECMWF). This blends global physical weather observations with historical models to establish a high-resolution grid of actual daily temperatures and rainfall.
+				</li>
+				<li>
+					<strong>Future Projections (2026–2050):</strong> Built using the international standard climate modeling simulations (CMIP6). Your projected timeline depends directly on the choices the world makes to manage global greenhouse gas emissions over the coming decades.
+					<details style="margin-top: var(--space-sm); cursor: pointer; color: var(--grayed-out);">
+						<summary style="font-weight: bold; font-size: 0.85rem;">View advanced model metadata</summary>
+						<div style="padding-top: var(--space-sm); line-height: 1.4; font-size: 0.85rem;">
+							Future trajectories utilize grid indices from the MPI-ESM1-2-LR core model. The dashboard selections target specific Intergovernmental Panel on Climate Change (IPCC) greenhouse gas scenarios: SSP1-2.6 (Optimistic), SSP2-4.5 (Current Path), and SSP5-8.5 (Severe).
+						</div>
+					</details>
+				</li>
+			</ul>
+		</section>
+
+		<section class="scenario-container">
+			<h2 class="scenario-heading">2. Defining Local Extremes</h2>
+			<p class="methodology-text">Climate change is relative. A localized "exceptionally warm day" looks vastly different in Oslo compared to Abu Dhabi. To track what constitutes an extreme shift for your specific city, this tool completely avoids arbitrary, blanket temperature thresholds.</p>
+			<p class="methodology-text mb-0">Instead, our pipeline dynamically calculates the local <strong>95th percentile</strong> for daily high and low temperatures using the World Meteorological Organization's standard baseline period of 1985–2014. By establishing this localized baseline, the metric cards accurately reflect when conditions veer into the top 5% of historical extremes experienced in your region.</p>
+		</section>
+
+		<section class="scenario-container">
+			<h2 class="scenario-heading">3. Micro-Climate Calibration</h2>
+			<p class="methodology-text">Raw global climate models are incredibly sophisticated, but because they look at the world through large geographic grids, they can occasionally run slightly too warm or too cool for a specific city's unique micro-climate.</p>
+			<p class="methodology-text">To prevent artificial data jumps on your charts when transitioning from past history to future projections, we apply a mathematical calibration called the <strong>Delta Method</strong>. By comparing raw empirical data with climate models during a shared calibration window (2016–2025), we calculate local variance offsets and factor them directly into all future projections:</p>
+			
+			<div class="math-block" aria-label="Equation: Adjusted model equals original model plus the difference between observed mean and model mean">
+				$$X_{adjusted} = X_{model} + (\bar{X}_{observed} - \bar{X}_{model})$$
+			</div>
+		</section>
+
+		<section class="scenario-container">
+			<h2 class="scenario-heading">4. Weather Volatility vs. Climate Trends</h2>
+			<p class="methodology-text">On the dashboard charts, you will notice that historical data is shown as scattered dots, while the future projections transition into a clean, smooth curve. This visual shift represents the fundamental scientific difference between short-term weather records and long-term climate trends.</p>
+			<p class="methodology-text">The annual dots reveal the real-world, chaotic volatility of year-to-year weather. To look past this short-term noise and uncover the lasting climate signature, the timeline utilizes mathematical smoothing. Past records are anchored with a 10-year rolling average. Because planetary warming does not advance in a perfectly straight line, future trajectories utilize a non-linear quadratic trendline:</p>
+			
+			<div class="math-block" aria-label="Equation: y equals a times t squared, plus b times t, plus the anchor value at 2025">
+				$$y = at^2 + bt + C_{2025}$$
+			</div>
+			
+			<p class="methodology-text mt-md mb-0">This calculation forces the future projection curve to anchor seamlessly to your city's modern smoothed baseline, accurately accounting for accelerating regional climate patterns while protecting long-term continuity.</p>
+		</section>
+
+		<nav style="text-align: center; width: 100%;">
+			<a href="index.html" class="back-link">&larr; Return to Dashboard</a>
+		</nav>
+
+	</main>
+</body>
+</html>

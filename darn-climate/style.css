@@ -1,15 +1,17 @@
-/* --- Global Variables & Reset --- */
+/* ==========================================================================
+   1. GLOBAL VARIABLES & THEME
+   ========================================================================== */
 :root {
-	/* Primary Palette */
-	--col1: #4a7c8c; 
-	--col2: #c86b3c; 
-	--col3: #5c8262; 
-	--col4: #8a6a82; 
-	--col5: #a84646; 
-	--col-muggy: #b85a32;    
-	--col-mosquito: #6e733b; 
+	/* Primary Data Palette */
+	--col1: #4a7c8c;         /* Cold / Snow */
+	--col2: #c86b3c;         /* Heat */
+	--col3: #5c8262;         /* Mild / Rain / Base Green */
+	--col4: #8a6a82;         /* Dry */
+	--col5: #a84646;         /* Severe / Error */
+	--col-muggy: #b85a32;    /* Muggy Nights */
+	--col-mosquito: #6e733b; /* Mosquito Window */
 	
-	/* Neutral & Structural Palette */
+	/* Structural & Neutral Palette */
 	--bg-color: #f6f0e2; 
 	--card-bg: #fffbf0;
 	--text-color: #3e3128; 
@@ -17,21 +19,18 @@
 	--grayed-out: #635b4f; 
 	--white: #ffffff;
 
-	/* Transparent Overlays for UI States */
+	/* Transparent Overlays for UI Button States */
 	--ssp245-hover: rgba(212, 154, 54, 0.15);
 	--ssp245-active: rgba(212, 154, 54, 0.35);
 	--ssp126-hover: rgba(92, 130, 98, 0.15);
 	--ssp126-active: rgba(92, 130, 98, 0.35);
 	--ssp585-hover: rgba(168, 70, 70, 0.15);
 	--ssp585-active: rgba(168, 70, 70, 0.35);
-	--frost-cold-bg: rgba(74, 124, 140, 0.25);
-	--frost-warm-bg: rgba(92, 130, 98, 0.75);
-	--frost-badge-bg: rgba(92, 130, 98, 0.15);
 
 	/* Z-Index Hierarchy */
 	--z-dropdown: 100;
 
-	/* Fluid Spacing Scale */
+	/* Fluid Spacing Scale (scales based on viewport height/width) */
 	--space-xs: clamp(2px, 0.5svh, 4px);
 	--space-sm: clamp(4px, 1svh, 8px);
 	--space-md: clamp(8px, 1.5svh, 16px);
@@ -39,6 +38,9 @@
 	--space-xl: clamp(24px, 5svh, 40px);
 }
 
+/* ==========================================================================
+   2. CSS RESETS & BASE STYLES
+   ========================================================================== */
 * { 
 	box-sizing: border-box; 
 	margin: 0; 
@@ -56,10 +58,9 @@ body {
 	padding: var(--space-xl) var(--space-lg); 
 }
 
-.hidden { 
-	display: none !important; 
-}
-
+/* ==========================================================================
+   3. TYPOGRAPHY & LAYOUT
+   ========================================================================== */
 header { 
 	text-align: center; 
 	margin-bottom: var(--space-xl); 
@@ -81,6 +82,7 @@ header p {
 	max-width: 400px; 
 	line-height: 1.4; 
 	font-style: italic; 
+	margin: 0 auto;
 }
 
 .container {
@@ -91,7 +93,9 @@ header p {
 	gap: var(--space-lg);
 }
 
-/* --- Input Zone UI --- */
+/* ==========================================================================
+   4. FORMS & INPUT UI
+   ========================================================================== */
 .input-card {
 	background-color: var(--card-bg); 
 	padding: var(--space-lg); 
@@ -175,7 +179,7 @@ input:focus {
 	background-color: var(--bg-color);
 }
 
-/* --- Premium Segmented Switch UI --- */
+/* --- Premium Segmented Switch UI (Units Toggle) --- */
 .switch-group {
 	max-width: 160px;
 }
@@ -229,14 +233,14 @@ input:focus {
 	transition: color 0.2s ease;
 }
 
-.switch-container input:checked + .switch-slider::before {
-	transform: translateX(100%);
-}
-
+/* Switch Animation States */
+.switch-container input:checked + .switch-slider::before { transform: translateX(100%); }
 .switch-container input:not(:checked) + .switch-slider span:first-of-type { color: var(--bg-color); }
 .switch-container input:checked + .switch-slider span:last-of-type { color: var(--bg-color); }
 
-/* --- Dashboard Modules --- */
+/* ==========================================================================
+   5. BUTTONS
+   ========================================================================== */
 button { 
 	font-family: inherit;
 	display: inline-flex;
@@ -267,6 +271,21 @@ button:disabled {
 	cursor: not-allowed; 
 }
 
+/* Secondary Button (Reveal Future) */
+.btn-secondary { background-color: var(--col2); }
+.btn-secondary:hover:not(:disabled) { background-color: #a8542c; }
+
+/* Dark Button (Global Reset) */
+.btn-dark {
+	background-color: var(--text-color); 
+	margin-top: var(--space-md); 
+	width: 100%;
+}
+.btn-dark:hover:not(:disabled) { background-color: #2b211a; }
+
+/* ==========================================================================
+   6. DASHBOARD & DATA CARDS
+   ========================================================================== */
 #dashboard { 
 	display: flex; 
 	flex-direction: column; 
@@ -285,91 +304,14 @@ button:disabled {
 	padding-bottom: var(--space-lg);
 }
 
-/* --- Future Scenario Tabs & Explainer --- */
-.scenario-container {
-	background-color: var(--card-bg);
-	border: 2px dashed var(--border-color);
-	border-radius: 8px;
-	padding: var(--space-lg);
-	margin-bottom: var(--space-md);
-	box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+.hero-summary {
+	font-size: 1.1rem; 
+	line-height: 1.5; 
+	color: var(--text-color); 
+	margin-bottom: var(--space-md); 
+	padding: 0 var(--space-sm);
 }
 
-.scenario-heading {
-	font-family: 'Arvo', serif;
-	font-size: 1.2rem;
-	color: var(--text-color);
-	margin-bottom: var(--space-xs);
-}
-
-.scenario-explainer {
-	font-size: 0.9rem;
-	color: var(--grayed-out);
-	margin-bottom: var(--space-sm);
-}
-
-.scenario-list {
-	list-style: none;
-	font-size: 0.85rem;
-	color: var(--text-color);
-	margin-bottom: var(--space-md);
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-xs);
-}
-
-.scenario-list li {
-	position: relative;
-	padding-left: 14px;
-	line-height: 1.4;
-}
-
-.scenario-list li::before {
-	content: '•';
-	position: absolute;
-	left: 0;
-	font-size: 1.2rem;
-	line-height: 1;
-}
-
-/* Color-coded bullets to match the tabs below */
-.scenario-list li:nth-child(1)::before { color: var(--col3); } 
-.scenario-list li:nth-child(2)::before { color: #d49a36; }     
-.scenario-list li:nth-child(3)::before { color: var(--col5); } 
-
-.scenario-tabs {
-	display: flex;
-	justify-content: center;
-	gap: var(--space-sm);
-	background-color: transparent;
-	padding: 0;
-}
-
-.tab-btn {
-	font-family: inherit;
-	flex: 1;
-	padding: 0.6rem;
-	font-size: clamp(0.75rem, 3vw, 0.85rem);
-	background-color: var(--bg-color);
-	border: 1px solid var(--border-color);
-	color: var(--text-color);
-	border-radius: 4px;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	font-weight: bold;
-}
-
-/* Dynamic Hover & Active States with Theme Variables */
-.tab-btn[data-scenario="ssp245"]:hover { background-color: var(--ssp245-hover); border-color: #d49a36; }
-.tab-btn[data-scenario="ssp245"].active { background-color: var(--ssp245-active); border-color: #d49a36; }
-
-.tab-btn[data-scenario="ssp126"]:hover { background-color: var(--ssp126-hover); border-color: var(--col3); }
-.tab-btn[data-scenario="ssp126"].active { background-color: var(--ssp126-active); border-color: var(--col3); }
-
-.tab-btn[data-scenario="ssp585"]:hover { background-color: var(--ssp585-hover); border-color: var(--col5); }
-.tab-btn[data-scenario="ssp585"].active { background-color: var(--ssp585-active); border-color: var(--col5); }
-
-/* --- Metric Cards --- */
 .metric-card {
 	background-color: var(--card-bg);
 	border: 2px dashed var(--border-color); 
@@ -380,6 +322,17 @@ button:disabled {
 	gap: var(--space-md);
 	width: 100%;
 	box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+	
+	/* Scrollytelling Base State */
+	opacity: 0;
+	transform: translateY(30px);
+	transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* Added dynamically by Javascript when scrolled into view */
+.metric-card.is-visible {
+	opacity: 1;
+	transform: translateY(0);
 }
 
 .metric-title { 
@@ -429,6 +382,7 @@ button:disabled {
 	white-space: nowrap;
 }
 
+/* Text Colors Mapping to Metrics */
 .text-heat     { color: var(--col2); }
 .text-muggy    { color: var(--col-muggy); }
 .text-dry      { color: var(--col4); }
@@ -442,6 +396,15 @@ button:disabled {
 	flex-shrink: 0;
 }
 
+.impact-subtitle {
+	font-size: 0.95rem; 
+	font-weight: bold; 
+	color: var(--text-color); 
+	margin-top: var(--space-sm); 
+	text-align: center;
+}
+
+/* Chart Canvas Wrapper */
 .chart-container {
 	position: relative;
 	height: 160px; 
@@ -449,133 +412,222 @@ button:disabled {
 	margin-top: var(--space-md);
 }
 
-/* --- Frost Timeline Track Slider --- */
-.frost-timeline-container {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-md);
-	margin-top: var(--space-sm);
-	background-color: var(--bg-color);
-	padding: var(--space-md);
-	border: 1px solid var(--border-color);
-	border-radius: 6px;
-}
+/* ==========================================================================
+   7. FUTURE SCENARIOS & TAB CONTROLS
+   ========================================================================== */
+/* 1. Base Visual Styling (Applies to both Dashboard and Methodology) */
+   .scenario-container {
+	   background-color: var(--card-bg);
+	   border: 2px dashed var(--border-color);
+	   border-radius: 8px;
+	   padding: var(--space-lg);
+	   margin-bottom: var(--space-md);
+   }
+   
+   /* 2. Specific Sticky Behavior (Applies ONLY to the Dashboard Selector) */
+   #dashboard .scenario-container {
+	   position: sticky;
+	   top: 10px;
+	   z-index: 50;
+	   box-shadow: 0 8px 24px rgba(0,0,0,0.08); 
+   }
 
-.timeline-axis-labels {
-	display: flex;
-	justify-content: space-between;
-	font-size: 0.75rem;
-	font-weight: bold;
-	color: var(--grayed-out);
-	text-transform: uppercase;
-	border-bottom: 1px solid var(--border-color);
-	padding-bottom: var(--space-xs);
+.scenario-heading {
+	font-family: 'Arvo', serif;
+	font-size: 1.2rem;
+	color: var(--text-color);
 	margin-bottom: var(--space-xs);
 }
 
-.frost-timeline-row {
+.scenario-explainer {
+	font-size: 0.9rem;
+	color: var(--grayed-out);
+	margin-bottom: var(--space-sm);
+}
+
+/* Methodology Page List overrides */
+.scenario-list {
+	list-style: none;
+	font-size: 0.85rem;
+	color: var(--text-color);
+	margin-bottom: var(--space-md);
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-xs);
 }
 
-.frost-row-meta {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
-.frost-row-year {
-	font-size: 0.85rem;
-	font-weight: bold;
-}
-
-.frost-duration-badge {
-	font-size: 0.8rem;
-	background-color: var(--frost-badge-bg);
-	color: var(--col3);
-	padding: 2px 6px;
-	border-radius: 4px;
-	font-weight: bold;
-}
-
-.frost-slider-track {
-	display: flex;
-	height: 28px;
-	width: 100%;
-	border-radius: 4px;
-	overflow: visible; 
-	border: 1px solid var(--border-color);
-}
-
-.frost-segment {
-	height: 100%;
-	transition: width 0.5s ease-in-out;
-}
-
-.frost-cold-zone {
-	background-color: var(--frost-cold-bg); 
-}
-
-.frost-warm-zone {
-	background-color: var(--frost-warm-bg); 
+.scenario-list li {
 	position: relative;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
-.frost-date-marker {
-	font-size: 0.7rem;
-	font-weight: bold;
-	color: var(--white);
-	background-color: var(--text-color);
-	padding: 1px 4px;
-	border-radius: 3px;
-	position: absolute;
-	white-space: nowrap;
-	bottom: -20px; 
-	transform: translateX(-50%);
-}
-
-.frost-date-marker.date-start { left: 0%; }
-.frost-date-marker.date-end   { left: 100%; }
-
-.frost-timeline-row:not(:last-child) {
-	margin-bottom: var(--space-md);
-}
-
-.error-msg { 
-	color: var(--col5); 
-	font-size: 0.9rem; 
-	text-align: center; 
-	font-weight: bold; 
-}
-
-/* --- Accessibility: Keyboard Focus States --- */
-button:focus-visible,
-input:focus-visible,
-.tab-btn:focus-visible {
-	outline: 2px solid var(--col1); 
-	outline-offset: 2px;
-}
-
-.switch-container input:focus-visible + .switch-slider {
-	outline: 2px solid var(--col1);
-	outline-offset: 2px;
-}
-
-.autocomplete-item:focus-visible {
-	background-color: var(--bg-color);
-	outline: 2px solid var(--col1);
-	outline-offset: -2px; 
-}
-
-.rate-limit-disclaimer {
-	font-size: 0.8rem;
-	color: var(--grayed-out);
+	padding-left: 14px;
 	line-height: 1.4;
-	border-left: 3px solid var(--border-color);
-	padding-left: var(--space-sm);
-	margin-top: var(--space-xs);
+}
+
+.scenario-list li::before {
+	content: '•';
+	position: absolute;
+	left: 0;
+	font-size: 1.2rem;
+	line-height: 1;
+}
+
+/* Bullet colors for methodology mapping */
+.scenario-list li:nth-child(1)::before { color: var(--col3); } 
+.scenario-list li:nth-child(2)::before { color: #d49a36; }     
+.scenario-list li:nth-child(3)::before { color: var(--col5); } 
+
+/* Scenario Tabs */
+.scenario-tabs {
+	display: flex;
+	justify-content: center;
+	gap: var(--space-sm);
+	background-color: transparent;
+	padding: 0;
+}
+
+.tab-btn {
+	font-family: inherit;
+	flex: 1;
+	padding: 0.6rem;
+	font-size: clamp(0.75rem, 3vw, 0.85rem);
+	background-color: var(--bg-color);
+	border: 1px solid var(--border-color);
+	color: var(--text-color);
+	border-radius: 4px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-weight: bold;
+}
+
+/* Tab Active/Hover States */
+.tab-btn[data-scenario="ssp245"]:hover { background-color: var(--ssp245-hover); border-color: #d49a36; }
+.tab-btn[data-scenario="ssp245"].active { background-color: var(--ssp245-active); border-color: #d49a36; }
+
+.tab-btn[data-scenario="ssp126"]:hover { background-color: var(--ssp126-hover); border-color: var(--col3); }
+.tab-btn[data-scenario="ssp126"].active { background-color: var(--ssp126-active); border-color: var(--col3); }
+
+.tab-btn[data-scenario="ssp585"]:hover { background-color: var(--ssp585-hover); border-color: var(--col5); }
+.tab-btn[data-scenario="ssp585"].active { background-color: var(--ssp585-active); border-color: var(--col5); }
+
+/* ==========================================================================
+   8. SCROLLYTELLING PROGRESSION ENGINE (No !important overrides)
+   ========================================================================== */
+.progression-container {
+	text-align: center; 
+	margin: var(--space-lg) 0;
+}
+
+/* Base transitions for revealing the 3rd future column */
+.data-point,
+.arrow,
+.impact-subtitle {
+	transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+}
+
+/* STATE: Historical Mode Active */
+#dashboard[data-step="history"] .scenario-container {
+	display: none; 
+}
+
+#dashboard[data-step="history"] .data-point:last-of-type,
+#dashboard[data-step="history"] .arrow:last-of-type,
+#dashboard[data-step="history"] .impact-subtitle {
+	opacity: 0;
+	transform: scale(0.9);
+	pointer-events: none;
+}
+
+/* STATE: Future Mode Active */
+#dashboard[data-step="future"] .scenario-container {
+	display: block;
+	/* Removed animation to preserve position: sticky constraints */
+}
+
+#dashboard[data-step="future"] .data-point:last-of-type,
+#dashboard[data-step="future"] .arrow:last-of-type,
+#dashboard[data-step="future"] .impact-subtitle {
+	opacity: 1;
+	transform: scale(1);
+	pointer-events: auto;
+}
+
+@keyframes fadeInUp {
+	from { opacity: 0; transform: translateY(20px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   9. METHODOLOGY PAGE SPECIFICS
+   ========================================================================== */
+.methodology-text { 
+	color: var(--grayed-out); 
+	font-size: 0.95rem; 
+	line-height: 1.6; 
+	margin-bottom: var(--space-md); 
+}
+
+.methodology-text strong { 
+	color: var(--text-color); 
+}
+
+.math-block { 
+	background-color: var(--bg-color); 
+	padding: var(--space-md); 
+	border-radius: 4px; 
+	text-align: center; 
+	margin: var(--space-md) 0; 
+	font-family: monospace; 
+	border: 1px solid var(--border-color); 
+	overflow-x: auto; /* Prevent long equations from breaking mobile view */
+}
+
+/* Site Footer & Links */
+.site-footer {
+	text-align: center; 
+	margin-top: var(--space-xl); 
+	padding-top: var(--space-md); 
+	border-top: 1px solid var(--border-color);
+	width: 100%;
+}
+
+.footer-link,
+.back-link {
+	color: var(--grayed-out); 
+	font-size: 0.85rem; 
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.back-link {
+	display: inline-block; 
+	margin-top: var(--space-lg); 
+	color: var(--col3); 
+}
+
+.footer-link:hover,
+.back-link:hover {
+	text-decoration: underline;
+}
+
+/* ==========================================================================
+   10. UTILITY CLASSES & SYSTEM STATES
+   ========================================================================== */
+/* Display utility override */
+.hidden { 
+	display: none !important; 
+}
+
+/* Spacing utility overrides for methodology text */
+.mb-0 { margin-bottom: 0 !important; }
+.mt-md { margin-top: var(--space-md) !important; }
+
+/* Dynamic Error Message Block */
+.error-msg {
+	background-color: rgba(168, 70, 70, 0.1);
+	color: var(--col5);
+	padding: var(--space-md);
+	border-radius: 4px;
+	border-left: 4px solid var(--col5);
+	font-size: 0.95rem;
+	font-weight: bold;
+	text-align: center;
 }

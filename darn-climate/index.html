@@ -3,27 +3,32 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Darn Climate</title>
+	<title>Darn Climate | Your Local Climate Timeline</title>
 	
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Arvo:wght@700&family=Play:wght@400;700&display=swap" rel="stylesheet">
 	
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 	<link rel="stylesheet" href="style.css">
+
+	<script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+	<script src="utils.js" defer></script>
+	<script src="script.js" defer></script>
 </head>
 <body>
 
 	<header>
 		<h1>Darn Climate</h1>
-		<p>Discover how the climate in your hometown has shifted since the year you were born (from 1940 onward)—and see where it's heading by 2050.</p>
+		<p>Explore how your local climate has shifted since the year you were born. Built to translate complex data into everyday realities, this tool tracks long-term trends in 350 selected cities in the US and around the world—mapping out the shifts you've already lived through and projecting the paths ahead for a major urban hub near you.</p>
 	</header>
 
-	<div class="container">
-		<form class="input-card" id="input-form" onsubmit="return false;">
+	<main class="container">
+		
+		<form class="input-card" id="input-form">
+			
 			<div class="input-group location-group">
-				<label for="location-input">Hometown / City</label>
-				<input type="text" id="location-input" placeholder="e.g., Paris, Tokyo, Boston" autocomplete="off" required>
+				<label for="location-input">City (Global Capitals, US State Capitals, Top 50 US Cities)</label>
+				<input type="text" id="location-input" placeholder="e.g., Paris, Tokyo, Austin" autocomplete="off" required>
 				<div id="autocomplete-dropdown" class="autocomplete-dropdown hidden"></div>
 			</div>
 			
@@ -31,251 +36,215 @@
 				<div class="input-group">
 					<label for="birth-year">Birth Year</label>
 					<input type="number" id="birth-year" placeholder="e.g., 1980" min="1940" max="2020" required>
+					<span class="footer-link" style="margin-top: 4px; display: block; border:none; padding:0;">*Data begins in 1940</span>
 				</div>
 				
 				<div class="input-group switch-group">
 					<label>Units</label>
 					<label class="switch-container">
-						<input type="checkbox" id="unit-toggle">
+						<input type="checkbox" id="unit-toggle" aria-label="Toggle unit system (Imperial or Metric)">
 						<div class="switch-slider">
-							<span>Imperial</span>
-							<span>Metric</span>
+							<span aria-hidden="true">Imperial</span>
+							<span aria-hidden="true">Metric</span>
 						</div>
 					</label>
 				</div>
 			</div>
 			
-			<p class="rate-limit-disclaimer">
-				<strong>Note on Data Quotas:</strong> Due to the heavy climate processing loads spanning multiple decades, this tool is limited to <strong>2 simulations per hour</strong> and <strong>5 per day</strong> per user. <strong>A new feature for exploring major cities without limitations is coming soon!</strong>
-			</p>
-			
-			<button type="submit" id="analyze-btn">Generate Baseline</button>
-			<div id="error-display" class="error-msg hidden"></div>
+			<button type="submit" id="analyze-btn">Generate Climate Timeline</button>
+			<div id="error-display" class="error-msg hidden" aria-live="assertive"></div>
 		</form>
 
-		<div id="dashboard" class="hidden">
-			<div class="location-header" id="location-display">Analyzing data for...</div>
-
+		<div id="dashboard" class="hidden" data-step="history">
+			
+			<h2 class="location-header" id="location-display">Analyzing data for...</h2>
+			
+			<div id="hero-summary" class="hero-summary" aria-live="polite"></div>
+			
 			<div class="scenario-container">
 				<h2 class="scenario-heading">Choose Your Climate Future</h2>
-				<p class="scenario-explainer">The projections out to 2050 depend entirely on the greenhouse gas pathways humanity chooses today:</p>
-				<ul class="scenario-list">
-					<li><strong>Optimistic:</strong> Rapid global shift away from fossil fuels. Warming stabilizes, preserving more of the climate you remember.</li>
-					<li><strong>Current Path:</strong> Middle-of-the-road. Pledges are met, but enough emissions slip through to permanently warp seasonal norms.</li>
-					<li><strong>Severe:</strong> Fossil-fuel dependence accelerates. Expect unrelenting shifts in extreme heat, lost winters, and volatile weather.</li>
-				</ul>
-				<div class="scenario-tabs">
-					<button class="tab-btn active" data-scenario="ssp245">Current Path</button>
-					<button class="tab-btn" data-scenario="ssp126">Optimistic</button>
-					<button class="tab-btn" data-scenario="ssp585">Severe</button>
+				<p class="scenario-explainer">The long-term climate trends projecting out to 2050 depend entirely on the global choices we make to manage greenhouse gas emissions today:</p>
+				
+				<div class="scenario-tabs" role="tablist">
+					<button class="tab-btn active" data-scenario="ssp245" role="tab" aria-selected="true">Current Path</button>
+					<button class="tab-btn" data-scenario="ssp126" role="tab" aria-selected="false">Optimistic</button>
+					<button class="tab-btn" data-scenario="ssp585" role="tab" aria-selected="false">Severe</button>
 				</div>
 			</div>
 
 			<div class="metric-card hidden" id="card-heat">
-				<div class="metric-title">The Sweat Equity</div>
-				<div class="metric-desc">Average days per year where the actual air temperature reaches <span id="label-thresh-heat">90°F</span> or higher.</div>
+				<h3 class="metric-title">The Warmest Days</h3>
+				<p class="metric-desc">Average days per year where the daily high temperature reaches an unusual <strong id="label-thresh-heat">--</strong> or higher (the top 5% warmest days historically observed in your city).</p>
+				
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-heat">---</span>
 						<span class="data-value text-heat" id="val1-heat">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year2-label-heat">---</span>
 						<span class="data-value text-heat" id="val2-heat">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year3-label-heat">---</span>
 						<span class="data-value text-heat" id="val3-heat">--</span>
 					</div>
 				</div>
+				
+				<div class="impact-subtitle" id="impact-heat"></div>
 				<div class="chart-container">
-					<canvas id="canvas-heat"></canvas>
+					<canvas id="canvas-heat" aria-label="Line chart showing historical and projected heat days" role="img"></canvas>
 				</div>
 			</div>
 
 			<div class="metric-card hidden" id="card-muggy">
-				<div class="metric-title">The Muggy Night</div>
-				<div class="metric-desc">Average nights per year where the overnight low temperature fails to drop below <span id="label-thresh-muggy">70°F</span>, disrupting sleep and surging cooling demands.</div>
+				<h3 class="metric-title">The Restless Nights</h3>
+				<p class="metric-desc">Average nights per year where the overnight low fails to drop below <strong id="label-thresh-muggy">--</strong>—unusually warm local nights that can disrupt sleep and increase cooling demands.</p>
+				
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-muggy">---</span>
 						<span class="data-value text-muggy" id="val1-muggy">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year2-label-muggy">---</span>
 						<span class="data-value text-muggy" id="val2-muggy">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year3-label-muggy">---</span>
 						<span class="data-value text-muggy" id="val3-muggy">--</span>
 					</div>
 				</div>
+				
+				<div class="impact-subtitle" id="impact-muggy"></div>
 				<div class="chart-container">
-					<canvas id="canvas-muggy"></canvas>
+					<canvas id="canvas-muggy" aria-label="Line chart showing historical and projected muggy nights" role="img"></canvas>
 				</div>
 			</div>
 
 			<div class="metric-card hidden" id="card-dry">
-				<div class="metric-title">The Dry Spell</div>
-				<div class="metric-desc">The average longest annual stretch of consecutive days with no measurable precipitation (less than <span id="label-thresh-dry">0.01 inches</span>).</div>
+				<h3 class="metric-title">The Dry Spell</h3>
+				<p class="metric-desc">The longest continuous stretch of the year with no measurable precipitation (less than <strong id="label-thresh-dry">0.04 inches</strong>).</p>
+				
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-dry">---</span>
 						<span class="data-value text-dry" id="val1-dry">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year2-label-dry">---</span>
 						<span class="data-value text-dry" id="val2-dry">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year3-label-dry">---</span>
 						<span class="data-value text-dry" id="val3-dry">--</span>
 					</div>
 				</div>
+				
+				<div class="impact-subtitle" id="impact-dry"></div>
 				<div class="chart-container">
-					<canvas id="canvas-dry"></canvas>
+					<canvas id="canvas-dry" aria-label="Line chart showing historical and projected dry spells" role="img"></canvas>
 				</div>
 			</div>
 
 			<div class="metric-card hidden" id="card-mosquito">
-				<div class="metric-title">The Mosquito Window</div>
-				<div class="metric-desc">Average days per year with ideal conditions for mosquito activity (temperatures between <span id="label-thresh-mosq-min">70°F</span> and <span id="label-thresh-mosq-max">95°F</span> with rain in the trailing 3 days).</div>
+				<h3 class="metric-title">The Mosquito Window</h3>
+				<p class="metric-desc">Average days per year with ideal breeding conditions: temperatures sitting between <strong id="label-thresh-mosq-min">70°F</strong> and <strong id="label-thresh-mosq-max">95°F</strong>, following recent rainfall.</p>
+				
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-mosquito">---</span>
 						<span class="data-value text-mosquito" id="val1-mosquito">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year2-label-mosquito">---</span>
 						<span class="data-value text-mosquito" id="val2-mosquito">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year3-label-mosquito">---</span>
 						<span class="data-value text-mosquito" id="val3-mosquito">--</span>
 					</div>
 				</div>
+				
+				<div class="impact-subtitle" id="impact-mosquito"></div>
 				<div class="chart-container">
-					<canvas id="canvas-mosquito"></canvas>
+					<canvas id="canvas-mosquito" aria-label="Line chart showing ideal mosquito breeding days" role="img"></canvas>
 				</div>
 			</div>
 
 			<div class="metric-card hidden" id="card-rain">
-				<div class="metric-title">The Heavy Pour</div>
-				<div class="metric-desc">Average days per year with heavy precipitation (over <span id="label-thresh-rain">1 inch</span>).</div>
+				<h3 class="metric-title">The Heavy Pour</h3>
+				<p class="metric-desc">Average days per year with extreme rainfall events, measuring over <strong id="label-thresh-rain">1 inch</strong> in a single day.</p>
+				
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-rain">---</span>
 						<span class="data-value text-mild" id="val1-rain">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year2-label-rain">---</span>
 						<span class="data-value text-mild" id="val2-rain">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year3-label-rain">---</span>
 						<span class="data-value text-mild" id="val3-rain">--</span>
 					</div>
 				</div>
+				
+				<div class="impact-subtitle" id="impact-rain"></div>
 				<div class="chart-container">
-					<canvas id="canvas-rain"></canvas>
+					<canvas id="canvas-rain" aria-label="Line chart showing heavy rainfall events" role="img"></canvas>
 				</div>
 			</div>
 
 			<div class="metric-card hidden" id="card-snow">
-				<div class="metric-title">The Nostalgia Index</div>
-				<div class="metric-desc">Average days per year with a fresh blanket of snow (over <span id="label-thresh-snow">1 inch</span>).</div>
+				<h3 class="metric-title">The Nostalgia Index</h3>
+				<p class="metric-desc">Average days per year where temperatures drop below freezing and deliver at least <strong id="label-thresh-snow">1 inch</strong> of fresh snow.</p>
+				
 				<div class="metric-comparison">
 					<div class="data-point">
 						<span class="data-year" id="year1-label-snow">---</span>
 						<span class="data-value text-cold" id="val1-snow">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year2-label-snow">---</span>
 						<span class="data-value text-cold" id="val2-snow">--</span>
 					</div>
-					<div class="arrow">→</div>
+					<div class="arrow" aria-hidden="true">→</div>
 					<div class="data-point">
 						<span class="data-year" id="year3-label-snow">---</span>
 						<span class="data-value text-cold" id="val3-snow">--</span>
 					</div>
 				</div>
+				
+				<div class="impact-subtitle" id="impact-snow"></div>
 				<div class="chart-container">
-					<canvas id="canvas-snow"></canvas>
+					<canvas id="canvas-snow" aria-label="Line chart showing fresh snow days" role="img"></canvas>
 				</div>
 			</div>
 
-			<div class="metric-card hidden" id="card-frost">
-				<div class="metric-title">The Seasonal Shift</div>
-				<div class="metric-desc">The visual extension of your hometown's frost-free growing season (dates tracking last spring frost to first fall frost below <span id="label-thresh-frost">32°F</span>).</div>
-				
-				<div class="frost-timeline-container">
-					<div class="timeline-axis-labels">
-						<span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span><span>Dec</span>
-					</div>
-
-					<div class="frost-timeline-row">
-						<div class="frost-row-meta">
-							<span class="frost-row-year" id="timeline-label-hist">~1980</span>
-							<span class="frost-duration-badge" id="frost-duration-hist">-- days</span>
-						</div>
-						<div class="frost-slider-track" id="track-hist">
-							<div class="frost-segment frost-cold-zone" id="hist-seg-left"></div>
-							<div class="frost-segment frost-warm-zone" id="hist-seg-mid">
-								<span class="frost-date-marker date-start" id="hist-date-start">--</span>
-								<span class="frost-date-marker date-end" id="hist-date-end">--</span>
-							</div>
-							<div class="frost-segment frost-cold-zone" id="hist-seg-right"></div>
-						</div>
-					</div>
-
-					<div class="frost-timeline-row">
-						<div class="frost-row-meta">
-							<span class="frost-row-year" id="timeline-label-recent">~2025</span>
-							<span class="frost-duration-badge" id="frost-duration-recent">-- days</span>
-						</div>
-						<div class="frost-slider-track" id="track-recent">
-							<div class="frost-segment frost-cold-zone" id="recent-seg-left"></div>
-							<div class="frost-segment frost-warm-zone" id="recent-seg-mid">
-								<span class="frost-date-marker date-start" id="recent-date-start">--</span>
-								<span class="frost-date-marker date-end" id="recent-date-end">--</span>
-							</div>
-							<div class="frost-segment frost-cold-zone" id="recent-seg-right"></div>
-						</div>
-					</div>
-
-					<div class="frost-timeline-row">
-						<div class="frost-row-meta">
-							<span class="frost-row-year" id="timeline-label-future">~2050</span>
-							<span class="frost-duration-badge" id="frost-duration-future">-- days</span>
-						</div>
-						<div class="frost-slider-track" id="track-future">
-							<div class="frost-segment frost-cold-zone" id="future-seg-left"></div>
-							<div class="frost-segment frost-warm-zone" id="future-seg-mid">
-								<span class="frost-date-marker date-start" id="future-date-start">--</span>
-								<span class="frost-date-marker date-end" id="future-date-end">--</span>
-							</div>
-							<div class="frost-segment frost-cold-zone" id="future-seg-right"></div>
-						</div>
-					</div>
-
-				</div>
+			<div id="progression-container" class="progression-container">
+				<button id="reveal-future-btn" class="btn-secondary">Reveal Future Projections &rarr;</button>
 			</div>
 			
-			<button id="reset-btn" style="background-color: var(--text-color); margin-top: var(--space-md);">Check Another Location</button>
+			<button id="reset-btn" class="btn-dark hidden">Check Another Location</button>
 		</div>
-	</div>
+	</main>
 
-	<script src="script.js" defer></script>
+	<footer class="site-footer">
+		<a href="methodology.html" class="footer-link">Read the Methodology</a>
+	</footer>
+
 </body>
 </html>
