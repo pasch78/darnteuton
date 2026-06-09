@@ -421,9 +421,19 @@ const DarnWortler = (function () {
     function renderInlineCard(guess, pool, isObscure) {
         const hints = document.querySelectorAll(`.hint-card[data-word="${guess}"]`);
         hints.forEach(h => h.remove());
-
+    
         const html = `<div class="inline-word-card ${pool.baseColorClass} ${isObscure ? 'obscure-word' : ''}">${guess}${isObscure ? ' ✨' : ''}</div>`;
-        document.getElementById(`inline-words-${pool.rows[0]}`).insertAdjacentHTML('afterbegin', html);
+        
+        const container = document.getElementById(`inline-words-${pool.rows[0]}`);
+        container.insertAdjacentHTML('afterbegin', html);
+        
+        // Bulletproof scroll reset to prevent execution crashes on older mobile browsers
+        try {
+            container.scrollTo({ left: 0, behavior: 'smooth' });
+        } catch (error) {
+            // Fallback for browsers that don't support smooth scroll objects
+            container.scrollLeft = 0; 
+        }
     }
 
     function manageStreak() {
