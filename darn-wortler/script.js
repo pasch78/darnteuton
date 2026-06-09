@@ -1,11 +1,11 @@
 'use strict';
 
+// Global error handler updated to use CSS variables
 window.onerror = function (msg, url, line) {
-    // Updated to use the new loading button ID
     const btn = document.getElementById("start-loading-btn");
     if (btn) {
         btn.textContent = `Crash: ${msg} (Line ${line})`;
-        btn.style.backgroundColor = "#a84646"; 
+        btn.style.backgroundColor = "var(--color-error)"; 
     }
 };
 
@@ -14,7 +14,7 @@ const DarnWortler = (function () {
         fullDictURL: "./full.txt",
         expandedDictURL: "./expanded.txt",
         manifestURL: "./tier_manifest.json",
-        gameDuration: 300,
+        gameDuration: 300, // 5 minutes
         keyboardLayout: [
             ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
             ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
@@ -50,13 +50,16 @@ const DarnWortler = (function () {
     }
 
     function cacheDOM() {
-    const ids = [
-        "start-screen", "start-game-btn", "game-container", "game-board",
-        "virtual-keyboard", "end-early-btn", "timer", "score-total-display", 
-        "score-breakdown-display", "mode-indicator", "game-over-section", 
-        "final-score", "final-score-breakdown", "all-solutions-list", "practice-tier-group",
-        "start-loading-btn", "start-buttons-group", "start-daily-btn", "start-practice-tier-group"
-    ];
+        // Updated IDs to match the newly restructured semantic HTML
+        const ids = [
+            "start-screen", "game-container", "game-board",
+            "virtual-keyboard", "end-early-btn", "timer", "timer-progress-bar", 
+            "score-total-display", "score-breakdown-display", "mode-indicator", 
+            "game-over-modal", "final-score", "final-score-breakdown", 
+            "all-solutions-list", "practice-tier-group", "start-loading-btn", 
+            "start-buttons-group", "start-daily-btn", "start-practice-tier-group",
+            "input-row-wrapper", "input-tiles"
+        ];
         
         ids.forEach(id => {
             ui[id] = document.getElementById(id);
@@ -92,33 +95,28 @@ const DarnWortler = (function () {
             const fullArray = parseWords(textFull);
     
             state.validWordsSet = new Set([...state.expandedWordsList, ...fullArray]);
-            state.bonusBarrierSet = new Set(state.expandedWordsList); // Obscure words are now those ONLY in full.txt
+            state.bonusBarrierSet = new Set(state.expandedWordsList);
             state.manifest = manifestJSON;
     
             setupGameMode();
-                    ui["mode-indicator"].classList.remove("hidden");
-                    ui["start-loading-btn"].classList.add("hidden");
-                    ui["start-buttons-group"].classList.remove("hidden");
-                    
-                } catch (error) {
-                    console.error("Dictionary Load Failed:", error);
-                    ui["start-loading-btn"].textContent = "Data Error. Refresh to retry.";
-                    ui["start-loading-btn"].style.backgroundColor = "#a84646";
-                }
-            }
+            ui["mode-indicator"].classList.remove("hidden");
+            ui["start-loading-btn"].classList.add("hidden");
+            ui["start-buttons-group"].classList.remove("hidden");
+            
+        } catch (error) {
+            console.error("Dictionary Load Failed:", error);
+            ui["start-loading-btn"].textContent = "Data Error. Refresh to retry.";
+            ui["start-loading-btn"].style.backgroundColor = "var(--color-error)";
+        }
+    }
     
-    /**
-     * Generates a deterministic daily seed word based on the Days Since Epoch.
-     * Implements a hash to scramble selection and avoid sequential alphabetical days.
-     */
     const getDailySeedWord = () => {
         const easyPool = state.manifest.easy;
         if (!easyPool || easyPool.length === 0) throw new Error("Manifest easy pool is empty.");
         
-        const idStr = "DW" + state.daily.currentID.toString(); // Salted string
+        const idStr = "DW" + state.daily.currentID.toString();
         let hash = 0;
         
-        // Bitwise hash algorithm for maximum shuffle
         for (let i = 0; i < idStr.length; i++) {
             hash = Math.imul(31, hash) + idStr.charCodeAt(i) | 0;
         }
@@ -131,8 +129,7 @@ const DarnWortler = (function () {
     function setupGameMode() {
         const lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily");
         if (lastPlayedDaily == state.daily.currentID) {
-            // Visually disable the Daily button if already played
-            ui["start-daily-btn"].textContent = "DAILY COMPLETED"; // Removed emoji, capitalized
+            ui["start-daily-btn"].textContent = "DAILY COMPLETED";
             ui["start-daily-btn"].disabled = true;
             ui["start-daily-btn"].classList.replace("primary-btn", "secondary-btn");
         }
@@ -205,7 +202,6 @@ const DarnWortler = (function () {
             }
         }
 
-        // Added "SEED" to the ghost counter to visually balance the layout
         let boardHTML = `
             <div class="row-wrapper seed-row-wrapper" data-start="${letters[0]}">
                 <div class="row-main">
@@ -216,7 +212,7 @@ const DarnWortler = (function () {
                 </div>
             </div>`;
 
-        // Build Game Rows
+        // Build Game Target Rows
         for (let r = 0; r < 5; r++) {
             const startL = letters[r], endL = reverseLetters[r];
             const pool = state.targetPools[`${startL}${endL}`];
@@ -227,7 +223,7 @@ const DarnWortler = (function () {
             const counterClass = (!isDead && !isDuplicate) ? pool.baseColorClass : "";
 
             boardHTML += `
-                <div class="row-wrapper ${isDead ? 'dead-row hidden' : 'active-row'}" data-start="${startL}">
+                <div class="row-wrapper ${isDead ? 'dead-row' : 'active-row'}" data-start="${startL}">
                     <div class="row-main">
                     <div class="row-tiles" id="row-tiles-${r+1}">
                         <div class="tile ${styleClass}">${startL}</div>
@@ -242,34 +238,30 @@ const DarnWortler = (function () {
                 </div>`;
         }
 
-        // Build New Unified Input Row
-        boardHTML += `
-            <div class="row-wrapper" id="input-row-wrapper">
-                <div class="row-main">
-                    <div class="row-tiles" id="input-tiles">
-                        <div class="tile input-tile"></div>
-                        <div class="tile input-tile"></div>
-                        <div class="tile input-tile"></div>
-                        <div class="tile input-tile"></div>
-                        <div class="tile input-tile"></div>
-                    </div>
-                    <div class="row-counter" aria-hidden="true"></div>
-                </div>
-            </div>`;
-
+        // Note: The Input Row is no longer generated here; it lives statically in index.html
         ui["game-board"].insertAdjacentHTML('beforeend', boardHTML);
     }
 
     function updateGuessDisplay() {
-        const inputTiles = document.querySelectorAll('#input-tiles .tile');
+        const inputTiles = document.querySelectorAll('#input-tiles .input-tile');
         
-        // Update tiles in the Input Row
+        // Update semantic tiles in the fixed Input Row
         for (let i = 0; i < 5; i++) {
-            inputTiles[i].textContent = state.currentGuess[i] || "";
-            inputTiles[i].classList.toggle('active-typing', !!state.currentGuess[i]);
+            const letter = state.currentGuess[i] || "";
+            inputTiles[i].textContent = letter;
+            
+            // Set state for CSS styling (borders/colors)
+            inputTiles[i].dataset.state = letter ? "filled" : "empty";
+            
+            // Set the active typing indicator (focus ring) on the next empty box
+            if (i === state.currentGuess.length && state.currentGuess.length < 5) {
+                inputTiles[i].classList.add('active-typing');
+            } else {
+                inputTiles[i].classList.remove('active-typing');
+            }
         }
         
-        // Dimming logic for the grid above
+        // Dimming logic for the target grid above
         const activeRows = document.querySelectorAll(".row-wrapper.active-row");
         if (state.currentGuess.length > 0) {
             const firstL = state.currentGuess[0];
@@ -281,12 +273,7 @@ const DarnWortler = (function () {
         }
     }
 
-// --- CASCADING REVEAL ENGINE ---
-    
-    /**
-     * Fisher-Yates shuffle utility.
-     * Returns a new shuffled array without mutating the original.
-     */
+    // --- CASCADING REVEAL ENGINE ---
     const shuffleArray = (array) => {
         const shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -296,67 +283,52 @@ const DarnWortler = (function () {
         return shuffled;
     };
     
-    /**
-     * Executes the Cascading Reveal engine across all active rows.
-     * @param {string} guess - The valid 5-letter word just guessed.
-     */
     const triggerCascadeReveal = (guess) => {
-    // NEW: Wipe all existing ghost hints from the board before the new sweep
-    document.querySelectorAll('.inner-tile.ghost-hint').forEach(tile => {
-        tile.textContent = '';
-        tile.classList.remove('ghost-hint');
-    });
-    
-    // Extract internal letters: Pos 2, 3, 4
-    const masterKey = [guess[1], guess[2], guess[3]];   
-    
+        // Wipe existing hints before a new sweep
+        document.querySelectorAll('.inner-tile.ghost-hint').forEach(tile => {
+            tile.textContent = '';
+            tile.classList.remove('ghost-hint');
+        });
+        
+        const masterKey = [guess[1], guess[2], guess[3]];   
+        
         Object.values(state.targetPools).forEach(pool => {
-                if (pool.validWords.length === pool.foundWords.length) return;
-        
-                const availableWords = pool.validWords.filter(w => !pool.foundWords.includes(w));
-                
-                // Phase 1: Master List Scan
-                const coreWords = availableWords.filter(w => state.expandedWordsList.includes(w));
-                let hintsGenerated = runHintPhase(pool, coreWords, masterKey);
-        
-                // Phase 2: Obscure Fallback Scan (Contingency Gate)
-                if (hintsGenerated === 0) {
-                    const obscureWords = availableWords.filter(w => !state.expandedWordsList.includes(w));
-                    runHintPhase(pool, obscureWords, masterKey);
-                }
-            });
-        };
+            if (pool.validWords.length === pool.foundWords.length) return;
     
-    /**
-     * Runs a single progressive filtering phase of the cascade logic.
-     * @returns {number} The number of hints successfully generated.
-     */
+            const availableWords = pool.validWords.filter(w => !pool.foundWords.includes(w));
+            
+            // Phase 1: Core Words
+            const coreWords = availableWords.filter(w => state.expandedWordsList.includes(w));
+            let hintsGenerated = runHintPhase(pool, coreWords, masterKey);
+    
+            // Phase 2: Obscure Fallback
+            if (hintsGenerated === 0) {
+                const obscureWords = availableWords.filter(w => !state.expandedWordsList.includes(w));
+                runHintPhase(pool, obscureWords, masterKey);
+            }
+        });
+    };
+    
     const runHintPhase = (pool, wordList, masterKey) => {
         if (wordList.length === 0) return 0;
     
         let workingPool = shuffleArray(wordList);
         let hintsGenerated = 0;
-        
-        // Tracks which letters to display for data-pos 1, 2, and 3
         const hintsToDisplay = [null, null, null]; 
     
         for (let i = 0; i < 3; i++) {
             const targetLetter = masterKey[i];
-            const strIndex = i + 1; // Maps array index 0,1,2 to string index 1,2,3
+            const strIndex = i + 1; 
     
-            // Check condition: Does Working Pool contain words with targetLetter in this position?
             const matches = workingPool.filter(w => w[strIndex] === targetLetter);
     
             if (matches.length > 0) {
-                // Action: TRUE branch
                 workingPool = matches;
                 hintsToDisplay[i] = targetLetter;
                 hintsGenerated++;
             }
-            // Action: FALSE branch -> Proceed with current workingPool unmodified
         }
     
-        // Render hints to the DOM for all identical target rows
         if (hintsGenerated > 0) {
             pool.rows.forEach(rowNum => {
                 const tiles = document.querySelectorAll(`#row-tiles-${rowNum} .inner-tile`);
@@ -368,11 +340,8 @@ const DarnWortler = (function () {
                 });
             });
         }
-    
         return hintsGenerated;
     };
-    
-    // -------------------------------
 
     function processInput(key) {
         if (!state.active) return;
@@ -393,24 +362,17 @@ const DarnWortler = (function () {
         
         const guess = state.currentGuess;
         const pool = state.targetPools[`${guess[0]}${guess[4]}`];
-        const inputWrapper = document.getElementById("input-row-wrapper");
     
         const triggerError = (msg) => {
             spawnFCT(msg, "error");
-            inputWrapper.classList.add("shake");
-            setTimeout(() => inputWrapper.classList.remove("shake"), 400);
             
-            // --- A/B TEST TOGGLE: Clear hints on invalid guess ---
-            // To test the stricter punishment, simply uncomment the block below.
-            /*
-            document.querySelectorAll('.inner-tile.ghost-hint').forEach(tile => {
-                tile.textContent = '';
-                tile.classList.remove('ghost-hint');
-            });
-            */
-            // -----------------------------------------------------
-        
-            // THE FIX: Instantly clear the invalid guess so the player can keep typing
+            // Haptic feedback for mobile error states
+            if (navigator.vibrate) navigator.vibrate(100);
+
+            // Apply shake to the newly decoupled wrapper
+            ui["input-row-wrapper"].classList.add("shake");
+            setTimeout(() => ui["input-row-wrapper"].classList.remove("shake"), 400);
+            
             state.currentGuess = "";
             updateGuessDisplay();
         };
@@ -450,13 +412,11 @@ const DarnWortler = (function () {
         document.getElementById(`counter-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length}/${pool.validWords.length}`;
 
         renderInlineCard(guess, pool, isObscure);
-        
-            // Trigger the cascade engine with the successful guess
-            triggerCascadeReveal(guess);
-        
-            state.currentGuess = "";
-            updateGuessDisplay();
-        }
+        triggerCascadeReveal(guess);
+    
+        state.currentGuess = "";
+        updateGuessDisplay();
+    }
 
     function renderInlineCard(guess, pool, isObscure) {
         const hints = document.querySelectorAll(`.hint-card[data-word="${guess}"]`);
@@ -479,7 +439,7 @@ const DarnWortler = (function () {
 
         if (state.streak.count >= 3 && !state.streak.isActive) {
             state.streak.isActive = true; 
-            document.getElementById("input-row-wrapper").classList.add("streak-active");
+            ui["input-row-wrapper"].classList.add("streak-active");
             spawnFCT("🔥 STREAK ACTIVE", "streak");
         }
     }
@@ -487,8 +447,7 @@ const DarnWortler = (function () {
     function resetStreak() {
         state.streak.count = 0; 
         state.streak.isActive = false;
-        const inputRow = document.getElementById("input-row-wrapper");
-        if(inputRow) inputRow.classList.remove("streak-active");
+        if(ui["input-row-wrapper"]) ui["input-row-wrapper"].classList.remove("streak-active");
     }
 
     function spawnFCT(text, type) {
@@ -500,10 +459,8 @@ const DarnWortler = (function () {
         fct.style.left = `calc(50% + ${xOffset}px)`;
         fct.style.top = '-20px';
 
-        const inputWrapper = document.getElementById("input-row-wrapper");
-        if(inputWrapper) {
-            inputWrapper.style.position = 'relative';
-            inputWrapper.appendChild(fct);
+        if(ui["input-row-wrapper"]) {
+            ui["input-row-wrapper"].appendChild(fct);
         }
         
         setTimeout(() => fct.remove(), 1000);
@@ -516,56 +473,59 @@ const DarnWortler = (function () {
     }
 
     function attachEventListeners() {
-        
         ui["virtual-keyboard"].addEventListener("click", (e) => {
             const keyBtn = e.target.closest('.key');
             if (keyBtn) processInput(keyBtn.dataset.key);
         });
     
         document.addEventListener("keydown", (e) => {
+            // Intercept browser defaults for specific keystrokes
+            if (e.key === "Backspace" || e.key === "Delete" || e.key === " ") {
+                e.preventDefault(); 
+            }
             if (!e.ctrlKey && !e.metaKey && !e.altKey) {
                 processInput(e.key.toUpperCase());
             }
         });
     
-ui["end-early-btn"].addEventListener("click", endGame);
-            ui["start-daily-btn"].addEventListener("click", initDailyMode);
-            
-            // Event delegation for Start Screen practice buttons
-            ui["start-practice-tier-group"].addEventListener("click", (e) => {
-                const tierBtn = e.target.closest('.tier-btn');
-                if (tierBtn) initPracticeMode(tierBtn.dataset.tier);
-            });
+        ui["end-early-btn"].addEventListener("click", endGame);
+        ui["start-daily-btn"].addEventListener("click", initDailyMode);
         
-            // Event delegation for End Screen practice buttons
-            ui["practice-tier-group"].addEventListener("click", (e) => {
-                const tierBtn = e.target.closest('.tier-btn');
-                if (tierBtn) resetGame(tierBtn.dataset.tier);
-            });
-        }
+        ui["start-practice-tier-group"].addEventListener("click", (e) => {
+            const tierBtn = e.target.closest('.tier-btn');
+            if (tierBtn) initPracticeMode(tierBtn.dataset.tier);
+        });
+    
+        ui["practice-tier-group"].addEventListener("click", (e) => {
+            const tierBtn = e.target.closest('.tier-btn');
+            if (tierBtn) resetGame(tierBtn.dataset.tier);
+        });
+    }
         
-        function startGame() {
-            ui["start-screen"].classList.add("hidden");
-            ui["game-container"].classList.remove("hidden");
-            generateBoard();
-            startTimer();
-            state.active = true;
-            updateGuessDisplay();
-        }
+    function startGame() {
+        ui["start-screen"].close(); // Using native <dialog> method
+        ui["game-container"].classList.remove("hidden");
+        generateBoard();
+        startTimer();
+        state.active = true;
+        updateGuessDisplay();
+    }
+    
+    function resetGame(selectedTier) {
+        state.scores = { base: 0, bonus: 0, total: 0 };
+        state.currentGuess = "";
+        ui["timer"].classList.remove("danger");
+        if(ui["timer-progress-bar"]) ui["timer-progress-bar"].classList.remove("danger");
         
-        function resetGame(selectedTier) {
-            state.scores = { base: 0, bonus: 0, total: 0 };
-            state.currentGuess = "";
-            ui["timer"].classList.remove("danger");
-            updateScoreUI();
-            resetStreak();
-            
-            ui["game-over-section"].classList.add("hidden");
-            ui["end-early-btn"].classList.remove("hidden");
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+        updateScoreUI();
+        resetStreak();
         
-            initPracticeMode(selectedTier);
-        }
+        ui["game-over-modal"].close(); // Using native <dialog> method
+        ui["end-early-btn"].classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+        initPracticeMode(selectedTier);
+    }
 
     function startTimer() {
         clearInterval(state.timer.interval);
@@ -573,8 +533,18 @@ ui["end-early-btn"].addEventListener("click", endGame);
         
         const tick = () => {
             const left = Math.max(0, Math.ceil((state.timer.endTime - Date.now()) / 1000));
+            
+            // Text readout update
             ui["timer"].textContent = `${String(Math.floor(left/60)).padStart(2,'0')}:${String(left%60).padStart(2,'0')}`;
-            ui["timer"].classList.toggle("danger", left <= 30 && left > 0);
+            
+            // Progress Bar update
+            const percentage = (left / config.gameDuration) * 100;
+            if (ui["timer-progress-bar"]) ui["timer-progress-bar"].style.width = `${percentage}%`;
+
+            // Danger toggles
+            const inDanger = left <= 30 && left > 0;
+            ui["timer"].classList.toggle("danger", inDanger);
+            if (ui["timer-progress-bar"]) ui["timer-progress-bar"].classList.toggle("danger", inDanger);
             
             if (state.streak.isActive && Date.now() - state.streak.lastWordTime > 20000) resetStreak();
             else if (!state.streak.isActive && state.streak.count > 0 && Date.now() - state.streak.lastWordTime > 15000) resetStreak();
@@ -607,8 +577,8 @@ ui["end-early-btn"].addEventListener("click", endGame);
         });
         ui["all-solutions-list"].innerHTML = html;
         
-        ui["game-over-section"].classList.remove("hidden");
-        ui["game-over-section"].scrollIntoView({ behavior: 'smooth' });
+        // Open native <dialog> element
+        ui["game-over-modal"].showModal();
     }
 
     return { init, state };

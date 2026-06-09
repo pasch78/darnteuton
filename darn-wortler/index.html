@@ -15,7 +15,10 @@
 <body>
     <header class="app-header">
         <div class="header-left">
-            <div id="timer" role="timer" aria-live="off" aria-label="Time remaining">05:00</div>
+            <time id="timer" role="timer" aria-live="off" aria-label="Time remaining">05:00</time>
+            <div id="timer-progress-container" aria-hidden="true">
+                <div id="timer-progress-bar"></div>
+            </div>
         </div>
         <div class="header-center">
             <h1>Darn Wortler</h1>
@@ -23,28 +26,41 @@
         </div>
         <div class="header-right">
             <div id="score-wrapper">
-                <div id="score-total-display">Total: 0</div>
-                <div id="score-breakdown-display">Base: 0 | Bonus: 0</div>
+                <output id="score-total-display">Total: 0</output>
+                <output id="score-breakdown-display">Base: 0 | Bonus: 0</output>
             </div>
         </div>
     </header>
 
     <main id="game-container" class="hidden">
-        <section id="board-area" aria-label="Game Board">
+        <section id="board-area" aria-label="Game Board" role="application">
             <div id="game-board">
-                <!-- Board rows, ghost counters, and Input row are generated dynamically here -->
-            </div> 
+                </div> 
+        </section>
+
+        <section id="player-input-section" aria-label="Word Input Area">
+            <div id="input-row-wrapper" class="input-row-wrapper" role="group" aria-label="Current Guess">
+                <div class="row-tiles input-tiles" id="input-tiles">
+                    <div class="tile input-tile" aria-hidden="true" data-index="0"></div>
+                    <div class="tile input-tile" aria-hidden="true" data-index="1"></div>
+                    <div class="tile input-tile" aria-hidden="true" data-index="2"></div>
+                    <div class="tile input-tile" aria-hidden="true" data-index="3"></div>
+                    <div class="tile input-tile" aria-hidden="true" data-index="4"></div>
+                </div>
+            </div>
         </section>
 
         <section id="keyboard-area" aria-label="Virtual Keyboard">
             <div id="virtual-keyboard"></div>
-            <button id="end-early-btn" class="secondary-btn">Reveal Answers</button>
+            <button id="end-early-btn" class="secondary-btn">End Game and Reveal Answers</button>
         </section>
+    </main>
 
-        <section id="game-over-section" class="hidden" aria-labelledby="game-over-heading">
+    <dialog id="game-over-modal" aria-labelledby="game-over-heading">
+        <div class="modal-content">
             <h2 id="game-over-heading">Time's Up!</h2>
-            <h3 id="final-score">Total Score: 0</h3>
-            <h4 id="final-score-breakdown">Base: 0 | Bonus: 0</h4>
+            <output id="final-score">Total Score: 0</output>
+            <output id="final-score-breakdown">Base: 0 | Bonus: 0</output>
             
             <div class="step-group-title game-over-prompt">Play again? Select a practice mode:</div>
             <div id="practice-tier-group" class="practice-tier-container">
@@ -61,61 +77,63 @@
                 </p>
                 <div id="all-solutions-list"></div>
             </div>
-        </section>
-    </main>
-
-    <div id="start-screen" role="dialog" aria-labelledby="start-heading" aria-modal="true">
-        <h2 id="start-heading">Welcome to Darn Wortler</h2>
-        <p class="subtitle onboarding-subtitle">Inspired by the classic German word game "Gefüllte Kalbsbrust", Darn Wortler is a high-speed, 5-minute race against the clock. Unscramble the game board and see how high you can push your score before time runs out!</p>
-        
-        <div class="onboarding-steps">
-            <div class="step-group-title">How to Play</div>
-            <div class="step">
-                <span class="step-icon">🧩</span>
-                <p><strong>The Grid:</strong> The seed word at the top of the board creates the frame for the game. You must guess 5-letter words that begin and end with the outer letters shown in the rows below.</p>
-            </div>
-            <div class="step">
-                <span class="step-icon">⌨️</span>
-                <p><strong>Type & Submit:</strong> Use the on-screen keyboard or your device's keyboard to type your guess and press Enter. The game ends when the 5-minute timer runs out.</p>
-            </div>
-            <div class="step">
-                <span class="step-icon">👻</span>
-                <p><strong>Cascade Hints:</strong> Every correct guess triggers the hint engine. The middle letters of your guess will sweep the board, revealing hints for words you haven't found yet.</p>
-            </div>
-            
-            <div class="step-group-title">How to Score</div>
-            <div class="step">
-                <span class="step-icon">📈</span>
-                <p><strong>Rarity Pays:</strong> The fewer valid dictionary words there are for a row, the more points you earn for finding one.</p>
-            </div>
-            <div class="step">
-                <span class="step-icon">✨</span>
-                <p><strong>Obscure Vocabulary:</strong> Impress the engine with a rare word to score a +50 point bonus!</p>
-            </div>
-            <div class="step">
-                <span class="step-icon">🔥</span>
-                <p><strong>Catch Fire:</strong> Submit 3 correct words in rapid succession to activate the Speed Streak. Every subsequent fast guess earns bonus points, but an invalid guess will break your streak!</p>
-            </div>
         </div>
-        
-        <div id="start-action-area">
-            <button id="start-loading-btn" class="primary-btn" disabled aria-live="polite">Loading Dictionary...</button>
+    </dialog>
+
+    <dialog id="start-screen" aria-labelledby="start-heading" open>
+        <div class="modal-content">
+            <h2 id="start-heading">Welcome to Darn Wortler</h2>
+            <p class="subtitle onboarding-subtitle">Inspired by the classic German word game "Gefüllte Kalbsbrust", Darn Wortler is a high-speed, 5-minute race against the clock. Unscramble the game board and see how high you can push your score before time runs out!</p>
             
-            <div id="start-buttons-group" class="hidden">
-                <button id="start-daily-btn" class="primary-btn">Start Daily Challenge</button>
+            <div class="onboarding-steps">
+                <div class="step-group-title">How to Play</div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">🧩</span>
+                    <p><strong>The Grid:</strong> The seed word at the top of the board creates the frame for the game. You must guess 5-letter words that begin and end with the outer letters shown in the rows below.</p>
+                </div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">⌨️</span>
+                    <p><strong>Type & Submit:</strong> Use the on-screen keyboard or your device's keyboard to type your guess and press Enter. The game ends when the 5-minute timer runs out.</p>
+                </div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">👻</span>
+                    <p><strong>Cascade Hints:</strong> Every correct guess triggers the hint engine. The middle letters of your guess will sweep the board, revealing hints for words you haven't found yet.</p>
+                </div>
                 
-                <div class="step-group-title practice-title">Practice Mode</div>
-                
-                <div id="start-practice-tier-group" class="practice-tier-container">
-                    <button class="tier-btn easy-btn" data-tier="easy">Easy</button>
-                    <button class="tier-btn medium-btn" data-tier="medium">Medium</button>
-                    <button class="tier-btn hard-btn" data-tier="hard">Hard</button>
+                <div class="step-group-title">How to Score</div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">📈</span>
+                    <p><strong>Rarity Pays:</strong> The fewer valid dictionary words there are for a row, the more points you earn for finding one.</p>
+                </div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">✨</span>
+                    <p><strong>Obscure Vocabulary:</strong> Impress the engine with a rare word to score a +50 point bonus!</p>
+                </div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">🔥</span>
+                    <p><strong>Catch Fire:</strong> Submit 3 correct words in rapid succession to activate the Speed Streak. Every subsequent fast guess earns bonus points, but an invalid guess will break your streak!</p>
                 </div>
             </div>
+            
+            <div id="start-action-area">
+                <button id="start-loading-btn" class="primary-btn" disabled aria-live="polite">Loading Dictionary...</button>
+                
+                <div id="start-buttons-group" class="hidden">
+                    <button id="start-daily-btn" class="primary-btn">Start Daily Challenge</button>
+                    
+                    <div class="step-group-title practice-title">Practice Mode</div>
+                    
+                    <div id="start-practice-tier-group" class="practice-tier-container">
+                        <button class="tier-btn easy-btn" data-tier="easy">Easy</button>
+                        <button class="tier-btn medium-btn" data-tier="medium">Medium</button>
+                        <button class="tier-btn hard-btn" data-tier="hard">Hard</button>
+                    </div>
+                </div>
 
-            <a href="manual.html" class="manual-link">Read the Player Manual</a>
+                <a href="manual.html" class="manual-link">Read the Player Manual</a>
+            </div>
         </div>
-    </div>
+    </dialog>
 
     <script src="script.js"></script>
 </body>
