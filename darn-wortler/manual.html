@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="description" content="Darn Wortler - Player Success Manual">
+	<title>Player Manual | Darn Wortler</title>
+	
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="style.css">
+</head>
+<body class="manual-body">
+	<main class="manual-container">
+		<a href="index.html" class="back-link">← Back to Game</a>
+		
+		<h1>Darn Wortler <br><span class="manual-subtitle">Player Manual</span></h1>
+		
+		<nav class="toc">
+			<h2>Table of Contents</h2>
+			<ul>
+				<li><a href="#core-objective">The Core Objective</a></li>
+				<li><a href="#grid-mechanics">Mastering the Grid Mechanics</a></li>
+				<li><a href="#hint-engine">The Cascading Hint Engine</a></li>
+				<li><a href="#scoring">Scoring Optimization & Bonuses</a></li>
+				<li><a href="#strategies">Winning Strategies</a></li>
+			</ul>
+		</nav>
+
+		<section id="core-objective">
+			<h2>The Core Objective</h2>
+			<p>Your goal is simple: maximize your score before the <strong>5-minute timer</strong> runs out. You score points by finding 5-letter words that fit into specific rows dictated by a central "Seed Word".</p>
+		</section>
+
+		<section id="grid-mechanics">
+			<h2>Mastering the Grid Mechanics</h2>
+			<h3>Game Basics:</h3>
+			<ul>
+				<li><strong>The Seed Word:</strong> The top row displays a random 5-letter word for the round. The five rows beneath it require you to guess words that start with the seed word's letters in forward order, and end with its letters in reverse order.
+					<br><em>Example:</em> If the seed is <strong>P-L-A-N-T</strong>, Row 1 must start with P and end with T (e.g., POINT), Row 2 starts with L and ends with N (e.g., LEMON), and so on.</li>
+				<li><strong>The Input Row:</strong> All words are typed into the single Input Row at the bottom of the board. The grid automatically dims rows that do not match the first letter of your current guess, helping you see where your word will land.</li>
+			</ul>
+			
+			<h3>Row Indicators:</h3>
+			<ul>
+				<li><strong>Fraction Counter (e.g., 0/12):</strong> Tells you how many valid words you have found out of the total possibilities for that row.</li>
+				<li><strong>Link Icon (🔗):</strong> Appears if rows share identical start/end letter pairs (common with palindromes). Finding a word here populates both rows simultaneously and you get double the score.</li>
+				<li><strong>Dead Rows:</strong> Grayed-out rows indicating that zero valid 5-letter words exist in the English dictionary for that letter combination. These are disabled automatically so you do not waste time.</li>
+			</ul>
+		</section>
+
+		<section id="hint-engine">
+			<h2>The Hint Engine</h2>
+			<h3>Your Best Friend for a High Score:</h3>
+			<ul>
+				<li><strong>Cascading Hints:</strong> Every time you successfully submit a valid word, the game analyzes its 2nd, 3rd, and 4th letters. If any unfound words on the board share those same letters in the exact same positions, the engine instantly populates them across the board as italicized hints. Not sure what that means? Try it out and it will make sense immediately.</li>
+				<li>
+				<strong>Constant Updates: </strong>Hints update dynamically with every single correct guess. If you submit an invalid word, the input row will shake as an error, but your existing board hints will remain intact to keep you going.</li>
+			</ul>
+			
+		</section>
+
+		<section id="scoring">
+			<h2>Understanding Scores & Bonuses</h2>
+			<h3>Base Score:</h3>
+			<ul>
+				<li><strong>Possible Solutions: </strong>The game features a dictionary of 13,079 acceptable guesses. Categorized by how frequently they appear in the English language, 5,757 are labeled 'common' words, while the remaining pool is considered 'obscure'.</li>
+				<li><strong>Rarity Scaling:</strong> Base points reward scarcity: a valid guess' score is calculated as <code>1000 / Total Valid Words (in that row)</code>. Rare rows with fewer hidden solutions yield massive payouts, while common rows offer much smaller rewards. For example, a row with 200 valid words awards just 5 points per guess, whereas a tough row with only 20 options blocks out a massive 50 points.</li>
+			</ul>
+			
+			<h3>Bonus Points:</h3>
+			<ul>
+				<li><strong>Obscure Word Bonus (+50 points):</strong> Submitting a highly rare vocabulary word awards an immediate 50-point bonus. </li>
+				<li><strong>Speed Streak (+5 points per guess while active):</strong> Successfully submit 3 valid words within 15 seconds of each other to activate the Speed Streak. Taking longer than 20 seconds between words or typing a word not in the dictionary ("Not in list") instantly kills your streak.</li>
+			</ul>
+		</section>
+
+		<section id="strategies">
+			<h2>Winning Strategies</h2>
+			<ul>
+				<li><strong>Fish for Hints on Easier Rows:</strong> Guessing common words in easier rows will spawn helpful hints across the board. The letters revealed by the hint engine will help unlock the scarcer, higher-value rows.</li>
+				<li><strong>Take Advantage of Rarity Scaling:</strong> Check the row counters immediately at launch. Prioritize rows with tiny word pools (e.g., 0/2 or 0/5) because they offer the largest base point infusions. But do not get stuck there&mdash;chances are you're hunting obscure words.</li>
+				
+				<li><strong>Protect the Streak:</strong> When your Speed Streak is active, do not guess blindly. A single invalid word resets your streak counter to zero. If you are running out of time on a streak, shift to a high-volume, easy row to keep the bonus alive.</li>
+			</ul>
+		</section>
+	</main>
+</body>
+</html>

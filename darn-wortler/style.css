@@ -1,22 +1,28 @@
-/* --- Global Variables & Fluid Spacing System --- */
+/* ==========================================================================
+   1. GLOBAL VARIABLES & BASE RESET
+   ========================================================================== */
 :root {
+    /* Brand Palette */
     --col1: #4a7c8c; 
     --col2: #c86b3c; 
     --col3: #5c8262; 
     --col4: #8a6a82; 
     --col5: #a84646; 
     
+    /* UI Colors */
     --bg-color: #f6f0e2; 
     --text-color: #3e3128; 
     --border-color: #c9bda5; 
     --grayed-out: #a39b8b; 
     
+    /* Z-Indexes */
     --z-floating-text: 100;
     --z-modal: 1000;
     
+    /* Layout */
     --max-app-width: 500px;
 
-    /* Fluid Design Tokens */
+    /* Fluid Design Tokens (Spacing) */
     --space-xs: clamp(2px, 0.5svh, 4px);
     --space-sm: clamp(4px, 1svh, 8px);
     --space-md: clamp(8px, 1.5svh, 16px);
@@ -49,7 +55,10 @@ button, .key, .tile {
     user-select: none;
 }
 
-/* --- Typography & 3-Column Header --- */
+
+/* ==========================================================================
+   2. HEADER & TOP UI
+   ========================================================================== */
 .app-header { 
     width: 100%; 
     max-width: var(--max-app-width);
@@ -63,7 +72,6 @@ button, .key, .tile {
 .header-center { justify-self: center; text-align: center; }
 .header-right { justify-self: end; text-align: right; }
 
-/* Title now scales intelligently based on screen width */
 .app-header h1 { 
     font-size: clamp(1.1rem, 5vw, 1.8rem); 
     letter-spacing: -1px; 
@@ -84,7 +92,6 @@ button, .key, .tile {
 .mode-daily { background-color: var(--col2); color: #f6f0e2; }
 .mode-practice { background-color: var(--border-color); color: var(--text-color); }
 
-/* Timer sizing fixed to prevent horizontal blowout */
 #timer { 
     font-size: clamp(1.1rem, 5vw, 1.8rem); 
     font-weight: bold; 
@@ -94,18 +101,29 @@ button, .key, .tile {
     transition: color 0.3s ease;
 }
 
-#timer.danger { color: var(--col5); animation: pulse-timer 1s infinite alternate; }
-
-@keyframes pulse-timer {
-    from { opacity: 1; transform: scale(1); }
-    to { opacity: 0.8; transform: scale(1.05); }
+#timer.danger { 
+    color: var(--col5); 
+    animation: pulse-timer 1s infinite alternate; 
 }
 
-/* Score displays optimized for width-scaling */
-#score-total-display { font-size: clamp(0.9rem, 4vw, 1.2rem); font-weight: bold; color: var(--col3); line-height: 1.1; }
-#score-breakdown-display { font-size: clamp(0.6rem, 2vw, 0.75rem); font-weight: bold; color: var(--text-color); opacity: 0.8; }
+#score-total-display { 
+    font-size: clamp(0.9rem, 4vw, 1.2rem); 
+    font-weight: bold; 
+    color: var(--col3); 
+    line-height: 1.1; 
+}
 
-/* --- Layout: Board Area --- */
+#score-breakdown-display { 
+    font-size: clamp(0.6rem, 2vw, 0.75rem); 
+    font-weight: bold; 
+    color: var(--text-color); 
+    opacity: 0.8; 
+}
+
+
+/* ==========================================================================
+   3. GAME BOARD & ROW LAYOUT
+   ========================================================================== */
 #game-container { 
     display: flex; 
     flex-direction: column; 
@@ -173,7 +191,6 @@ button, .key, .tile {
     overflow: hidden;
 }
 
-/* Ratio Counter sizing explicitly increased */
 .row-counter { 
     width: 100%; 
     text-align: right;
@@ -182,7 +199,7 @@ button, .key, .tile {
     color: var(--grayed-out); 
 }
 
-/* --- Input Row & Hint Button --- */
+/* --- Input Row --- */
 #input-row-wrapper {
     margin-top: var(--space-xs);
     padding-top: var(--space-sm);
@@ -201,78 +218,12 @@ button, .key, .tile {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* Redesigned Hint Button: App Badge Style */
-#hint-btn {
-    position: relative; /* Anchors the absolute badge */
-    width: 100%; 
-    height: 100%;
-    padding: 0; 
-    font-size: clamp(1.5rem, 5vmin, 2rem); 
-    background-color: transparent;
-    color: #d1b058;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s ease, filter 0.2s ease;
-}
-
-#hint-btn:hover:not(:disabled) { 
-    transform: scale(1.1); 
-    filter: drop-shadow(0 2px 4px rgba(209, 176, 88, 0.4));
-}
-
-#hint-btn:active:not(:disabled) { 
-    transform: scale(0.95); 
-}
-
-#hint-btn:disabled { 
-    opacity: 0.4; 
-    cursor: not-allowed; 
-    filter: grayscale(100%);
-}
-
-/* The Notification Badge */
-#hint-badge {
-    position: absolute;
-    top: clamp(0px, 1svh, 8px); 
-    right: clamp(-5px, 0svh, 0px); 
-    background-color: var(--col5); 
-    color: #f6f0e2;
-    font-size: clamp(0.65rem, 1.8svh, 0.8rem);
-    font-family: 'Play', Arial, sans-serif;
-    font-weight: bold;
-    border-radius: 50%;
-    width: clamp(18px, 4svh, 24px);
-    height: clamp(18px, 4svh, 24px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    border: 2px solid var(--bg-color); 
-}
-
-/* Streak Active Visuals */
 .streak-active .input-tile {
     border-color: var(--col2);
     box-shadow: 0 0 6px rgba(200, 107, 60, 0.6);
 }
 
-.streak-active #hint-btn:not(:disabled) {
-    filter: drop-shadow(0 0 8px rgba(200, 107, 60, 0.8));
-}
-
-.shake { animation: shake-animation 0.4s cubic-bezier(.36,.07,.19,.97) both; }
-
-@keyframes shake-animation { 
-    10%, 90% { transform: translate3d(-2px, 0, 0); }
-    20%, 80% { transform: translate3d(4px, 0, 0); }
-    30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
-    40%, 60% { transform: translate3d(6px, 0, 0); }
-}
-
-/* --- Inline Words Carousel --- */
+/* --- Inline Hints / Cascading Carousel --- */
 .inline-words { 
     display: flex; 
     flex-wrap: nowrap; 
@@ -301,18 +252,17 @@ button, .key, .tile {
     scroll-snap-align: start; 
 }
 
-.inline-word-card.hint-card { border-style: dotted; color: var(--text-color); opacity: 0.8; letter-spacing: 2px; }
+.inline-word-card.hint-card { 
+    border-style: dotted; 
+    color: var(--text-color); 
+    opacity: 0.8; 
+    letter-spacing: 2px; 
+}
 
-/* --- Dynamic Colors --- */
-.bg-col1 { background-color: var(--col1); color: #f6f0e2; border-color: var(--col1); } 
-.bg-col2 { background-color: var(--col2); color: #f6f0e2; border-color: var(--col2); } 
-.bg-col3 { background-color: var(--col3); color: #f6f0e2; border-color: var(--col3); } 
-.bg-col4 { background-color: var(--col4); color: #f6f0e2; border-color: var(--col4); } 
-.bg-col5 { background-color: var(--col5); color: #f6f0e2; border-color: var(--col5); } 
-.bg-gray { background-color: var(--grayed-out); color: #f6f0e2; border-color: var(--grayed-out); }
-.text-col1 { color: var(--col1); } .text-col2 { color: var(--col2); } .text-col3 { color: var(--col3); } .text-col4 { color: var(--col4); } .text-col5 { color: var(--col5); }
 
-/* --- Virtual Keyboard --- */
+/* ==========================================================================
+   4. VIRTUAL KEYBOARD
+   ========================================================================== */
 #keyboard-area { margin-top: auto; }
 
 #virtual-keyboard {
@@ -344,31 +294,92 @@ button, .key, .tile {
     transition: background-color 0.1s ease, transform 0.1s ease;
 }
 
-.key:active { background-color: var(--col1); color: #fff; transform: scale(0.92); }
-.action-key { flex: 1.5; font-size: clamp(0.85rem, 3vw, 1rem); background-color: #c9bda5; }
+.key:active { 
+    background-color: var(--col1); 
+    color: #fff; 
+    transform: scale(0.92); 
+}
 
-/* --- Buttons & Modals --- */
-.primary-btn, .secondary-btn {
-    padding: clamp(0.8rem, 2.5svh, 1rem) clamp(1rem, 4vw, 2rem); 
-    font-size: clamp(1rem, 3svh, 1.1rem); 
+.action-key { 
+    flex: 1.5; 
+    font-size: clamp(0.85rem, 3vw, 1rem); 
+    background-color: #c9bda5; 
+}
+
+
+/* ==========================================================================
+   5. SCREENS & MODALS (Start / Game Over)
+   ========================================================================== */
+#start-screen { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background-color: var(--bg-color); 
+    z-index: var(--z-modal); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    padding: var(--space-lg) var(--space-md); 
+    overflow-y: auto;
+}
+
+.onboarding-steps { 
+    margin: var(--space-lg) 0; 
+    max-width: 400px; 
+    width: 100%; 
+    text-align: left; 
+}
+
+.step-group-title { 
     font-weight: bold; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    border: none;
-    transition: all 0.2s ease;
+    color: var(--col1); 
+    margin: var(--space-md) 0 var(--space-sm) 0; 
+    text-transform: uppercase; 
+    letter-spacing: 1px; 
+    font-size: clamp(0.8rem, 2.5svh, 0.9rem);
 }
 
-.primary-btn { background-color: var(--col3); color: #f6f0e2; }
-.primary-btn:hover:not(:disabled) { background-color: #46664b; }
-.primary-btn:disabled { background-color: var(--grayed-out); cursor: not-allowed; }
+.onboarding-subtitle { 
+    line-height: 1.4; 
+    margin-bottom: var(--space-md); 
+}
 
-.secondary-btn {
-    background-color: transparent; 
-    color: var(--grayed-out);
-    border: 2px solid var(--border-color); 
+.practice-title {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: var(--space-lg);
+}
+
+.step { 
+    display: flex; 
+    gap: var(--space-md); 
+    margin-bottom: var(--space-md); 
+    align-items: flex-start; 
+    font-size: clamp(0.9rem, 2.5svh, 1rem); 
+}
+
+.step-icon { font-size: clamp(1.2rem, 4svh, 1.5rem); }
+.subtitle { color: var(--grayed-out); margin-top: var(--space-sm); font-style: italic; font-size: clamp(0.85rem, 2.5svh, 1rem); }
+
+#start-action-area {
     width: 100%;
+    text-align: center;
 }
-.secondary-btn:hover:not(:disabled) { background-color: var(--border-color); color: var(--text-color); }
+
+.manual-link {
+    display: inline-block; 
+    margin-top: var(--space-lg); 
+    font-size: clamp(0.85rem, 2.5svh, 0.95rem); 
+    color: var(--col1); 
+    text-decoration: underline; 
+    font-weight: bold;
+}
+
+.manual-link:hover {
+    color: var(--col2);
+}
 
 #game-over-section { 
     margin-top: var(--space-md); 
@@ -381,35 +392,194 @@ button, .key, .tile {
 #final-score { font-size: clamp(1.5rem, 5svh, 2rem); color: var(--col3); margin: var(--space-md) 0 var(--space-sm) 0; }
 #final-score-breakdown { color: var(--grayed-out); margin-bottom: var(--space-lg); font-size: clamp(0.9rem, 2.5svh, 1rem); }
 
-#all-solutions-list { 
-    display: flex; flex-wrap: wrap; gap: var(--space-sm); justify-content: center; margin-top: var(--space-md);
+/* --- Game Over Action Area Spacing --- */
+.game-over-prompt {
+    margin-top: var(--space-lg);
+    margin-bottom: var(--space-sm);
 }
 
+#practice-tier-group {
+    margin-bottom: var(--space-lg);
+}
+
+#all-solutions-list { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: var(--space-sm); 
+    justify-content: center; 
+    margin-top: var(--space-md);
+}
+
+
+/* ==========================================================================
+   6. BUTTONS & INTERACTIVE ELEMENTS
+   ========================================================================== */
+.primary-btn, .secondary-btn {
+    padding: clamp(0.8rem, 2.5svh, 1rem) clamp(1rem, 4vw, 2rem); 
+    font-size: clamp(1rem, 3svh, 1.1rem); 
+    font-weight: bold; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.primary-btn { 
+    background-color: var(--col3); 
+    color: #f6f0e2; 
+}
+
+.primary-btn:hover:not(:disabled) { background-color: #46664b; }
+.primary-btn:disabled { background-color: var(--grayed-out); cursor: not-allowed; }
+
+.secondary-btn {
+    background-color: transparent; 
+    color: var(--grayed-out);
+    border: 2px solid var(--border-color); 
+    width: 100%;
+}
+
+.secondary-btn:hover:not(:disabled) { 
+    background-color: var(--border-color); 
+    color: var(--text-color); 
+}
+
+/* --- Tactile Start & Tier Buttons --- */
+.practice-tier-container {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-md);
+    width: 100%;
+    max-width: var(--max-app-width);
+    margin: var(--space-md) auto 0 auto;
+}
+
+#start-practice-tier-group {
+    margin-top: 0;
+}
+
+.tier-btn {
+    flex: 1;
+    padding: clamp(0.8rem, 2.5svh, 1rem) 4px;
+    font-family: inherit;
+    font-size: clamp(0.9rem, 2.5svh, 1rem);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    border: 2px solid;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.08);
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s ease;
+}
+
+.easy-btn { border-color: var(--col3); }
+.medium-btn { border-color: var(--col2); } 
+.hard-btn { border-color: var(--col5); }
+
+.easy-btn:hover { background-color: rgba(92, 130, 98, 0.1); }
+.medium-btn:hover { background-color: rgba(200, 107, 60, 0.1); }
+.hard-btn:hover { background-color: rgba(168, 70, 70, 0.1); }
+
+.tier-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+/* --- Daily Challenge Button Specifics --- */
+#start-daily-btn {
+    width: auto;
+    min-width: 280px; 
+    margin: 0 auto var(--space-md) auto;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.2s ease;
+}
+
+#start-daily-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+/* Style as a "pressed and locked" mechanical key */
+#start-daily-btn:disabled {
+    background-color: rgba(201, 189, 165, 0.15); 
+    border: 2px solid var(--border-color); 
+    color: var(--grayed-out);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.06); 
+    transform: translateY(2px); 
+    opacity: 0.9;
+    cursor: default;
+}
+
+
+/* ==========================================================================
+   7. DYNAMIC STATES & UTILITY CLASSES
+   ========================================================================== */
+.bg-col1 { background-color: var(--col1); color: #f6f0e2; border-color: var(--col1); } 
+.bg-col2 { background-color: var(--col2); color: #f6f0e2; border-color: var(--col2); } 
+.bg-col3 { background-color: var(--col3); color: #f6f0e2; border-color: var(--col3); } 
+.bg-col4 { background-color: var(--col4); color: #f6f0e2; border-color: var(--col4); } 
+.bg-col5 { background-color: var(--col5); color: #f6f0e2; border-color: var(--col5); } 
+.bg-gray { background-color: var(--grayed-out); color: #f6f0e2; border-color: var(--grayed-out); }
+
+.text-col1 { color: var(--col1); } 
+.text-col2 { color: var(--col2); } 
+.text-col3 { color: var(--col3); } 
+.text-col4 { color: var(--col4); } 
+.text-col5 { color: var(--col5); }
+
 .word-card { 
-    padding: var(--space-sm) var(--space-md); border-radius: 6px; font-weight: bold; font-size: clamp(0.85rem, 2.5svh, 1rem); 
-    text-transform: uppercase; background-color: transparent; border: 2px solid currentColor;
+    padding: var(--space-sm) var(--space-md); 
+    border-radius: 6px; 
+    font-weight: bold; 
+    font-size: clamp(0.85rem, 2.5svh, 1rem); 
+    text-transform: uppercase; 
+    background-color: transparent; 
+    border: 2px solid currentColor;
 }
 
 .obscure-word { 
-    border-color: #d1b058 !important; color: #b8912e !important;
-    background-color: rgba(209, 176, 88, 0.1); font-style: italic; 
+    border-color: #d1b058 !important; 
+    color: #b8912e !important;
+    background-color: rgba(209, 176, 88, 0.1); 
+    font-style: italic; 
 }
+
 .strikethrough { text-decoration: line-through; opacity: 0.6; }
 
-#start-screen { 
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-    background-color: var(--bg-color); z-index: var(--z-modal); 
-    display: flex; flex-direction: column; align-items: center; 
-    padding: var(--space-lg) var(--space-md); overflow-y: auto;
+/* Ghost Tile Hints */
+.tile.ghost-hint {
+    color: #d1b058;
+    opacity: 0.5;
+    font-style: italic;
+    font-weight: normal;
+    transition: opacity 0.2s ease-in-out, color 0.1s ease-in-out;
 }
 
-.onboarding-steps { margin: var(--space-lg) 0; max-width: 400px; width: 100%; text-align: left; }
-.step-group-title { font-weight: bold; color: var(--col1); margin: var(--space-md) 0 var(--space-sm) 0; text-transform: uppercase; letter-spacing: 1px; font-size: clamp(0.8rem, 2.5svh, 0.9rem);}
-.step { display: flex; gap: var(--space-md); margin-bottom: var(--space-md); align-items: flex-start; font-size: clamp(0.9rem, 2.5svh, 1rem); }
-.step-icon { font-size: clamp(1.2rem, 4svh, 1.5rem); }
-.subtitle { color: var(--grayed-out); margin-top: var(--space-sm); font-style: italic; font-size: clamp(0.85rem, 2.5svh, 1rem); }
+.tile.inner-tile.active-typing {
+    color: inherit;
+    opacity: 1;
+    font-style: normal;
+    font-weight: bold;
+}
 
-/* Dynamic Floating Combat Text */
+
+/* ==========================================================================
+   8. ANIMATIONS & EFFECTS
+   ========================================================================== */
+.shake { animation: shake-animation 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+
+@keyframes shake-animation { 
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(4px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+    40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
 .fct {
     position: absolute;
     font-weight: bold;
@@ -427,4 +597,129 @@ button, .key, .tile {
 @keyframes floatUp {
     0% { opacity: 1; transform: translateY(0) scale(1); }
     100% { opacity: 0; transform: translateY(-40px) scale(1.1); }
+}
+
+@keyframes pulse-timer {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0.8; transform: scale(1.05); }
+}
+
+
+/* ==========================================================================
+   9. PLAYER MANUAL (manual.html)
+   ========================================================================== */
+.manual-body { 
+    padding-top: var(--space-lg); 
+}
+
+.manual-container {
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.manual-container code {
+    font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+    font-size: 0.7em;
+    color: var(--col5);
+    background-color: rgba(201, 189, 165, 0.25); /* Subtle tint based on your border color */
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: var(--space-md);
+    text-decoration: none;
+    font-weight: bold;
+    color: var(--grayed-out);
+    transition: color 0.2s ease;
+}
+
+.back-link:hover { 
+    color: var(--col3); 
+}
+
+.manual-container h1 { 
+    color: var(--col3); 
+    margin-bottom: var(--space-md); 
+    text-align: center; 
+}
+
+.manual-subtitle {
+    font-size: 0.6em; 
+    color: var(--grayed-out);
+}
+
+.manual-container h2 { 
+    color: var(--col1); 
+    border-bottom: 2px solid var(--border-color); 
+    padding-bottom: var(--space-xs); 
+    margin: var(--space-lg) 0 var(--space-sm) 0; 
+}
+
+.manual-container h3 { 
+    color: var(--col2); 
+    margin: var(--space-md) 0 var(--space-xs) 0; 
+}
+
+.manual-container p, 
+.manual-container li { 
+    font-size: clamp(0.95rem, 2.5svh, 1.05rem); 
+    line-height: 1.6; 
+    margin-bottom: var(--space-sm); 
+}
+
+.manual-container ul { 
+    padding-left: var(--space-lg); 
+    margin-bottom: var(--space-md); 
+}
+
+.manual-container li { 
+    margin-bottom: var(--space-xs); 
+}
+
+.toc { 
+    background-color: rgba(92, 130, 98, 0.1); 
+    padding: var(--space-md); 
+    border-radius: 6px; 
+    margin-bottom: var(--space-lg); 
+    border: 1px solid var(--col3);
+}
+
+.toc h2 { 
+    margin-top: 0; 
+    border: none; 
+    padding: 0; 
+    color: var(--col3); 
+    font-size: 1.2rem; 
+}
+
+.toc ul { 
+    list-style: none; 
+    padding-left: 0; 
+    margin-bottom: 0; 
+}
+
+.toc a { 
+    color: var(--col1); 
+    text-decoration: none; 
+    font-weight: bold; 
+}
+
+.toc a:hover { 
+    text-decoration: underline; 
+}
+
+blockquote { 
+    background-color: rgba(200, 107, 60, 0.1); 
+    border-left: 4px solid var(--col2); 
+    padding: var(--space-sm) var(--space-md); 
+    margin: var(--space-md) 0; 
+    font-style: italic; 
+    border-radius: 0 4px 4px 0;
 }

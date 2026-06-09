@@ -1,18 +1,19 @@
 'use strict';
 
 window.onerror = function (msg, url, line) {
-    const btn = document.getElementById("start-game-btn");
+    // Updated to use the new loading button ID
+    const btn = document.getElementById("start-loading-btn");
     if (btn) {
         btn.textContent = `Crash: ${msg} (Line ${line})`;
-        btn.style.backgroundColor = "var(--col5)";
+        btn.style.backgroundColor = "#a84646"; 
     }
 };
 
 const DarnWortler = (function () {
     const config = {
-        commonDictURL: "./common.txt",
         fullDictURL: "./full.txt",
         expandedDictURL: "./expanded.txt",
+        manifestURL: "./tier_manifest.json",
         gameDuration: 300,
         keyboardLayout: [
             ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
@@ -24,7 +25,8 @@ const DarnWortler = (function () {
     const state = {
         targetWord: "",
         currentGuess: "", 
-        commonWordsList: [],
+        expandedWordsList: [],
+        manifest: { easy: [], medium: [], hard: [] },
         validWordsSet: new Set(),
         bonusBarrierSet: new Set(),
         targetPools: {},
@@ -36,7 +38,6 @@ const DarnWortler = (function () {
             currentID: Math.floor(new Date().setUTCHours(0,0,0,0) / 86400000)
         },
         streak: { count: 0, isActive: false, lastWordTime: 0 },
-        hints: { remaining: 3 }
     };
 
     const ui = {};
@@ -49,12 +50,13 @@ const DarnWortler = (function () {
     }
 
     function cacheDOM() {
-        const ids = [
-            "start-screen", "start-game-btn", "game-container", "game-board",
-            "virtual-keyboard", "end-early-btn", "timer", "score-total-display", 
-            "score-breakdown-display", "mode-indicator", "game-over-section", 
-            "final-score", "final-score-breakdown", "all-solutions-list", "play-again-btn"
-        ];
+    const ids = [
+        "start-screen", "start-game-btn", "game-container", "game-board",
+        "virtual-keyboard", "end-early-btn", "timer", "score-total-display", 
+        "score-breakdown-display", "mode-indicator", "game-over-section", 
+        "final-score", "final-score-breakdown", "all-solutions-list", "practice-tier-group",
+        "start-loading-btn", "start-buttons-group", "start-daily-btn", "start-practice-tier-group"
+    ];
         
         ids.forEach(id => {
             ui[id] = document.getElementById(id);
@@ -70,55 +72,89 @@ const DarnWortler = (function () {
                 const res = await fetch(url + cacheBuster).catch(() => ({ ok: false }));
                 return res.ok ? await res.text() : "";
             };
-
-            const [textCommon, textFull, textExpanded] = await Promise.all([
-                fetchText(config.commonDictURL),
+            
+            const fetchJSON = async (url) => {
+                const res = await fetch(url + cacheBuster).catch(() => ({ ok: false }));
+                return res.ok ? await res.json() : null;
+            };
+    
+            const [textFull, textExpanded, manifestJSON] = await Promise.all([
                 fetchText(config.fullDictURL),
-                fetchText(config.expandedDictURL)
+                fetchText(config.expandedDictURL),
+                fetchJSON(config.manifestURL)
             ]);
-
-            if (!textCommon || !textFull) throw new Error("Missing required dictionaries.");
-
+    
+            if (!textExpanded || !textFull || !manifestJSON) throw new Error("Missing required assets.");
+    
             const parseWords = (text) => text.split('\n').map(w => w.toUpperCase().trim()).filter(w => w.length === 5);
-
-            state.commonWordsList = parseWords(textCommon);
+    
+            state.expandedWordsList = parseWords(textExpanded);
             const fullArray = parseWords(textFull);
-            const expandedArray = parseWords(textExpanded);
-
-            state.validWordsSet = new Set([...state.commonWordsList, ...fullArray]);
-            state.bonusBarrierSet = new Set([...state.commonWordsList, ...expandedArray]);
-
+    
+            state.validWordsSet = new Set([...state.expandedWordsList, ...fullArray]);
+            state.bonusBarrierSet = new Set(state.expandedWordsList); // Obscure words are now those ONLY in full.txt
+            state.manifest = manifestJSON;
+    
             setupGameMode();
-            ui["mode-indicator"].classList.remove("hidden");
-            ui["start-game-btn"].disabled = false;
-
-        } catch (error) {
-            console.error("Dictionary Load Failed:", error);
-            ui["start-game-btn"].textContent = "Data Error. Refresh to retry.";
-            ui["start-game-btn"].style.backgroundColor = "var(--col5)";
+                    ui["mode-indicator"].classList.remove("hidden");
+                    ui["start-loading-btn"].classList.add("hidden");
+                    ui["start-buttons-group"].classList.remove("hidden");
+                    
+                } catch (error) {
+                    console.error("Dictionary Load Failed:", error);
+                    ui["start-loading-btn"].textContent = "Data Error. Refresh to retry.";
+                    ui["start-loading-btn"].style.backgroundColor = "#a84646";
+                }
+            }
+    
+    /**
+     * Generates a deterministic daily seed word based on the Days Since Epoch.
+     * Implements a hash to scramble selection and avoid sequential alphabetical days.
+     */
+    const getDailySeedWord = () => {
+        const easyPool = state.manifest.easy;
+        if (!easyPool || easyPool.length === 0) throw new Error("Manifest easy pool is empty.");
+        
+        const idStr = "DW" + state.daily.currentID.toString(); // Salted string
+        let hash = 0;
+        
+        // Bitwise hash algorithm for maximum shuffle
+        for (let i = 0; i < idStr.length; i++) {
+            hash = Math.imul(31, hash) + idStr.charCodeAt(i) | 0;
         }
-    }
-
+    
+        const randomizedIndex = Math.abs(hash) % easyPool.length;
+        const masterIndex = easyPool[randomizedIndex];
+        return state.expandedWordsList[masterIndex];
+    };
+    
     function setupGameMode() {
         const lastPlayedDaily = localStorage.getItem("darnWortlerLastDaily");
-        
-        if (lastPlayedDaily != state.daily.currentID) {
-            state.daily.isMode = true;
-            ui["mode-indicator"].textContent = "★ Daily";
-            ui["mode-indicator"].className = "mode-daily";
-            state.targetWord = state.commonWordsList[state.daily.currentID % state.commonWordsList.length];
-            ui["start-game-btn"].textContent = "Start Daily Challenge";
-        } else {
-            setPracticeMode();
+        if (lastPlayedDaily == state.daily.currentID) {
+            // Visually disable the Daily button if already played
+            ui["start-daily-btn"].textContent = "DAILY COMPLETED"; // Removed emoji, capitalized
+            ui["start-daily-btn"].disabled = true;
+            ui["start-daily-btn"].classList.replace("primary-btn", "secondary-btn");
         }
     }
-
-    function setPracticeMode() {
+    
+    function initDailyMode() {
+        state.daily.isMode = true;
+        ui["mode-indicator"].textContent = "★ Daily";
+        ui["mode-indicator"].className = "mode-daily";
+        state.targetWord = getDailySeedWord();
+        startGame();
+    }
+    
+    function initPracticeMode(tier) {
         state.daily.isMode = false;
-        ui["mode-indicator"].textContent = "Practice";
+        ui["mode-indicator"].textContent = `Practice: ${tier.charAt(0).toUpperCase() + tier.slice(1)}`;
         ui["mode-indicator"].className = "mode-practice";
-        state.targetWord = state.commonWordsList[Math.floor(Math.random() * state.commonWordsList.length)];
-        ui["start-game-btn"].textContent = "Start Practice Mode";
+        
+        const tierPool = state.manifest[tier];
+        const masterIndex = tierPool[Math.floor(Math.random() * tierPool.length)];
+        state.targetWord = state.expandedWordsList[masterIndex];
+        startGame();
     }
 
     function buildKeyboard() {
@@ -193,14 +229,14 @@ const DarnWortler = (function () {
             boardHTML += `
                 <div class="row-wrapper ${isDead ? 'dead-row hidden' : 'active-row'}" data-start="${startL}">
                     <div class="row-main">
-                        <div class="row-tiles">
-                            <div class="tile ${styleClass}">${startL}</div>
-                            <div class="tile"></div>
-                            <div class="tile"></div>
-                            <div class="tile"></div>
-                            <div class="tile ${styleClass}">${endL}</div>
-                        </div>
-                        <div class="row-counter ${counterClass}" id="counter-row-${r+1}">${counterText}</div>
+                    <div class="row-tiles" id="row-tiles-${r+1}">
+                        <div class="tile ${styleClass}">${startL}</div>
+                        <div class="tile inner-tile" data-pos="1"></div>
+                        <div class="tile inner-tile" data-pos="2"></div>
+                        <div class="tile inner-tile" data-pos="3"></div>
+                        <div class="tile ${styleClass}">${endL}</div>
+                    </div>
+                    <div class="row-counter ${counterClass}" id="counter-row-${r+1}">${counterText}</div>
                     </div>
                     <div class="inline-words" id="inline-words-${r+1}"></div>
                 </div>`;
@@ -217,10 +253,7 @@ const DarnWortler = (function () {
                         <div class="tile input-tile"></div>
                         <div class="tile input-tile"></div>
                     </div>
-                    <button id="hint-btn" title="Reveal a letter" aria-label="Use Hint">
-                        💡
-                        <span id="hint-badge">3</span>
-                    </button>
+                    <div class="row-counter" aria-hidden="true"></div>
                 </div>
             </div>`;
 
@@ -248,6 +281,99 @@ const DarnWortler = (function () {
         }
     }
 
+// --- CASCADING REVEAL ENGINE ---
+    
+    /**
+     * Fisher-Yates shuffle utility.
+     * Returns a new shuffled array without mutating the original.
+     */
+    const shuffleArray = (array) => {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    };
+    
+    /**
+     * Executes the Cascading Reveal engine across all active rows.
+     * @param {string} guess - The valid 5-letter word just guessed.
+     */
+    const triggerCascadeReveal = (guess) => {
+    // NEW: Wipe all existing ghost hints from the board before the new sweep
+    document.querySelectorAll('.inner-tile.ghost-hint').forEach(tile => {
+        tile.textContent = '';
+        tile.classList.remove('ghost-hint');
+    });
+    
+    // Extract internal letters: Pos 2, 3, 4
+    const masterKey = [guess[1], guess[2], guess[3]];   
+    
+        Object.values(state.targetPools).forEach(pool => {
+                if (pool.validWords.length === pool.foundWords.length) return;
+        
+                const availableWords = pool.validWords.filter(w => !pool.foundWords.includes(w));
+                
+                // Phase 1: Master List Scan
+                const coreWords = availableWords.filter(w => state.expandedWordsList.includes(w));
+                let hintsGenerated = runHintPhase(pool, coreWords, masterKey);
+        
+                // Phase 2: Obscure Fallback Scan (Contingency Gate)
+                if (hintsGenerated === 0) {
+                    const obscureWords = availableWords.filter(w => !state.expandedWordsList.includes(w));
+                    runHintPhase(pool, obscureWords, masterKey);
+                }
+            });
+        };
+    
+    /**
+     * Runs a single progressive filtering phase of the cascade logic.
+     * @returns {number} The number of hints successfully generated.
+     */
+    const runHintPhase = (pool, wordList, masterKey) => {
+        if (wordList.length === 0) return 0;
+    
+        let workingPool = shuffleArray(wordList);
+        let hintsGenerated = 0;
+        
+        // Tracks which letters to display for data-pos 1, 2, and 3
+        const hintsToDisplay = [null, null, null]; 
+    
+        for (let i = 0; i < 3; i++) {
+            const targetLetter = masterKey[i];
+            const strIndex = i + 1; // Maps array index 0,1,2 to string index 1,2,3
+    
+            // Check condition: Does Working Pool contain words with targetLetter in this position?
+            const matches = workingPool.filter(w => w[strIndex] === targetLetter);
+    
+            if (matches.length > 0) {
+                // Action: TRUE branch
+                workingPool = matches;
+                hintsToDisplay[i] = targetLetter;
+                hintsGenerated++;
+            }
+            // Action: FALSE branch -> Proceed with current workingPool unmodified
+        }
+    
+        // Render hints to the DOM for all identical target rows
+        if (hintsGenerated > 0) {
+            pool.rows.forEach(rowNum => {
+                const tiles = document.querySelectorAll(`#row-tiles-${rowNum} .inner-tile`);
+                hintsToDisplay.forEach((letter, index) => {
+                    if (letter) {
+                        tiles[index].textContent = letter;
+                        tiles[index].classList.add('ghost-hint');
+                    }
+                });
+            });
+        }
+    
+        return hintsGenerated;
+    };
+    
+    // -------------------------------
+
     function processInput(key) {
         if (!state.active) return;
         
@@ -274,6 +400,16 @@ const DarnWortler = (function () {
             inputWrapper.classList.add("shake");
             setTimeout(() => inputWrapper.classList.remove("shake"), 400);
             
+            // --- A/B TEST TOGGLE: Clear hints on invalid guess ---
+            // To test the stricter punishment, simply uncomment the block below.
+            /*
+            document.querySelectorAll('.inner-tile.ghost-hint').forEach(tile => {
+                tile.textContent = '';
+                tile.classList.remove('ghost-hint');
+            });
+            */
+            // -----------------------------------------------------
+        
             // THE FIX: Instantly clear the invalid guess so the player can keep typing
             state.currentGuess = "";
             updateGuessDisplay();
@@ -314,10 +450,13 @@ const DarnWortler = (function () {
         document.getElementById(`counter-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length}/${pool.validWords.length}`;
 
         renderInlineCard(guess, pool, isObscure);
-
-        state.currentGuess = "";
-        updateGuessDisplay();
-    }
+        
+            // Trigger the cascade engine with the successful guess
+            triggerCascadeReveal(guess);
+        
+            state.currentGuess = "";
+            updateGuessDisplay();
+        }
 
     function renderInlineCard(guess, pool, isObscure) {
         const hints = document.querySelectorAll(`.hint-card[data-word="${guess}"]`);
@@ -352,45 +491,6 @@ const DarnWortler = (function () {
         if(inputRow) inputRow.classList.remove("streak-active");
     }
 
-    function useHint() {
-        if (!state.active || state.hints.remaining <= 0) return;
-
-        let options = [];
-        Object.values(state.targetPools).forEach(p => {
-            p.validWords.forEach(w => {
-                if (!p.foundWords.includes(w) && (p.hintedWords[w] || []).length < 3) {
-                    options.push({ pool: p, word: w });
-                }
-            });
-        });
-
-        if (!options.length) return spawnFCT("No words left!", "error");
-
-        state.hints.remaining--;
-        
-        const hintBadge = document.getElementById("hint-badge");
-        if (hintBadge) hintBadge.textContent = state.hints.remaining;
-        
-        const hintBtn = document.getElementById("hint-btn");
-        if (hintBtn) hintBtn.disabled = state.hints.remaining === 0;
-
-        const { pool, word } = options[Math.floor(Math.random() * options.length)];
-        pool.hintedWords[word] = pool.hintedWords[word] || [];
-        
-        const unrevealed = [1, 2, 3].filter(i => !pool.hintedWords[word].includes(i));
-        pool.hintedWords[word].push(unrevealed[Math.floor(Math.random() * unrevealed.length)]);
-
-        const mask = word.split('').map((l, i) => (i === 0 || i === 4 || pool.hintedWords[word].includes(i)) ? l : "_").join(' ');
-
-        let hintCard = document.querySelector(`.hint-card[data-word="${word}"]`);
-        if (!hintCard) {
-            document.getElementById(`inline-words-${pool.rows[0]}`).insertAdjacentHTML('afterbegin', 
-                `<div class="inline-word-card hint-card ${pool.baseColorClass}" data-word="${word}"></div>`);
-            hintCard = document.querySelector(`.hint-card[data-word="${word}"]`);
-        }
-        hintCard.textContent = mask;
-    }
-
     function spawnFCT(text, type) {
         const fct = document.createElement("span");
         fct.textContent = text;
@@ -416,53 +516,56 @@ const DarnWortler = (function () {
     }
 
     function attachEventListeners() {
-        ui["game-board"].addEventListener("click", (e) => {
-            const btn = e.target.closest('#hint-btn');
-            if (btn && !btn.disabled) useHint();
-        });
         
         ui["virtual-keyboard"].addEventListener("click", (e) => {
             const keyBtn = e.target.closest('.key');
             if (keyBtn) processInput(keyBtn.dataset.key);
         });
-
+    
         document.addEventListener("keydown", (e) => {
             if (!e.ctrlKey && !e.metaKey && !e.altKey) {
                 processInput(e.key.toUpperCase());
             }
         });
-
-        ui["start-game-btn"].addEventListener("click", startGame);
-        ui["play-again-btn"].addEventListener("click", resetGame);
-        ui["end-early-btn"].addEventListener("click", endGame);
-    }
-
-    function startGame() {
-        ui["start-screen"].classList.add("hidden");
-        ui["game-container"].classList.remove("hidden");
-        generateBoard();
-        startTimer();
-        state.active = true;
-        updateGuessDisplay();
-    }
-
-    function resetGame() {
-        state.scores = { base: 0, bonus: 0, total: 0 };
-        state.hints.remaining = 3;
-        state.currentGuess = "";
+    
+ui["end-early-btn"].addEventListener("click", endGame);
+            ui["start-daily-btn"].addEventListener("click", initDailyMode);
+            
+            // Event delegation for Start Screen practice buttons
+            ui["start-practice-tier-group"].addEventListener("click", (e) => {
+                const tierBtn = e.target.closest('.tier-btn');
+                if (tierBtn) initPracticeMode(tierBtn.dataset.tier);
+            });
         
-        ui["timer"].classList.remove("danger");
+            // Event delegation for End Screen practice buttons
+            ui["practice-tier-group"].addEventListener("click", (e) => {
+                const tierBtn = e.target.closest('.tier-btn');
+                if (tierBtn) resetGame(tierBtn.dataset.tier);
+            });
+        }
         
-        updateScoreUI();
-        resetStreak();
+        function startGame() {
+            ui["start-screen"].classList.add("hidden");
+            ui["game-container"].classList.remove("hidden");
+            generateBoard();
+            startTimer();
+            state.active = true;
+            updateGuessDisplay();
+        }
         
-        ui["game-over-section"].classList.add("hidden");
-        ui["end-early-btn"].classList.remove("hidden");
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-
-        setPracticeMode();
-        startGame();
-    }
+        function resetGame(selectedTier) {
+            state.scores = { base: 0, bonus: 0, total: 0 };
+            state.currentGuess = "";
+            ui["timer"].classList.remove("danger");
+            updateScoreUI();
+            resetStreak();
+            
+            ui["game-over-section"].classList.add("hidden");
+            ui["end-early-btn"].classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+            initPracticeMode(selectedTier);
+        }
 
     function startTimer() {
         clearInterval(state.timer.interval);
@@ -489,9 +592,6 @@ const DarnWortler = (function () {
         resetStreak();
         ui["end-early-btn"].classList.add("hidden");
         
-        const hintBtn = document.getElementById("hint-btn");
-        if(hintBtn) hintBtn.disabled = true;
-        
         if (state.daily.isMode) localStorage.setItem("darnWortlerLastDaily", state.daily.currentID);
         
         ui["final-score"].textContent = `Total Score: ${state.scores.total}`;
@@ -511,7 +611,7 @@ const DarnWortler = (function () {
         ui["game-over-section"].scrollIntoView({ behavior: 'smooth' });
     }
 
-    return { init };
+    return { init, state };
 })();
 
 document.addEventListener("DOMContentLoaded", DarnWortler.init);

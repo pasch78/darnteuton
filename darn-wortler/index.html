@@ -46,7 +46,12 @@
             <h3 id="final-score">Total Score: 0</h3>
             <h4 id="final-score-breakdown">Base: 0 | Bonus: 0</h4>
             
-            <button id="play-again-btn" class="primary-btn">Play Practice Mode</button>
+            <div class="step-group-title game-over-prompt">Play again? Select a practice mode:</div>
+            <div id="practice-tier-group" class="practice-tier-container">
+                <button class="tier-btn easy-btn" data-tier="easy">Easy</button>
+                <button class="tier-btn medium-btn" data-tier="medium">Medium</button>
+                <button class="tier-btn hard-btn" data-tier="hard">Hard</button>
+            </div>
 
             <div id="all-solutions-area">
                 <h4>All Possible Solutions:</h4>
@@ -60,41 +65,56 @@
     </main>
 
     <div id="start-screen" role="dialog" aria-labelledby="start-heading" aria-modal="true">
-        <h2 id="start-heading">Darn Wortler</h2>
-        <p class="subtitle">Inspired by the German word game <em>"Gefüllte Kalbsbrust"</em></p>
+        <h2 id="start-heading">Welcome to Darn Wortler</h2>
+        <p class="subtitle onboarding-subtitle">Inspired by the classic German word game "Gefüllte Kalbsbrust", Darn Wortler is a high-speed, 5-minute race against the clock. Unscramble the game board and see how high you can push your score before time runs out!</p>
         
         <div class="onboarding-steps">
-            <div class="step-group-title">The Objective</div>
-            <div class="step">
-                <span class="step-icon">⏱️</span>
-                <p>Score as many points as possible before the <strong>5-minute timer</strong> expires.</p>
-            </div>
-            
             <div class="step-group-title">How to Play</div>
             <div class="step">
-                <span class="step-icon">🌱</span>
-                <p><strong>Top Row:</strong> A random five-letter seed word for this puzzle round.</p>
+                <span class="step-icon">🧩</span>
+                <p><strong>The Grid:</strong> The seed word at the top of the board creates the frame for the game. You must guess 5-letter words that begin and end with the outer letters shown in the rows below.</p>
             </div>
             <div class="step">
-                <span class="step-icon">🥪</span>
-                <p><strong>Game Grid:</strong> Guess five-letter words that fit between the given outer letters.</p>
+                <span class="step-icon">⌨️</span>
+                <p><strong>Type & Submit:</strong> Use the on-screen keyboard or your device's keyboard to type your guess and press Enter. The game ends when the 5-minute timer runs out.</p>
             </div>
             <div class="step">
-                <span class="step-icon">📊</span>
-                <p><strong>Row Difficulty:</strong> Tougher rows yield higher scores.</p>
+                <span class="step-icon">👻</span>
+                <p><strong>Cascade Hints:</strong> Every correct guess triggers the hint engine. The middle letters of your guess will sweep the board, revealing hints for words you haven't found yet.</p>
             </div>
             
-            <div class="step-group-title">Bonus Points</div>
+            <div class="step-group-title">How to Score</div>
+            <div class="step">
+                <span class="step-icon">📈</span>
+                <p><strong>Rarity Pays:</strong> The fewer valid dictionary words there are for a row, the more points you earn for finding one.</p>
+            </div>
             <div class="step">
                 <span class="step-icon">✨</span>
-                <p><strong>Great Vocabulary:</strong> Earn <strong>+50 points</strong> for each obscure word.</p>
+                <p><strong>Obscure Vocabulary:</strong> Impress the engine with a rare word to score a +50 point bonus!</p>
             </div>
             <div class="step">
                 <span class="step-icon">🔥</span>
-                <p><strong>Speed Streak:</strong> Type 3 valid words within 15s to unlock a <strong>+5 point bonus</strong>.</p>
+                <p><strong>Catch Fire:</strong> Submit 3 correct words in rapid succession to activate the Speed Streak. Every subsequent fast guess earns bonus points, but an invalid guess will break your streak!</p>
             </div>
         </div>
-        <button id="start-game-btn" class="primary-btn" disabled aria-live="polite">Loading Dictionary...</button>
+        
+        <div id="start-action-area">
+            <button id="start-loading-btn" class="primary-btn" disabled aria-live="polite">Loading Dictionary...</button>
+            
+            <div id="start-buttons-group" class="hidden">
+                <button id="start-daily-btn" class="primary-btn">Start Daily Challenge</button>
+                
+                <div class="step-group-title practice-title">Practice Mode</div>
+                
+                <div id="start-practice-tier-group" class="practice-tier-container">
+                    <button class="tier-btn easy-btn" data-tier="easy">Easy</button>
+                    <button class="tier-btn medium-btn" data-tier="medium">Medium</button>
+                    <button class="tier-btn hard-btn" data-tier="hard">Hard</button>
+                </div>
+            </div>
+
+            <a href="manual.html" class="manual-link">Read the Player Manual</a>
+        </div>
     </div>
 
     <script src="script.js"></script>
