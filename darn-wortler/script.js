@@ -50,7 +50,6 @@ const DarnWortler = (function () {
     }
 
     function cacheDOM() {
-        // Removed input row IDs, relying purely on the game board now
         const ids = [
             "start-screen", "game-container", "game-board",
             "virtual-keyboard", "end-early-btn", "timer", "timer-progress-bar", 
@@ -221,7 +220,6 @@ const DarnWortler = (function () {
             const counterText = isDead ? "-" : (isDuplicate ? `🔗 ${pool.rows[0]}` : `0/${pool.validWords.length}`);
             const counterClass = (!isDead && !isDuplicate) ? pool.baseColorClass : "";
 
-            // Added data-end attribute for overwrite logic, removed hidden from dead rows
             boardHTML += `
                 <div class="row-wrapper ${isDead ? 'dead-row' : 'active-row'}" data-start="${startL}" data-end="${endL}">
                     <div class="row-main">
@@ -247,9 +245,15 @@ const DarnWortler = (function () {
         // Step 1: Reset all rows to their default visual state
         activeRows.forEach(row => {
             row.classList.remove('dimmed');
-            const innerTiles = row.querySelectorAll('.inner-tile');
+            const startTile = row.querySelectorAll('.tile')[0]; // The 1st tile
+            const innerTiles = row.querySelectorAll('.inner-tile'); // The middle tiles
             const endTile = row.querySelectorAll('.tile')[4]; // The 5th tile
             
+            // Restore start tile styling
+            if (startTile) {
+                startTile.classList.remove('active-typing');
+            }
+
             // Restore ghost hints or clear typing
             innerTiles.forEach((tile, i) => {
                 if (!tile.classList.contains('ghost-hint') || state.currentGuess.length > i + 1) {
@@ -275,9 +279,15 @@ const DarnWortler = (function () {
             if (row.dataset.start !== firstL) {
                 row.classList.add('dimmed');
             } else {
+                const startTile = row.querySelectorAll('.tile')[0];
                 const innerTiles = row.querySelectorAll('.inner-tile');
                 const endTile = row.querySelectorAll('.tile')[4];
                 
+                // Activate the start tile immediately 
+                if (startTile) {
+                    startTile.classList.add('active-typing');
+                }
+
                 // Mirror middle letters (Index 1, 2, 3)
                 for (let i = 1; i < 4; i++) {
                     if (state.currentGuess[i]) {
