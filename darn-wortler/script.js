@@ -50,15 +50,14 @@ const DarnWortler = (function () {
     }
 
     function cacheDOM() {
-        // Updated IDs to match the newly restructured semantic HTML
+        // Removed input row IDs, relying purely on the game board now
         const ids = [
             "start-screen", "game-container", "game-board",
             "virtual-keyboard", "end-early-btn", "timer", "timer-progress-bar", 
             "score-total-display", "score-breakdown-display", "mode-indicator", 
             "game-over-modal", "final-score", "final-score-breakdown", 
             "all-solutions-list", "practice-tier-group", "start-loading-btn", 
-            "start-buttons-group", "start-daily-btn", "start-practice-tier-group",
-            "input-row-wrapper", "input-tiles"
+            "start-buttons-group", "start-daily-btn", "start-practice-tier-group"
         ];
         
         ids.forEach(id => {
@@ -222,8 +221,9 @@ const DarnWortler = (function () {
             const counterText = isDead ? "-" : (isDuplicate ? `🔗 ${pool.rows[0]}` : `0/${pool.validWords.length}`);
             const counterClass = (!isDead && !isDuplicate) ? pool.baseColorClass : "";
 
+            // Added data-end attribute for overwrite logic, removed hidden from dead rows
             boardHTML += `
-                <div class="row-wrapper ${isDead ? 'dead-row' : 'active-row'}" data-start="${startL}">
+                <div class="row-wrapper ${isDead ? 'dead-row' : 'active-row'}" data-start="${startL}" data-end="${endL}">
                     <div class="row-main">
                     <div class="row-tiles" id="row-tiles-${r+1}">
                         <div class="tile ${styleClass}">${startL}</div>
@@ -238,39 +238,66 @@ const DarnWortler = (function () {
                 </div>`;
         }
 
-        // Note: The Input Row is no longer generated here; it lives statically in index.html
         ui["game-board"].insertAdjacentHTML('beforeend', boardHTML);
     }
 
     function updateGuessDisplay() {
-        const inputTiles = document.querySelectorAll('#input-tiles .input-tile');
-        
-        // Update semantic tiles in the fixed Input Row
-        for (let i = 0; i < 5; i++) {
-            const letter = state.currentGuess[i] || "";
-            inputTiles[i].textContent = letter;
-            
-            // Set state for CSS styling (borders/colors)
-            inputTiles[i].dataset.state = letter ? "filled" : "empty";
-            
-            // Set the active typing indicator (focus ring) on the next empty box
-            if (i === state.currentGuess.length && state.currentGuess.length < 5) {
-                inputTiles[i].classList.add('active-typing');
-            } else {
-                inputTiles[i].classList.remove('active-typing');
-            }
-        }
-        
-        // Dimming logic for the target grid above
         const activeRows = document.querySelectorAll(".row-wrapper.active-row");
-        if (state.currentGuess.length > 0) {
-            const firstL = state.currentGuess[0];
-            activeRows.forEach(row => {
-                row.classList.toggle('dimmed', row.dataset.start !== firstL);
+        
+        // Step 1: Reset all rows to their default visual state
+        activeRows.forEach(row => {
+            row.classList.remove('dimmed');
+            const innerTiles = row.querySelectorAll('.inner-tile');
+            const endTile = row.querySelectorAll('.tile')[4]; // The 5th tile
+            
+            // Restore ghost hints or clear typing
+            innerTiles.forEach((tile, i) => {
+                if (!tile.classList.contains('ghost-hint') || state.currentGuess.length > i + 1) {
+                    tile.textContent = tile.dataset.hint || ""; 
+                }
+                tile.classList.remove('active-typing');
             });
-        } else {
-            activeRows.forEach(row => row.classList.remove('dimmed'));
-        }
+            
+            // Restore the original end letter and style
+            if (endTile) {
+                endTile.textContent = row.dataset.end;
+                endTile.style.color = ""; 
+                endTile.classList.remove('active-typing');
+            }
+        });
+    
+        if (state.currentGuess.length === 0) return;
+    
+        // Step 2: Mirror typing into matching rows
+        const firstL = state.currentGuess[0];
+        
+        activeRows.forEach(row => {
+            if (row.dataset.start !== firstL) {
+                row.classList.add('dimmed');
+            } else {
+                const innerTiles = row.querySelectorAll('.inner-tile');
+                const endTile = row.querySelectorAll('.tile')[4];
+                
+                // Mirror middle letters (Index 1, 2, 3)
+                for (let i = 1; i < 4; i++) {
+                    if (state.currentGuess[i]) {
+                        innerTiles[i-1].textContent = state.currentGuess[i];
+                        innerTiles[i-1].classList.add('active-typing');
+                    }
+                }
+                
+                // Mirror the 5th letter & evaluate
+                if (state.currentGuess.length === 5) {
+                    endTile.textContent = state.currentGuess[4];
+                    endTile.classList.add('active-typing');
+                    
+                    // If it doesn't match the required end letter, turn it red
+                    if (state.currentGuess[4] !== row.dataset.end) {
+                        endTile.style.color = "var(--color-error)";
+                    }
+                }
+            }
+        });
     }
 
     // --- CASCADING REVEAL ENGINE ---
@@ -287,6 +314,7 @@ const DarnWortler = (function () {
         // Wipe existing hints before a new sweep
         document.querySelectorAll('.inner-tile.ghost-hint').forEach(tile => {
             tile.textContent = '';
+            tile.dataset.hint = '';
             tile.classList.remove('ghost-hint');
         });
         
@@ -335,6 +363,7 @@ const DarnWortler = (function () {
                 hintsToDisplay.forEach((letter, index) => {
                     if (letter) {
                         tiles[index].textContent = letter;
+                        tiles[index].dataset.hint = letter; // Store so updateGuessDisplay can restore it
                         tiles[index].classList.add('ghost-hint');
                     }
                 });
@@ -366,12 +395,13 @@ const DarnWortler = (function () {
         const triggerError = (msg) => {
             spawnFCT(msg, "error");
             
-            // Haptic feedback for mobile error states
             if (navigator.vibrate) navigator.vibrate(100);
 
-            // Apply shake to the newly decoupled wrapper
-            ui["input-row-wrapper"].classList.add("shake");
-            setTimeout(() => ui["input-row-wrapper"].classList.remove("shake"), 400);
+            // Redirect error shake to matching rows directly on the board
+            document.querySelectorAll(".row-wrapper.active-row:not(.dimmed)").forEach(row => {
+                row.classList.add("shake");
+                setTimeout(() => row.classList.remove("shake"), 400);
+            });
             
             state.currentGuess = "";
             updateGuessDisplay();
@@ -427,11 +457,9 @@ const DarnWortler = (function () {
         const container = document.getElementById(`inline-words-${pool.rows[0]}`);
         container.insertAdjacentHTML('afterbegin', html);
         
-        // Bulletproof scroll reset to prevent execution crashes on older mobile browsers
         try {
             container.scrollTo({ left: 0, behavior: 'smooth' });
         } catch (error) {
-            // Fallback for browsers that don't support smooth scroll objects
             container.scrollLeft = 0; 
         }
     }
@@ -449,7 +477,7 @@ const DarnWortler = (function () {
 
         if (state.streak.count >= 3 && !state.streak.isActive) {
             state.streak.isActive = true; 
-            ui["input-row-wrapper"].classList.add("streak-active");
+            ui["game-board"].classList.add("streak-active");
             spawnFCT("🔥 STREAK ACTIVE", "streak");
         }
     }
@@ -457,7 +485,7 @@ const DarnWortler = (function () {
     function resetStreak() {
         state.streak.count = 0; 
         state.streak.isActive = false;
-        if(ui["input-row-wrapper"]) ui["input-row-wrapper"].classList.remove("streak-active");
+        if(ui["game-board"]) ui["game-board"].classList.remove("streak-active");
     }
 
     function spawnFCT(text, type) {
@@ -469,8 +497,11 @@ const DarnWortler = (function () {
         fct.style.left = `calc(50% + ${xOffset}px)`;
         fct.style.top = '-20px';
 
-        if(ui["input-row-wrapper"]) {
-            ui["input-row-wrapper"].appendChild(fct);
+        // Spawn text on the currently active row, falling back to the board
+        const activeContainer = document.querySelector(".row-wrapper.active-row:not(.dimmed)") || ui["game-board"];
+        if (activeContainer) {
+            activeContainer.style.position = 'relative';
+            activeContainer.appendChild(fct);
         }
         
         setTimeout(() => fct.remove(), 1000);
@@ -489,7 +520,6 @@ const DarnWortler = (function () {
         });
     
         document.addEventListener("keydown", (e) => {
-            // Intercept browser defaults for specific keystrokes
             if (e.key === "Backspace" || e.key === "Delete" || e.key === " ") {
                 e.preventDefault(); 
             }
@@ -513,7 +543,7 @@ const DarnWortler = (function () {
     }
         
     function startGame() {
-        ui["start-screen"].close(); // Using native <dialog> method
+        ui["start-screen"].close(); 
         ui["game-container"].classList.remove("hidden");
         generateBoard();
         startTimer();
@@ -530,7 +560,7 @@ const DarnWortler = (function () {
         updateScoreUI();
         resetStreak();
         
-        ui["game-over-modal"].close(); // Using native <dialog> method
+        ui["game-over-modal"].close(); 
         ui["end-early-btn"].classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: 'smooth' });
     
@@ -544,14 +574,11 @@ const DarnWortler = (function () {
         const tick = () => {
             const left = Math.max(0, Math.ceil((state.timer.endTime - Date.now()) / 1000));
             
-            // Text readout update
             ui["timer"].textContent = `${String(Math.floor(left/60)).padStart(2,'0')}:${String(left%60).padStart(2,'0')}`;
             
-            // Progress Bar update
             const percentage = (left / config.gameDuration) * 100;
             if (ui["timer-progress-bar"]) ui["timer-progress-bar"].style.width = `${percentage}%`;
 
-            // Danger toggles
             const inDanger = left <= 30 && left > 0;
             ui["timer"].classList.toggle("danger", inDanger);
             if (ui["timer-progress-bar"]) ui["timer-progress-bar"].classList.toggle("danger", inDanger);
@@ -587,7 +614,6 @@ const DarnWortler = (function () {
         });
         ui["all-solutions-list"].innerHTML = html;
         
-        // Open native <dialog> element
         ui["game-over-modal"].showModal();
     }
 

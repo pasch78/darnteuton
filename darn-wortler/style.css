@@ -228,6 +228,7 @@ button, .key, .tile {
     background-color: transparent; 
     border-radius: var(--border-radius-md);
     overflow: hidden;
+    transition: all 0.15s ease-out;
 }
 
 .row-counter { 
@@ -268,56 +269,7 @@ button, .key, .tile {
 
 
 /* ==========================================================================
-   4. ELEVATED INPUT ROW
-   ========================================================================== */
-#player-input-section {
-    width: 100%;
-    margin-top: auto; 
-    padding-bottom: var(--space-md);
-    z-index: 10;
-}
-
-.input-row-wrapper {
-    background: var(--color-surface);
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-high);
-    transform: translateY(-4px); 
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-}
-
-.input-tile {
-    border-color: var(--color-border);
-    background-color: var(--color-bg-primary);
-    transition: all 0.15s ease-out;
-}
-
-.input-tile.active-typing { 
-    border-color: var(--color-input-focus);
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
-    transform: scale(1.05); 
-    background-color: var(--color-surface);
-}
-
-.input-tile[data-state="filled"] {
-    border-color: var(--color-text-secondary);
-    color: var(--color-text-primary);
-}
-
-.streak-active .input-row-wrapper {
-    box-shadow: 0 8px 16px rgba(179, 90, 45, 0.2);
-    border: 1px solid var(--col2);
-}
-
-.streak-active .input-tile.active-typing {
-    border-color: var(--col2);
-    box-shadow: 0 0 0 3px rgba(179, 90, 45, 0.2);
-}
-
-
-/* ==========================================================================
-   5. VIRTUAL KEYBOARD
+   4. VIRTUAL KEYBOARD
    ========================================================================== */
 #keyboard-area { margin-bottom: var(--space-xs); }
 
@@ -367,7 +319,7 @@ button, .key, .tile {
 
 
 /* ==========================================================================
-   6. NATIVE DIALOG MODALS & ONBOARDING
+   5. NATIVE DIALOG MODALS & ONBOARDING
    ========================================================================== */
 dialog {
     margin: auto; 
@@ -440,7 +392,7 @@ dialog::backdrop {
 
 
 /* ==========================================================================
-   7. GAME OVER SCREEN (Spacing & Hierarchy)
+   6. GAME OVER SCREEN (Spacing & Hierarchy)
    ========================================================================== */
 #game-over-modal { text-align: center; }
 
@@ -460,12 +412,12 @@ dialog::backdrop {
 .step-group-title.game-over-prompt {
     font-size: clamp(1rem, 3dvh, 1.2rem);
     color: var(--color-text-primary);
-    margin-top: var(--space-xl); /* Force clear separation from Score area */
+    margin-top: var(--space-xl); 
     margin-bottom: var(--space-md);
 }
 
 #practice-tier-group {
-    margin-bottom: var(--space-xl); /* Force clear separation from Answers area */
+    margin-bottom: var(--space-xl); 
 }
 
 #all-solutions-list { 
@@ -478,7 +430,7 @@ dialog::backdrop {
 
 
 /* ==========================================================================
-   8. BUTTON STANDARDIZATION & AFFORDANCES
+   7. BUTTON STANDARDIZATION & AFFORDANCES
    ========================================================================== */
 .primary-btn, .secondary-btn, .tier-btn {
     display: inline-flex;
@@ -552,7 +504,7 @@ dialog::backdrop {
 
 
 /* ==========================================================================
-   9. DYNAMIC STATES & UTILITY CLASSES
+   8. DYNAMIC STATES & UTILITY CLASSES
    ========================================================================== */
 .bg-col1 { background-color: var(--col1); color: #FFF; border-color: var(--col1); } 
 .bg-col2 { background-color: var(--col2); color: #FFF; border-color: var(--col2); } 
@@ -574,7 +526,7 @@ dialog::backdrop {
     font-weight: bold; 
     font-size: clamp(0.85rem, 2.5dvh, 1rem); 
     text-transform: uppercase; 
-    background-color: var(--color-chip-bg); /* Flat background instead of borders */
+    background-color: var(--color-chip-bg); 
     color: var(--color-text-primary);
     border: none;
 }
@@ -594,9 +546,25 @@ dialog::backdrop {
     animation: fade-in 0.4s ease-in-out forwards; 
 }
 
+/* Direct Board Typing States */
+.tile.active-typing {
+    border-color: var(--color-input-focus);
+    background-color: var(--color-surface);
+    color: var(--color-text-primary);
+    font-style: normal;
+    font-weight: bold;
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.streak-active .tile.active-typing {
+    border-color: var(--col2);
+    box-shadow: 0 0 0 3px rgba(179, 90, 45, 0.2);
+}
+
 
 /* ==========================================================================
-   10. ANIMATIONS & EFFECTS
+   9. ANIMATIONS & EFFECTS
    ========================================================================== */
 .shake { animation: shake-animation 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
@@ -639,7 +607,7 @@ dialog::backdrop {
 
 
 /* ==========================================================================
-   11. PLAYER MANUAL (manual.html overrides)
+   10. PLAYER MANUAL (manual.html overrides)
    ========================================================================== */
 .manual-body { padding-top: var(--space-lg); overflow-y: auto; display: block; }
 .manual-container {
