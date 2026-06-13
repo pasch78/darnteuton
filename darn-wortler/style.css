@@ -175,20 +175,22 @@ button, .key, .tile {
 #board-area, #keyboard-area { width: 100%; }
 #board-area { margin-bottom: var(--space-sm); }
 
+/* 1. Remove the flexible gap between rows */
 #game-board { 
     display: flex; 
     flex-direction: column; 
-    gap: var(--space-md); 
+    gap: 0; /* Changed from var(--space-md) to compress vertical spacing */
     width: 100%;
     max-width: min(100%, 55dvh); 
     margin: 0 auto; 
     position: relative;
 }
 
+/* 2. Remove the internal gap between the tiles and the word list */
 .row-wrapper { 
     display: flex; 
     flex-direction: column; 
-    gap: var(--space-xs); 
+    gap: 0; /* Changed from var(--space-xs) */
     transition: opacity 0.2s ease, filter 0.2s ease; 
     width: 100%; 
 }
@@ -239,12 +241,14 @@ button, .key, .tile {
     color: var(--color-text-secondary); 
 }
 
+/* 3. Pre-allocate the exact vertical space needed for the word cards */
 .inline-words { 
     display: flex; 
     flex-wrap: nowrap; 
     overflow-x: auto; 
     gap: var(--space-sm); 
-    padding: var(--space-xs) 2px var(--space-sm) 2px; 
+    padding: 2px; /* Dropped vertical padding entirely */
+    min-height: clamp(24px, 3.5dvh, 28px); /* Much tighter minimum height */
     scrollbar-width: none; 
     -webkit-overflow-scrolling: touch; 
     scroll-snap-type: x mandatory;
@@ -252,15 +256,16 @@ button, .key, .tile {
 
 .inline-words::-webkit-scrollbar { display: none; }
 
+/* Slimmer profile for the data chips */
 .inline-word-card { 
     flex-shrink: 0; 
-    font-size: clamp(0.7rem, 2dvh, 0.8rem); 
+    font-size: clamp(0.65rem, 1.8dvh, 0.75rem); /* Scaled down the font a hair */
     font-weight: bold; 
     text-transform: uppercase; 
-    padding: var(--space-xs) var(--space-sm); 
+    padding: 2px 6px; /* Dramatically reduced internal padding */
     border-radius: 4px; 
     background-color: transparent;
-    border: 2px solid currentColor;
+    border: 1px solid currentColor; /* Thinned the border from 2px to 1px */
     display: flex;
     align-items: center;
     justify-content: center;
