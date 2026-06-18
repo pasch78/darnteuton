@@ -32,7 +32,8 @@ const DarnWortler = (function () {
         targetPools: {},
         scores: { base: 0, bonus: 0, total: 0 },
         timer: { interval: null, endTime: 0, duration: config.gameDuration },
-        active: false,
+        active: false, 
+        onboardTimer: null, // Tracks the 4-second contextual help nudge
         daily: {
             isMode: false,
             currentID: Math.floor(new Date().setUTCHours(0,0,0,0) / 86400000)
@@ -181,54 +182,49 @@ const DarnWortler = (function () {
 
         const cachedValidWords = Array.from(state.validWordsSet);
 
-        // Pre-calculate target pools
+        // Calculate targets (Seed word is explicitly allowed as an Easter Egg)
         for (let r = 0; r < 5; r++) {
             const startL = letters[r], endL = reverseLetters[r];
             const key = `${startL}${endL}`; 
             
             if (!state.targetPools[key]) {
                 state.targetPools[key] = {
-                    validWords: cachedValidWords.filter(w => w.startsWith(startL) && w.endsWith(endL) && w !== state.targetWord),
+                    validWords: cachedValidWords.filter(w => w.startsWith(startL) && w.endsWith(endL)),
                     foundWords: [], 
                     hintedWords: {}, 
                     rows: [r + 1], 
-                    baseColorClass: `text-col${r + 1}`, 
-                    bgColorClass: `bg-col${r + 1}`
+                    baseColorClass: `text-col${r + 1}`
                 };
             } else { 
                 state.targetPools[key].rows.push(r + 1); 
             }
         }
 
-        let boardHTML = `
-            <div class="row-wrapper seed-row-wrapper" data-start="${letters[0]}">
-                <div class="row-main">
-                    <div class="row-tiles">
-                        ${letters.map(l => `<div class="tile bg-col1">${l}</div>`).join('')}
-                    </div>
-                    <div class="row-counter" aria-hidden="true">SEED</div>
-                </div>
-            </div>`;
+        let boardHTML = '';
 
-        // Build Game Target Rows
         for (let r = 0; r < 5; r++) {
             const startL = letters[r], endL = reverseLetters[r];
             const pool = state.targetPools[`${startL}${endL}`];
             const isDuplicate = pool.rows[0] !== (r + 1); 
             const isDead = pool.validWords.length === 0;
-            const styleClass = (isDuplicate || isDead) ? "bg-gray" : pool.bgColorClass;
+            
+            // Color Mapping Fix: Independent colors for first and last column
+            const startStyleClass = (isDuplicate || isDead) ? "bg-gray" : `bg-col${r + 1}`;
+            const endStyleClass = (isDuplicate || isDead) ? "bg-gray" : `bg-col${5 - r}`;
+            
             const counterText = isDead ? "-" : (isDuplicate ? `🔗 ${pool.rows[0]}` : `0/${pool.validWords.length}`);
             const counterClass = (!isDead && !isDuplicate) ? pool.baseColorClass : "";
 
+            // Tiles receive tile-hidden and directional classes for intro sequence
             boardHTML += `
                 <div class="row-wrapper ${isDead ? 'dead-row' : 'active-row'}" data-start="${startL}" data-end="${endL}">
                     <div class="row-main">
                     <div class="row-tiles" id="row-tiles-${r+1}">
-                        <div class="tile ${styleClass}">${startL}</div>
+                        <div class="tile ${startStyleClass} tile-hidden left-col-tile">${startL}</div>
                         <div class="tile inner-tile" data-pos="1"></div>
                         <div class="tile inner-tile" data-pos="2"></div>
                         <div class="tile inner-tile" data-pos="3"></div>
-                        <div class="tile ${styleClass}">${endL}</div>
+                        <div class="tile ${endStyleClass} tile-hidden right-col-tile">${endL}</div>
                     </div>
                     <div class="row-counter ${counterClass}" id="counter-row-${r+1}">${counterText}</div>
                     </div>
@@ -239,22 +235,67 @@ const DarnWortler = (function () {
         ui["game-board"].insertAdjacentHTML('beforeend', boardHTML);
     }
 
+    function runIntroAnimation(onComplete) {
+        const leftTiles = document.querySelectorAll('.left-col-tile');
+        const rightTiles = Array.from(document.querySelectorAll('.right-col-tile')).reverse(); // Build bottom-up
+
+        let delay = 0;
+        const delayStep = 100;
+
+        // Phase 1: Left Drop
+        leftTiles.forEach(tile => {
+            setTimeout(() => {
+                tile.classList.remove('tile-hidden');
+                tile.classList.add('tile-pop');
+            }, delay);
+            delay += delayStep;
+        });
+
+        // Phase 2: Right Build (The Reversal)
+        rightTiles.forEach(tile => {
+            setTimeout(() => {
+                tile.classList.remove('tile-hidden');
+                tile.classList.add('tile-pop');
+            }, delay);
+            delay += delayStep;
+        });
+
+        // Unlock board and start timer when animation finishes
+        setTimeout(() => {
+            onComplete();
+        }, delay + 200); 
+    }
+
+    function showOnboardingTooltip() {
+        const firstRow = document.querySelector('.row-wrapper.active-row');
+        if (!firstRow) return;
+
+        const startL = firstRow.dataset.start;
+        const endL = firstRow.dataset.end;
+
+        const tooltip = document.createElement('div');
+        tooltip.id = 'onboarding-tooltip';
+        tooltip.textContent = `Type a 5-letter word starting with ${startL} and ending with ${endL}`;
+        
+        firstRow.style.position = 'relative';
+        firstRow.appendChild(tooltip);
+        
+        setTimeout(() => tooltip.classList.add('tooltip-visible'), 50);
+    }
+
     function updateGuessDisplay() {
         const activeRows = document.querySelectorAll(".row-wrapper.active-row");
         
-        // Step 1: Reset all rows to their default visual state
         activeRows.forEach(row => {
             row.classList.remove('dimmed');
-            const startTile = row.querySelectorAll('.tile')[0]; // The 1st tile
-            const innerTiles = row.querySelectorAll('.inner-tile'); // The middle tiles
-            const endTile = row.querySelectorAll('.tile')[4]; // The 5th tile
+            const startTile = row.querySelectorAll('.tile')[0]; 
+            const innerTiles = row.querySelectorAll('.inner-tile'); 
+            const endTile = row.querySelectorAll('.tile')[4]; 
             
-            // Restore start tile styling
             if (startTile) {
                 startTile.classList.remove('active-typing');
             }
 
-            // Restore ghost hints or clear typing
             innerTiles.forEach((tile, i) => {
                 if (!tile.classList.contains('ghost-hint') || state.currentGuess.length > i + 1) {
                     tile.textContent = tile.dataset.hint || ""; 
@@ -262,7 +303,6 @@ const DarnWortler = (function () {
                 tile.classList.remove('active-typing');
             });
             
-            // Restore the original end letter and style
             if (endTile) {
                 endTile.textContent = row.dataset.end;
                 endTile.style.color = ""; 
@@ -272,7 +312,6 @@ const DarnWortler = (function () {
     
         if (state.currentGuess.length === 0) return;
     
-        // Step 2: Mirror typing into matching rows
         const firstL = state.currentGuess[0];
         
         activeRows.forEach(row => {
@@ -283,12 +322,10 @@ const DarnWortler = (function () {
                 const innerTiles = row.querySelectorAll('.inner-tile');
                 const endTile = row.querySelectorAll('.tile')[4];
                 
-                // Activate the start tile immediately 
                 if (startTile) {
                     startTile.classList.add('active-typing');
                 }
 
-                // Mirror middle letters (Index 1, 2, 3)
                 for (let i = 1; i < 4; i++) {
                     if (state.currentGuess[i]) {
                         innerTiles[i-1].textContent = state.currentGuess[i];
@@ -296,12 +333,10 @@ const DarnWortler = (function () {
                     }
                 }
                 
-                // Mirror the 5th letter & evaluate
                 if (state.currentGuess.length === 5) {
                     endTile.textContent = state.currentGuess[4];
                     endTile.classList.add('active-typing');
                     
-                    // If it doesn't match the required end letter, turn it red
                     if (state.currentGuess[4] !== row.dataset.end) {
                         endTile.style.color = "var(--color-error)";
                     }
@@ -321,7 +356,6 @@ const DarnWortler = (function () {
     };
     
     const triggerCascadeReveal = (guess) => {
-        // Wipe existing hints before a new sweep
         document.querySelectorAll('.inner-tile.ghost-hint').forEach(tile => {
             tile.textContent = '';
             tile.dataset.hint = '';
@@ -335,11 +369,9 @@ const DarnWortler = (function () {
     
             const availableWords = pool.validWords.filter(w => !pool.foundWords.includes(w));
             
-            // Phase 1: Core Words
             const coreWords = availableWords.filter(w => state.expandedWordsList.includes(w));
             let hintsGenerated = runHintPhase(pool, coreWords, masterKey);
     
-            // Phase 2: Obscure Fallback
             if (hintsGenerated === 0) {
                 const obscureWords = availableWords.filter(w => !state.expandedWordsList.includes(w));
                 runHintPhase(pool, obscureWords, masterKey);
@@ -373,7 +405,7 @@ const DarnWortler = (function () {
                 hintsToDisplay.forEach((letter, index) => {
                     if (letter) {
                         tiles[index].textContent = letter;
-                        tiles[index].dataset.hint = letter; // Store so updateGuessDisplay can restore it
+                        tiles[index].dataset.hint = letter; 
                         tiles[index].classList.add('ghost-hint');
                     }
                 });
@@ -384,6 +416,11 @@ const DarnWortler = (function () {
 
     function processInput(key) {
         if (!state.active) return;
+        
+        // Kill onboarding timer/tooltip on first keystroke
+        clearTimeout(state.onboardTimer);
+        const tooltip = document.getElementById('onboarding-tooltip');
+        if (tooltip) tooltip.classList.remove('tooltip-visible');
         
         if (key === "ENTER") {
             submitGuess();
@@ -407,7 +444,6 @@ const DarnWortler = (function () {
             
             if (navigator.vibrate) navigator.vibrate(100);
 
-            // Redirect error shake to matching rows directly on the board
             document.querySelectorAll(".row-wrapper.active-row:not(.dimmed)").forEach(row => {
                 row.classList.add("shake");
                 setTimeout(() => row.classList.remove("shake"), 400);
@@ -507,7 +543,6 @@ const DarnWortler = (function () {
         fct.style.left = `calc(50% + ${xOffset}px)`;
         fct.style.top = '-20px';
 
-        // Spawn text on the currently active row, falling back to the board
         const activeContainer = document.querySelector(".row-wrapper.active-row:not(.dimmed)") || ui["game-board"];
         if (activeContainer) {
             activeContainer.style.position = 'relative';
@@ -555,10 +590,25 @@ const DarnWortler = (function () {
     function startGame() {
         ui["start-screen"].close(); 
         ui["game-container"].classList.remove("hidden");
+        
+        // Generate blank board
         generateBoard();
-        startTimer();
-        state.active = true;
-        updateGuessDisplay();
+        
+        // Lock inputs and run the intro sequence
+        state.active = false;
+        
+        runIntroAnimation(() => {
+            startTimer();
+            state.active = true;
+            updateGuessDisplay();
+
+            // The Onboarding Nudge (Triggers after 4 seconds of inactivity)
+            state.onboardTimer = setTimeout(() => {
+                if (state.currentGuess.length === 0 && state.scores.total === 0) {
+                    showOnboardingTooltip();
+                }
+            }, 4000);
+        });
     }
     
     function resetGame(selectedTier) {

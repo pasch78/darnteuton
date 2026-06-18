@@ -15,7 +15,7 @@
     --color-text-primary: #2C2C2C;
     --color-text-secondary: #6B6B6B;
     --color-border: #E0E0E0;
-    --color-chip-bg: #F0F0F0; /* Soft background for static data chips */
+    --color-chip-bg: #F0F0F0; 
     --color-input-focus: #4A90E2;
     --color-error: #D0021B;
     --color-hint: #8A8D91; 
@@ -24,7 +24,7 @@
     --shadow-low: 0 2px 4px rgba(0, 0, 0, 0.05);
     --shadow-high: 0 8px 16px rgba(0, 0, 0, 0.1);
     --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.2);
-    --shadow-button: 0 4px 0 rgba(0, 0, 0, 0.15); /* Standardized button depth */
+    --shadow-button: 0 4px 0 rgba(0, 0, 0, 0.15); 
     
     /* Z-Indexes */
     --z-floating-text: 100;
@@ -35,7 +35,7 @@
     --space-sm: clamp(4px, 1.2dvh, 8px);
     --space-md: clamp(8px, 2dvh, 16px);
     --space-lg: clamp(12px, 3dvh, 24px);
-    --space-xl: clamp(24px, 5dvh, 48px); /* Macro-whitespace for sectioning */
+    --space-xl: clamp(24px, 5dvh, 48px); 
     --border-radius-md: 8px;
     --border-radius-lg: 12px;
 }
@@ -175,34 +175,26 @@ button, .key, .tile {
 #board-area, #keyboard-area { width: 100%; }
 #board-area { margin-bottom: var(--space-sm); }
 
-/* 1. Remove the flexible gap between rows */
 #game-board { 
     display: flex; 
     flex-direction: column; 
-    gap: 0; /* Changed from var(--space-md) to compress vertical spacing */
+    gap: 0; /* Compressed for tighter mobile fit */
     width: 100%;
     max-width: min(100%, 55dvh); 
     margin: 0 auto; 
     position: relative;
 }
 
-/* 2. Remove the internal gap between the tiles and the word list */
 .row-wrapper { 
     display: flex; 
     flex-direction: column; 
-    gap: 0; /* Changed from var(--space-xs) */
+    gap: 0; /* Compressed for tighter mobile fit */
     transition: opacity 0.2s ease, filter 0.2s ease; 
     width: 100%; 
 }
 
 .dimmed { opacity: 0.3; }
 .dead-row { opacity: 0.2; filter: grayscale(100%); pointer-events: none; }
-
-.seed-row-wrapper { 
-    margin-bottom: var(--space-xs); 
-    padding-bottom: var(--space-sm); 
-    border-bottom: 2px dashed var(--color-border); 
-}
 
 .row-main { 
     display: grid;
@@ -241,14 +233,13 @@ button, .key, .tile {
     color: var(--color-text-secondary); 
 }
 
-/* 3. Pre-allocate the exact vertical space needed for the word cards */
 .inline-words { 
     display: flex; 
     flex-wrap: nowrap; 
     overflow-x: auto; 
     gap: var(--space-sm); 
-    padding: 2px; /* Dropped vertical padding entirely */
-    min-height: clamp(24px, 3.5dvh, 28px); /* Much tighter minimum height */
+    padding: 2px; /* Minimum padding */
+    min-height: clamp(24px, 3.5dvh, 28px); /* Locks in exact height to prevent layout shifts */
     scrollbar-width: none; 
     -webkit-overflow-scrolling: touch; 
     scroll-snap-type: x mandatory;
@@ -256,16 +247,15 @@ button, .key, .tile {
 
 .inline-words::-webkit-scrollbar { display: none; }
 
-/* Slimmer profile for the data chips */
 .inline-word-card { 
     flex-shrink: 0; 
-    font-size: clamp(0.65rem, 1.8dvh, 0.75rem); /* Scaled down the font a hair */
+    font-size: clamp(0.65rem, 1.8dvh, 0.75rem); 
     font-weight: bold; 
     text-transform: uppercase; 
-    padding: 2px 6px; /* Dramatically reduced internal padding */
+    padding: 2px 6px; /* Ultra-tight padding */
     border-radius: 4px; 
     background-color: transparent;
-    border: 1px solid currentColor; /* Thinned the border from 2px to 1px */
+    border: 1px solid currentColor; /* Thinned border */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -413,7 +403,6 @@ dialog::backdrop {
     font-size: clamp(0.9rem, 2.5dvh, 1rem); 
 }
 
-/* Increased Prominence & Breathing Room */
 .step-group-title.game-over-prompt {
     font-size: clamp(1rem, 3dvh, 1.2rem);
     color: var(--color-text-primary);
@@ -486,7 +475,6 @@ dialog::backdrop {
     margin: 0 auto;
 }
 
-/* Tier Buttons: Solid Fills to signify interactivity */
 .tier-btn {
     flex: 1;
     padding: var(--space-sm);
@@ -524,7 +512,6 @@ dialog::backdrop {
 .text-col4 { color: var(--col4); } 
 .text-col5 { color: var(--col5); }
 
-/* Static Data Chips (Replacing heavy bordered boxes) */
 .word-card { 
     padding: var(--space-sm) var(--space-md); 
     border-radius: var(--border-radius-md); 
@@ -567,6 +554,16 @@ dialog::backdrop {
     box-shadow: 0 0 0 3px rgba(179, 90, 45, 0.2);
 }
 
+/* Intro Animation States */
+.tile-hidden {
+    opacity: 0;
+    transform: scale(0.5);
+}
+
+.tile-pop {
+    animation: tile-pop-anim 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
 
 /* ==========================================================================
    9. ANIMATIONS & EFFECTS
@@ -583,6 +580,11 @@ dialog::backdrop {
 @keyframes fade-in {
     0% { opacity: 0; }
     100% { opacity: 1; }
+}
+
+@keyframes tile-pop-anim {
+    0% { opacity: 0; transform: scale(0.5); }
+    100% { opacity: 1; transform: scale(1); }
 }
 
 .fct {
@@ -644,3 +646,45 @@ dialog::backdrop {
 .toc a { color: var(--col1); text-decoration: none; font-weight: bold; }
 .toc a:hover { text-decoration: underline; }
 blockquote { background-color: var(--color-surface); border-left: 4px solid var(--col2); padding: var(--space-sm) var(--space-md); margin: var(--space-md) 0; font-style: italic; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; box-shadow: var(--shadow-low); }
+
+
+/* ==========================================================================
+   11. ONBOARDING TOOLTIP
+   ========================================================================== */
+#onboarding-tooltip {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--col1);
+    color: #FFF;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--border-radius-md);
+    font-size: clamp(0.8rem, 2.5dvh, 0.95rem);
+    font-weight: bold;
+    white-space: nowrap;
+    box-shadow: var(--shadow-high);
+    z-index: 50;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    animation: pulse-tooltip 2s infinite ease-in-out;
+}
+
+#onboarding-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0;
+    border-style: solid;
+    border-color: var(--col1) transparent transparent transparent;
+}
+
+.tooltip-visible { opacity: 1 !important; }
+
+@keyframes pulse-tooltip {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-4px); }
+}
