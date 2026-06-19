@@ -28,6 +28,7 @@
     
     /* Z-Indexes */
     --z-floating-text: 100;
+    --z-tooltip: 50;
     
     /* Layout & Fluid Tokens */
     --max-app-width: 500px;
@@ -61,7 +62,7 @@ body {
 
 .hidden { display: none !important; }
 
-/* Touch Action Fix */
+/* Touch Action Fix to prevent zoom on rapid tapping */
 button, .key, .tile {
     touch-action: manipulation;
     user-select: none;
@@ -70,7 +71,32 @@ button, .key, .tile {
 
 
 /* ==========================================================================
-   2. HEADER & TOP UI
+   2. UNIFIED TACTILE UI (The "Physical" Elements)
+   ========================================================================== */
+/* Groups all blocks to share the exact same edge curves and drop shadows */
+.primary-btn, 
+.secondary-btn, 
+.tier-btn, 
+.key, 
+.tile, 
+.logo-tile {
+    box-shadow: var(--shadow-button);
+    border-radius: var(--border-radius-md);
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease, border-color 0.1s ease;
+}
+
+/* Groups the physical compression effect when interactable elements are tapped */
+.primary-btn:active:not(:disabled),
+.secondary-btn:active:not(:disabled),
+.tier-btn:active,
+.key:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 transparent;
+}
+
+
+/* ==========================================================================
+   3. HEADER & TOP UI
    ========================================================================== */
 .app-header { 
     width: 100%; 
@@ -138,13 +164,9 @@ button, .key, .tile {
     transition: width 0.5s linear, background-color 0.3s ease;
 }
 
-#timer-progress-bar.danger {
-    background-color: var(--color-error);
-}
+#timer-progress-bar.danger { background-color: var(--color-error); }
 
-#score-wrapper output {
-    display: block;
-}
+#score-wrapper output { display: block; }
 
 #score-total-display { 
     font-size: clamp(0.9rem, 4vw, 1.2rem); 
@@ -161,7 +183,7 @@ button, .key, .tile {
 
 
 /* ==========================================================================
-   3. GAME BOARD & ROW LAYOUT
+   4. GAME BOARD & ROW LAYOUT
    ========================================================================== */
 #game-container { 
     display: flex; 
@@ -178,7 +200,7 @@ button, .key, .tile {
 #game-board { 
     display: flex; 
     flex-direction: column; 
-    gap: 0; /* Compressed for tighter mobile fit */
+    gap: 0; 
     width: 100%;
     max-width: min(100%, 55dvh); 
     margin: 0 auto; 
@@ -188,7 +210,7 @@ button, .key, .tile {
 .row-wrapper { 
     display: flex; 
     flex-direction: column; 
-    gap: 0; /* Compressed for tighter mobile fit */
+    gap: 0; 
     transition: opacity 0.2s ease, filter 0.2s ease; 
     width: 100%; 
 }
@@ -209,6 +231,7 @@ button, .key, .tile {
     gap: var(--space-sm); 
 }
 
+/* Base tile rules (shadows & curves handled in Section 2) */
 .tile { 
     width: 100%; 
     aspect-ratio: 1; 
@@ -220,17 +243,41 @@ button, .key, .tile {
     font-weight: bold; 
     text-transform: uppercase; 
     background-color: transparent; 
-    border-radius: var(--border-radius-md);
     overflow: hidden;
-    transition: all 0.15s ease-out;
 }
 
+/* Updated Row Counter with Bounty Badge styling */
 .row-counter { 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 2px;
     width: 100%; 
-    text-align: right;
-    font-size: clamp(0.85rem, 3.5vw, 1.1rem); 
-    font-weight: bold; 
-    color: var(--color-text-secondary); 
+}
+
+.found-count {
+    font-size: clamp(1rem, 4vw, 1.3rem); 
+    font-weight: 900; 
+    color: var(--color-text-primary);
+    line-height: 1;
+}
+
+.point-badge {
+    font-size: clamp(0.65rem, 2vw, 0.75rem);
+    font-weight: bold;
+    text-transform: uppercase;
+    background-color: var(--color-chip-bg);
+    padding: 2px 6px;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    letter-spacing: 0.5px;
+    line-height: 1;
+    white-space: nowrap; /* Prevents text from breaking into two lines */
+}
+
+.dead-row .point-badge {
+    opacity: 0; 
 }
 
 .inline-words { 
@@ -238,8 +285,8 @@ button, .key, .tile {
     flex-wrap: nowrap; 
     overflow-x: auto; 
     gap: var(--space-sm); 
-    padding: 2px; /* Minimum padding */
-    min-height: clamp(24px, 3.5dvh, 28px); /* Locks in exact height to prevent layout shifts */
+    padding: 2px; 
+    min-height: clamp(24px, 3.5dvh, 28px); 
     scrollbar-width: none; 
     -webkit-overflow-scrolling: touch; 
     scroll-snap-type: x mandatory;
@@ -252,10 +299,10 @@ button, .key, .tile {
     font-size: clamp(0.65rem, 1.8dvh, 0.75rem); 
     font-weight: bold; 
     text-transform: uppercase; 
-    padding: 2px 6px; /* Ultra-tight padding */
+    padding: 2px 6px; 
     border-radius: 4px; 
     background-color: transparent;
-    border: 1px solid currentColor; /* Thinned border */
+    border: 1px solid currentColor; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -264,7 +311,7 @@ button, .key, .tile {
 
 
 /* ==========================================================================
-   4. VIRTUAL KEYBOARD
+   5. VIRTUAL KEYBOARD
    ========================================================================== */
 #keyboard-area { margin-bottom: var(--space-xs); }
 
@@ -281,12 +328,12 @@ button, .key, .tile {
     gap: 6px; 
 }
 
+/* Base key rules (shadows, curves, active compress handled in Section 2) */
 .key {
     flex: 1;
     min-height: 48px; 
     height: clamp(48px, 7dvh, 60px); 
     border: none;
-    border-radius: 6px;
     background-color: var(--color-border); 
     color: var(--color-text-primary);
     font-size: clamp(1.1rem, 4vw, 1.3rem);
@@ -295,15 +342,12 @@ button, .key, .tile {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-    transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
 }
 
+/* Overrides Section 2 active logic for specific color pop */
 .key:active { 
     background-color: var(--color-text-secondary); 
     color: #fff; 
-    transform: translateY(4px); 
-    box-shadow: 0 0 0 rgba(0,0,0,0);
 }
 
 .action-key { 
@@ -314,7 +358,7 @@ button, .key, .tile {
 
 
 /* ==========================================================================
-   5. NATIVE DIALOG MODALS & ONBOARDING
+   6. NATIVE DIALOG MODALS & START SCREEN
    ========================================================================== */
 dialog {
     margin: auto; 
@@ -343,36 +387,93 @@ dialog::backdrop {
     width: 100%;
 }
 
-.onboarding-steps { 
-    margin: var(--space-lg) 0; 
-    width: 100%; 
-    text-align: left; 
+/* Brand Logo Layout (Base physical properties in Section 2) */
+.logo-heading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-sm);
+    font-size: clamp(2rem, 8vw, 3rem); 
+}
+
+.logo-tile {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2em;
+    height: 1.2em;
+    color: #FFF;
+    border: 2px solid rgba(0,0,0,0.1);
+}
+
+.logo-text {
+    font-size: 0.5em; 
+    color: var(--color-text-secondary);
+    font-weight: bold;
+    padding: 0 4px;
+}
+
+.tagline {
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: clamp(0.75rem, 2dvh, 0.9rem);
+    margin: 0 auto var(--space-xl) auto; 
+    max-width: 90%;
+    line-height: 1.4;
+}
+
+.tagline strong {
+    display: block;
+    color: var(--color-text-primary);
+    margin-top: 4px;
+    font-size: 1.1em;
+}
+
+/* Instructions Content Box */
+.instructions-card {
+    background-color: var(--color-surface); /* Changed to pure white */
+    border: 2px solid var(--color-border);
+    border-radius: var(--border-radius-lg);
+    padding: var(--space-md) var(--space-lg);
+    width: 100%;
+    margin-bottom: var(--space-lg);
 }
 
 .step-group-title { 
-    font-weight: bold; 
+    font-weight: 900; 
     color: var(--col1); 
-    margin: var(--space-md) 0 var(--space-sm) 0; 
+    margin: 0 0 var(--space-md) 0; 
     text-transform: uppercase; 
     letter-spacing: 1px; 
-    font-size: clamp(0.8rem, 2.5dvh, 0.9rem);
+    font-size: clamp(0.85rem, 2.5dvh, 0.95rem);
+    border-bottom: 2px solid rgba(0,0,0,0.05); 
+    padding-bottom: 8px;
 }
 
-.onboarding-subtitle { 
-    line-height: 1.4; 
-    margin-bottom: var(--space-md); 
-    text-align: center;
-}
+.step-group-title.header-mt { margin-top: var(--space-md); }
 
 .step { 
     display: flex; 
-    gap: var(--space-md); 
-    margin-bottom: var(--space-md); 
+    gap: var(--space-sm); 
+    margin-bottom: var(--space-sm); 
     align-items: flex-start; 
-    font-size: clamp(0.9rem, 2.5dvh, 1rem); 
+    font-size: clamp(0.85rem, 2.2dvh, 0.95rem); 
+    line-height: 1.4;
 }
 
-.step-icon { font-size: clamp(1.2rem, 4dvh, 1.5rem); }
+/* NEW: Creates a strict, uniform left column for ALL icons and badges */
+.step > :first-child {
+    flex: 0 0 70px; /* Forces exactly 70px of width */
+    display: flex;
+    justify-content: center; /* Centers the emoji or badge inside the column */
+    margin-top: 2px;
+}
+
+/* Cleaned up icon class (margin and shrink handled by the rule above) */
+.step-icon { 
+    font-size: clamp(1.2rem, 3.5dvh, 1.4rem); 
+}
 
 #start-action-area { width: 100%; text-align: center; }
 
@@ -387,7 +488,7 @@ dialog::backdrop {
 
 
 /* ==========================================================================
-   6. GAME OVER SCREEN (Spacing & Hierarchy)
+   7. GAME OVER SCREEN
    ========================================================================== */
 #game-over-modal { text-align: center; }
 
@@ -403,16 +504,15 @@ dialog::backdrop {
     font-size: clamp(0.9rem, 2.5dvh, 1rem); 
 }
 
-.step-group-title.game-over-prompt {
+.game-over-prompt {
     font-size: clamp(1rem, 3dvh, 1.2rem);
     color: var(--color-text-primary);
     margin-top: var(--space-xl); 
     margin-bottom: var(--space-md);
+    border-bottom: none;
 }
 
-#practice-tier-group {
-    margin-bottom: var(--space-xl); 
-}
+#practice-tier-group { margin-bottom: var(--space-xl); }
 
 #all-solutions-list { 
     display: flex; 
@@ -424,8 +524,9 @@ dialog::backdrop {
 
 
 /* ==========================================================================
-   7. BUTTON STANDARDIZATION & AFFORDANCES
+   8. BUTTON STANDARDIZATION
    ========================================================================== */
+/* Base button layout (Shadows/Curves handled in Section 2) */
 .primary-btn, .secondary-btn, .tier-btn {
     display: inline-flex;
     align-items: center;
@@ -436,9 +537,7 @@ dialog::backdrop {
     font-size: clamp(0.9rem, 2.5dvh, 1.1rem);
     text-transform: uppercase;
     letter-spacing: 1px;
-    border-radius: var(--border-radius-md); 
     cursor: pointer; 
-    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
 }
 
@@ -446,16 +545,25 @@ dialog::backdrop {
     padding: clamp(0.8rem, 2.5dvh, 1rem) clamp(1rem, 4vw, 2rem); 
     background-color: var(--col3); 
     color: #FFF; 
-    box-shadow: var(--shadow-button);
 }
 
-.primary-btn:hover:not(:disabled) { background-color: #3b5c40; transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0,0,0,0.15); }
-.primary-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
-.primary-btn:disabled { background-color: var(--color-border); color: var(--color-text-secondary); cursor: not-allowed; box-shadow: none; }
+.primary-btn:hover:not(:disabled) { 
+    background-color: #3b5c40; 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 0 rgba(0,0,0,0.15); 
+}
+
+.primary-btn:disabled { 
+    background-color: var(--color-border); 
+    color: var(--color-text-secondary); 
+    cursor: not-allowed; 
+    box-shadow: none; 
+    transform: none;
+}
 
 .secondary-btn {
     padding: clamp(0.8rem, 2.5dvh, 1rem) clamp(1rem, 4vw, 2rem); 
-    background-color: transparent; 
+    background-color: var(--color-surface); 
     color: var(--color-text-secondary);
     border: 2px solid var(--color-border); 
     width: 100%;
@@ -464,6 +572,8 @@ dialog::backdrop {
 .secondary-btn:hover:not(:disabled) { 
     background-color: var(--color-chip-bg); 
     color: var(--color-text-primary); 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 0 rgba(0,0,0,0.15);
 }
 
 .practice-tier-container {
@@ -479,15 +589,17 @@ dialog::backdrop {
     flex: 1;
     padding: var(--space-sm);
     color: #FFF;
-    box-shadow: var(--shadow-button);
 }
 
 .easy-btn { background-color: var(--col3); }
 .medium-btn { background-color: var(--col2); } 
 .hard-btn { background-color: var(--col5); }
 
-.tier-btn:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0,0,0,0.15); }
-.tier-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+.tier-btn:hover { 
+    filter: brightness(1.1); 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 0 rgba(0,0,0,0.15); 
+}
 
 #start-daily-btn {
     width: auto;
@@ -497,7 +609,7 @@ dialog::backdrop {
 
 
 /* ==========================================================================
-   8. DYNAMIC STATES & UTILITY CLASSES
+   9. DYNAMIC COLOR STATES & UTILITY CLASSES
    ========================================================================== */
 .bg-col1 { background-color: var(--col1); color: #FFF; border-color: var(--col1); } 
 .bg-col2 { background-color: var(--col2); color: #FFF; border-color: var(--col2); } 
@@ -566,7 +678,7 @@ dialog::backdrop {
 
 
 /* ==========================================================================
-   9. ANIMATIONS & EFFECTS
+   10. ANIMATIONS & TOOLTIPS
    ========================================================================== */
 .shake { animation: shake-animation 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
@@ -587,6 +699,7 @@ dialog::backdrop {
     100% { opacity: 1; transform: scale(1); }
 }
 
+/* Floating Center Text (Scores/Streaks) */
 .fct {
     position: absolute;
     font-weight: bold;
@@ -612,9 +725,48 @@ dialog::backdrop {
     to { opacity: 0.8; transform: scale(1.05); }
 }
 
+/* Contextual Onboarding Tooltip */
+#onboarding-tooltip {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--col1);
+    color: #FFF;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--border-radius-md);
+    font-size: clamp(0.8rem, 2.5dvh, 0.95rem);
+    font-weight: bold;
+    white-space: nowrap;
+    box-shadow: var(--shadow-high);
+    z-index: var(--z-tooltip);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    animation: pulse-tooltip 2s infinite ease-in-out;
+}
+
+#onboarding-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0;
+    border-style: solid;
+    border-color: var(--col1) transparent transparent transparent;
+}
+
+.tooltip-visible { opacity: 1 !important; }
+
+@keyframes pulse-tooltip {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-4px); }
+}
+
 
 /* ==========================================================================
-   10. PLAYER MANUAL (manual.html overrides)
+   11. PLAYER MANUAL (manual.html overrides)
    ========================================================================== */
 .manual-body { padding-top: var(--space-lg); overflow-y: auto; display: block; }
 .manual-container {
@@ -646,45 +798,3 @@ dialog::backdrop {
 .toc a { color: var(--col1); text-decoration: none; font-weight: bold; }
 .toc a:hover { text-decoration: underline; }
 blockquote { background-color: var(--color-surface); border-left: 4px solid var(--col2); padding: var(--space-sm) var(--space-md); margin: var(--space-md) 0; font-style: italic; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; box-shadow: var(--shadow-low); }
-
-
-/* ==========================================================================
-   11. ONBOARDING TOOLTIP
-   ========================================================================== */
-#onboarding-tooltip {
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--col1);
-    color: #FFF;
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--border-radius-md);
-    font-size: clamp(0.8rem, 2.5dvh, 0.95rem);
-    font-weight: bold;
-    white-space: nowrap;
-    box-shadow: var(--shadow-high);
-    z-index: 50;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-    animation: pulse-tooltip 2s infinite ease-in-out;
-}
-
-#onboarding-tooltip::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px 6px 0;
-    border-style: solid;
-    border-color: var(--col1) transparent transparent transparent;
-}
-
-.tooltip-visible { opacity: 1 !important; }
-
-@keyframes pulse-tooltip {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(-4px); }
-}

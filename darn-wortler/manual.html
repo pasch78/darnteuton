@@ -3,8 +3,8 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-	<meta name="description" content="Darn Wortler - Player Success Manual">
-	<title>Player Manual | Darn Wortler</title>
+	<meta name="description" content="5 in 5 in 5 - Player Manual">
+	<title>Player Manual | 5 in 5 in 5</title>
 	
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,75 +15,72 @@
 	<main class="manual-container">
 		<a href="index.html" class="back-link">← Back to Game</a>
 		
-		<h1>Darn Wortler <br><span class="manual-subtitle">Player Manual</span></h1>
+		<h2 id="start-heading" class="logo-heading">
+			<span class="logo-tile bg-col1">5</span>
+			<span class="logo-text">IN</span>
+			<span class="logo-tile bg-col2">5</span>
+			<span class="logo-text">IN</span>
+			<span class="logo-tile bg-col5">5</span>
+		</h2><br/>
 		
 		<nav class="toc">
 			<h2>Table of Contents</h2>
 			<ul>
-				<li><a href="#core-objective">The Core Objective</a></li>
-				<li><a href="#grid-mechanics">Mastering the Grid Mechanics</a></li>
-				<li><a href="#hint-engine">The Cascading Hint Engine</a></li>
-				<li><a href="#scoring">Scoring Optimization & Bonuses</a></li>
-				<li><a href="#strategies">Winning Strategies</a></li>
+				<li><a href="#how-to-play">How to Play</a></li>
+				<li><a href="#scoring">Scoring & Bonuses</a></li>
+				<li><a href="#tips">Winning Tips</a></li>
+				<li><a href="#about">About the Game</a></li>
 			</ul>
 		</nav>
 
-		<section id="core-objective">
-			<h2>The Core Objective</h2>
-			<p>Your goal is simple: maximize your score before the <strong>5-minute timer</strong> runs out. You score points by finding 5-letter words that fit into specific rows dictated by a central "Seed Word".</p>
-		</section>
-
-		<section id="grid-mechanics">
-			<h2>Mastering the Grid Mechanics</h2>
-			<h3>Game Basics:</h3>
-			<ul>
-				<li><strong>The Seed Word:</strong> The top row displays a random 5-letter word for the round. The five rows beneath it require you to guess words that start with the seed word's letters in forward order, and end with its letters in reverse order.
-					<br><em>Example:</em> If the seed is <strong>P-L-A-N-T</strong>, Row 1 must start with P and end with T (e.g., POINT), Row 2 starts with L and ends with N (e.g., LEMON), and so on.</li>
-				<li><strong>The Input Row:</strong> All words are typed into the single Input Row at the bottom of the board. The grid automatically dims rows that do not match the first letter of your current guess, helping you see where your word will land.</li>
-			</ul>
+		<section id="how-to-play">
+			<h2>How to Play</h2>
+			<p>Your goal is simple: maximize your score before the <strong>5-minute timer</strong> runs out. You earn points by unscrambling the board and finding valid 5-letter words.</p>
 			
-			<h3>Row Indicators:</h3>
+			<h3>Grid Mechanics</h3>
 			<ul>
-				<li><strong>Fraction Counter (e.g., 0/12):</strong> Tells you how many valid words you have found out of the total possibilities for that row.</li>
-				<li><strong>Link Icon (🔗):</strong> Appears if rows share identical start/end letter pairs (common with palindromes). Finding a word here populates both rows simultaneously and you get double the score.</li>
-				<li><strong>Dead Rows:</strong> Grayed-out rows indicating that zero valid 5-letter words exist in the English dictionary for that letter combination. These are disabled automatically so you do not waste time.</li>
+				<li><strong>The Frame:</strong> The first and last letters of every row are locked. You must type 5-letter dictionary words that start and end with those exact letters.</li>
+				<li><strong>Direct Typing:</strong> Use the on-screen or physical keyboard. Your guess will automatically mirror across all valid rows that match the first letter you type.</li>
+				<li><strong>Row Indicators:</strong> The fraction (e.g., 0/12) shows how many valid words you have found out of the total possibilities for that row.</li>
+				<li><strong>Linked Rows (🔗):</strong> If rows share identical start and end letters, they link. Finding a word here populates both rows simultaneously for double the points!</li>
+				<li><strong>Dead Rows:</strong> Grayed-out rows mean zero valid 5-letter words exist in the dictionary for that letter combination. They are disabled so you don't waste time.</li>
 			</ul>
-		</section>
 
-		<section id="hint-engine">
-			<h2>The Hint Engine</h2>
-			<h3>Your Best Friend for a High Score:</h3>
+			<h3>The Hint Engine</h3>
 			<ul>
-				<li><strong>Cascading Hints:</strong> Every time you successfully submit a valid word, the game analyzes its 2nd, 3rd, and 4th letters. If any unfound words on the board share those same letters in the exact same positions, the engine instantly populates them across the board as italicized hints. Not sure what that means? Try it out and it will make sense immediately.</li>
-				<li>
-				<strong>Constant Updates: </strong>Hints update dynamically with every single correct guess. If you submit an invalid word, the input row will shake as an error, but your existing board hints will remain intact to keep you going.</li>
+				<li><strong>Cascading Hints:</strong> Every correct guess triggers the hint engine. The middle letters of your guess will sweep the board. If any unfound words share those letters in the exact same positions, they are revealed as free hints!</li>
+				<li><strong>Chain Reactions:</strong> Hints update dynamically. Unlocking one word usually gives you the missing piece to unlock another.</li>
 			</ul>
-			
 		</section>
 
 		<section id="scoring">
-			<h2>Understanding Scores & Bonuses</h2>
-			<h3>Base Score:</h3>
-			<ul>
-				<li><strong>Possible Solutions: </strong>The game features a dictionary of 13,079 acceptable guesses. Categorized by how frequently they appear in the English language, 5,757 are labeled 'common' words, while the remaining pool is considered 'obscure'.</li>
-				<li><strong>Rarity Scaling:</strong> Base points reward scarcity: a valid guess' score is calculated as <code>1000 / Total Valid Words (in that row)</code>. Rare rows with fewer hidden solutions yield massive payouts, while common rows offer much smaller rewards. For example, a row with 200 valid words awards just 5 points per guess, whereas a tough row with only 20 options blocks out a massive 50 points.</li>
-			</ul>
+			<h2>Scoring & Bonuses</h2>
+			<p>The game uses a master dictionary of roughly 13,000 words. About 5,700 are considered "common," while the rest are "obscure."</p>
 			
-			<h3>Bonus Points:</h3>
 			<ul>
-				<li><strong>Obscure Word Bonus (+50 points):</strong> Submitting a highly rare vocabulary word awards an immediate 50-point bonus. </li>
-				<li><strong>Speed Streak (+5 points per guess while active):</strong> Successfully submit 3 valid words within 15 seconds of each other to activate the Speed Streak. Taking longer than 20 seconds between words or typing a word not in the dictionary ("Not in list") instantly kills your streak.</li>
+				<li><strong>Rarity Scaling (Base Score):</strong> Rows with fewer hidden solutions yield massive payouts, while common rows offer smaller rewards. A row with 200 possible words might award 5 points per guess, while a tough row with only 20 options awards 50 points.</li>
+				<li><strong>Obscure Words (+50 points):</strong> Impress the engine by submitting a rare vocabulary word for an immediate 50-point bonus.</li>
+				<li><strong>Speed Streak (+5 points):</strong> Submit 3 valid words quickly (within 15 seconds of each other) to catch fire. While the streak is active, every fast guess earns bonus points. <em>Warning: Typing an invalid word instantly breaks your streak!</em></li>
 			</ul>
 		</section>
 
-		<section id="strategies">
-			<h2>Winning Strategies</h2>
+		<section id="tips">
+			<h2>Winning Tips</h2>
 			<ul>
-				<li><strong>Fish for Hints on Easier Rows:</strong> Guessing common words in easier rows will spawn helpful hints across the board. The letters revealed by the hint engine will help unlock the scarcer, higher-value rows.</li>
-				<li><strong>Take Advantage of Rarity Scaling:</strong> Check the row counters immediately at launch. Prioritize rows with tiny word pools (e.g., 0/2 or 0/5) because they offer the largest base point infusions. But do not get stuck there&mdash;chances are you're hunting obscure words.</li>
-				
-				<li><strong>Protect the Streak:</strong> When your Speed Streak is active, do not guess blindly. A single invalid word resets your streak counter to zero. If you are running out of time on a streak, shift to a high-volume, easy row to keep the bonus alive.</li>
+				<li><strong>Fish for Hints:</strong> Don't get stuck staring at a hard row. Guess common words in easy rows to spawn helpful hints across the rest of the board.</li>
+				<li><strong>Target Rare Rows:</strong> Check the row counters immediately at launch. Prioritize rows with tiny word pools (e.g., 0/2 or 0/5) because they offer the largest base point infusions.</li>
+				<li><strong>Protect Your Streak:</strong> When your Speed Streak is active, don't guess blindly. If you are running out of time to keep the streak alive, quickly solve a high-volume, easy row.</li>
 			</ul>
+		</section>
+
+		<section id="about">
+			<h2>About the Game</h2>
+			<blockquote>
+				<strong>Inspired by "Gefüllte Kalbsbrust"</strong><br>
+				5 IN 5 IN 5 is a digital reimagining of a classic German pen-and-paper word game called <em>Gefüllte Kalbsbrust</em> (which translates directly to "Stuffed Breast of Veal"). 
+				<br><br>
+				In the original parlor game, a single long word is written down the left side of a page, and then written backwards up the right side. Players then race to "stuff" the inside of the word by filling the space between the outer letters to create new, valid words. We took that elegant mechanical "frame" and cranked up the speed.
+			</blockquote>
 		</section>
 	</main>
 </body>

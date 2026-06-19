@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Darn Wortler - A daily word puzzle game. Find horizontal words using outer letters.">
-    <title>Darn Wortler</title>
+    <title>5 in 5 in 5</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="header-center">
-            <h1>Darn Wortler</h1>
+            <h1>5 in 5 in 5</h1>
             <div id="mode-indicator" class="hidden" aria-live="polite">Loading...</div>
         </div>
         <div class="header-right">
@@ -70,44 +70,57 @@
 
     <dialog id="start-screen" aria-labelledby="start-heading" open>
         <div class="modal-content">
-            <h2 id="start-heading">Welcome to Darn Wortler</h2>
-            <p class="subtitle onboarding-subtitle">Inspired by the classic German word game "Gefüllte Kalbsbrust", Darn Wortler is a high-speed, 5-minute race against the clock. Unscramble the game board and see how high you can push your score before time runs out!</p>
-            
-            <div class="onboarding-steps">
-                <div class="step-group-title">How to Play</div>
-                <div class="step">
-                    <span class="step-icon" aria-hidden="true">🧩</span>
-                    <p><strong>The Grid:</strong> The outer columns are mirrors of each other. You must find 5-letter words that begin and end with the outer letters of each row.</p>
-                </div>
-                <div class="step">
-                    <span class="step-icon" aria-hidden="true">⌨️</span>
-                    <p><strong>Direct Typing:</strong> Type directly onto the board! Your keystrokes will dynamically mirror across matching rows. Press Enter to submit your guess.</p>
-                </div>
-                <div class="step">
-                    <span class="step-icon" aria-hidden="true">👻</span>
-                    <p><strong>Cascade Hints:</strong> Every correct guess triggers the hint engine. The middle letters will sweep the board, revealing hints for words you haven't found yet.</p>
-                </div>
-                
-                <div class="step-group-title">How to Score</div>
-                <div class="step">
-                    <span class="step-icon" aria-hidden="true">📈</span>
-                    <p><strong>Rarity Pays:</strong> The fewer valid dictionary words there are for a row, the more points you earn for finding one.</p>
-                </div>
-                <div class="step">
-                    <span class="step-icon" aria-hidden="true">✨</span>
-                    <p><strong>Obscure Vocabulary:</strong> Impress the engine with a rare word to score a +50 point bonus!</p>
-                </div>
-                <div class="step">
-                    <span class="step-icon" aria-hidden="true">🔥</span>
-                    <p><strong>Catch Fire:</strong> Submit 3 correct words in rapid succession to activate the Speed Streak. Every subsequent fast guess earns bonus points, but an invalid guess will break your streak!</p>
-                </div>
+        <!-- New Logo Setup -->
+        <h2 id="start-heading" class="logo-heading">
+            <span class="logo-tile bg-col1">5</span>
+            <span class="logo-text">IN</span>
+            <span class="logo-tile bg-col2">5</span>
+            <span class="logo-text">IN</span>
+            <span class="logo-tile bg-col5">5</span>
+        </h2>
+        
+        <!-- Sleek Tagline -->
+        <p class="tagline">
+            Your daily 5-minute word sprint.
+        </p>
+        
+        <!-- Contained Instructions Card -->
+        <div class="instructions-card">
+            <div class="step-group-title">How to Play</div>
+            <div class="step">
+                <span class="step-icon" aria-hidden="true">⏱️</span>
+                <p><strong>The Game:</strong> 5 rows. 5 letters each. 5 minutes on the clock. Find as many words as you can!</p>
             </div>
+            <div class="step">
+                <span class="step-icon" aria-hidden="true">🔠</span>
+                <p><strong>The Grid:</strong> Outer letters are locked. Guess 5-letter words starting and ending with those exact letters.</p>
+            </div>
+            <div class="step">
+                <span class="step-icon" aria-hidden="true">💡</span>
+                <p><strong>Cascade Hints:</strong> Correct guesses reveal bonus letters across the board. Use them to your advantage.</p>
+            </div>
+            
+            <div class="step-group-title header-mt">How to Score</div>
+            <div class="step">
+                <!-- Cleaned up inline styles -->
+                <span class="point-badge text-col2" style="font-size: 0.8rem; padding: 4px 6px;">+50 pts</span>
+                <p><strong>Bounty Badges:</strong> Harder rows are worth more points per valid guess.</p>
+            </div>
+            <div class="step">
+                <span class="step-icon" aria-hidden="true">✨</span>
+                <p><strong>Rare Words:</strong> +50 bonus points for obscure vocabulary.</p>
+            </div>
+            <div class="step">
+                <span class="step-icon" aria-hidden="true">🔥</span>
+                <p><strong>Speed Streak:</strong> 3 fast answers catch fire. Keep the streak alive for bonus points.</p>
+            </div>
+        </div>
             
             <div id="start-action-area">
                 <button id="start-loading-btn" class="primary-btn" disabled aria-live="polite">Loading Dictionary...</button>
                 
                 <div id="start-buttons-group" class="hidden">
-                    <button id="start-daily-btn" class="primary-btn">Start Daily Challenge</button>
+                    <button id="start-daily-btn" class="primary-btn">Daily Challenge</button>
                     
                     <div class="step-group-title practice-title">Practice Mode</div>
                     

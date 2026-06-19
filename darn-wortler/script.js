@@ -33,12 +33,12 @@ const DarnWortler = (function () {
         scores: { base: 0, bonus: 0, total: 0 },
         timer: { interval: null, endTime: 0, duration: config.gameDuration },
         active: false, 
-        onboardTimer: null, // Tracks the 4-second contextual help nudge
+        onboardTimer: null,
         daily: {
             isMode: false,
             currentID: Math.floor(new Date().setUTCHours(0,0,0,0) / 86400000)
         },
-        streak: { count: 0, isActive: false, lastWordTime: 0 },
+        streak: { count: 0, isActive: false, lastWordTime: 0 }
     };
 
     const ui = {};
@@ -182,23 +182,32 @@ const DarnWortler = (function () {
 
         const cachedValidWords = Array.from(state.validWordsSet);
 
-        // Calculate targets (Seed word is explicitly allowed as an Easter Egg)
+        // Calculate targets and dynamic points per row upfront
         for (let r = 0; r < 5; r++) {
             const startL = letters[r], endL = reverseLetters[r];
             const key = `${startL}${endL}`; 
             
             if (!state.targetPools[key]) {
+                const validWords = cachedValidWords.filter(w => w.startsWith(startL) && w.endsWith(endL));
                 state.targetPools[key] = {
-                    validWords: cachedValidWords.filter(w => w.startsWith(startL) && w.endsWith(endL)),
+                    validWords: validWords,
                     foundWords: [], 
                     hintedWords: {}, 
                     rows: [r + 1], 
-                    baseColorClass: `text-col${r + 1}`
+                    baseColorClass: `text-col${r + 1}`,
+                    pointsPerWord: 0 
                 };
             } else { 
                 state.targetPools[key].rows.push(r + 1); 
             }
         }
+
+        // Second pass: Finalize point calculations based on total occurrences (multipliers)
+        Object.values(state.targetPools).forEach(pool => {
+            if (pool.validWords.length > 0) {
+                pool.pointsPerWord = Math.round(1000 / pool.validWords.length) * pool.rows.length;
+            }
+        });
 
         let boardHTML = '';
 
@@ -208,25 +217,36 @@ const DarnWortler = (function () {
             const isDuplicate = pool.rows[0] !== (r + 1); 
             const isDead = pool.validWords.length === 0;
             
-            // Color Mapping Fix: Independent colors for first and last column
+            // Independent color tracking for columns
             const startStyleClass = (isDuplicate || isDead) ? "bg-gray" : `bg-col${r + 1}`;
             const endStyleClass = (isDuplicate || isDead) ? "bg-gray" : `bg-col${5 - r}`;
             
-            const counterText = isDead ? "-" : (isDuplicate ? `🔗 ${pool.rows[0]}` : `0/${pool.validWords.length}`);
-            const counterClass = (!isDead && !isDuplicate) ? pool.baseColorClass : "";
+            // Build the updated Bounty Badge UI 
+            let counterHTML = "";
+            if (isDead) {
+                counterHTML = `<span class="found-count">-</span>`;
+            } else if (isDuplicate) {
+                counterHTML = `<span class="found-count" style="font-size: 0.8em; letter-spacing: -0.5px;">🔗 R${pool.rows[0]}</span>`;
+            } else {
+                counterHTML = `
+                    <span class="found-count" id="found-count-${r+1}">0</span>
+                    <span class="point-badge ${pool.baseColorClass}">+${pool.pointsPerWord} pts</span>
+                `;
+            }
 
-            // Tiles receive tile-hidden and directional classes for intro sequence
             boardHTML += `
                 <div class="row-wrapper ${isDead ? 'dead-row' : 'active-row'}" data-start="${startL}" data-end="${endL}">
                     <div class="row-main">
-                    <div class="row-tiles" id="row-tiles-${r+1}">
-                        <div class="tile ${startStyleClass} tile-hidden left-col-tile">${startL}</div>
-                        <div class="tile inner-tile" data-pos="1"></div>
-                        <div class="tile inner-tile" data-pos="2"></div>
-                        <div class="tile inner-tile" data-pos="3"></div>
-                        <div class="tile ${endStyleClass} tile-hidden right-col-tile">${endL}</div>
-                    </div>
-                    <div class="row-counter ${counterClass}" id="counter-row-${r+1}">${counterText}</div>
+                        <div class="row-tiles" id="row-tiles-${r+1}">
+                            <div class="tile ${startStyleClass} tile-hidden left-col-tile">${startL}</div>
+                            <div class="tile inner-tile" data-pos="1"></div>
+                            <div class="tile inner-tile" data-pos="2"></div>
+                            <div class="tile inner-tile" data-pos="3"></div>
+                            <div class="tile ${endStyleClass} tile-hidden right-col-tile">${endL}</div>
+                        </div>
+                        <div class="row-counter" id="counter-row-${r+1}">
+                            ${counterHTML}
+                        </div>
                     </div>
                     <div class="inline-words" id="inline-words-${r+1}"></div>
                 </div>`;
@@ -237,12 +257,11 @@ const DarnWortler = (function () {
 
     function runIntroAnimation(onComplete) {
         const leftTiles = document.querySelectorAll('.left-col-tile');
-        const rightTiles = Array.from(document.querySelectorAll('.right-col-tile')).reverse(); // Build bottom-up
+        const rightTiles = Array.from(document.querySelectorAll('.right-col-tile')).reverse(); 
 
         let delay = 0;
         const delayStep = 100;
 
-        // Phase 1: Left Drop
         leftTiles.forEach(tile => {
             setTimeout(() => {
                 tile.classList.remove('tile-hidden');
@@ -251,7 +270,6 @@ const DarnWortler = (function () {
             delay += delayStep;
         });
 
-        // Phase 2: Right Build (The Reversal)
         rightTiles.forEach(tile => {
             setTimeout(() => {
                 tile.classList.remove('tile-hidden');
@@ -260,10 +278,7 @@ const DarnWortler = (function () {
             delay += delayStep;
         });
 
-        // Unlock board and start timer when animation finishes
-        setTimeout(() => {
-            onComplete();
-        }, delay + 200); 
+        setTimeout(onComplete, delay + 200); 
     }
 
     function showOnboardingTooltip() {
@@ -292,9 +307,7 @@ const DarnWortler = (function () {
             const innerTiles = row.querySelectorAll('.inner-tile'); 
             const endTile = row.querySelectorAll('.tile')[4]; 
             
-            if (startTile) {
-                startTile.classList.remove('active-typing');
-            }
+            if (startTile) startTile.classList.remove('active-typing');
 
             innerTiles.forEach((tile, i) => {
                 if (!tile.classList.contains('ghost-hint') || state.currentGuess.length > i + 1) {
@@ -322,9 +335,7 @@ const DarnWortler = (function () {
                 const innerTiles = row.querySelectorAll('.inner-tile');
                 const endTile = row.querySelectorAll('.tile')[4];
                 
-                if (startTile) {
-                    startTile.classList.add('active-typing');
-                }
+                if (startTile) startTile.classList.add('active-typing');
 
                 for (let i = 1; i < 4; i++) {
                     if (state.currentGuess[i]) {
@@ -336,7 +347,6 @@ const DarnWortler = (function () {
                 if (state.currentGuess.length === 5) {
                     endTile.textContent = state.currentGuess[4];
                     endTile.classList.add('active-typing');
-                    
                     if (state.currentGuess[4] !== row.dataset.end) {
                         endTile.style.color = "var(--color-error)";
                     }
@@ -345,7 +355,6 @@ const DarnWortler = (function () {
         });
     }
 
-    // --- CASCADING REVEAL ENGINE ---
     const shuffleArray = (array) => {
         const shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -366,10 +375,9 @@ const DarnWortler = (function () {
         
         Object.values(state.targetPools).forEach(pool => {
             if (pool.validWords.length === pool.foundWords.length) return;
-    
             const availableWords = pool.validWords.filter(w => !pool.foundWords.includes(w));
-            
             const coreWords = availableWords.filter(w => state.expandedWordsList.includes(w));
+            
             let hintsGenerated = runHintPhase(pool, coreWords, masterKey);
     
             if (hintsGenerated === 0) {
@@ -389,7 +397,6 @@ const DarnWortler = (function () {
         for (let i = 0; i < 3; i++) {
             const targetLetter = masterKey[i];
             const strIndex = i + 1; 
-    
             const matches = workingPool.filter(w => w[strIndex] === targetLetter);
     
             if (matches.length > 0) {
@@ -417,7 +424,6 @@ const DarnWortler = (function () {
     function processInput(key) {
         if (!state.active) return;
         
-        // Kill onboarding timer/tooltip on first keystroke
         clearTimeout(state.onboardTimer);
         const tooltip = document.getElementById('onboarding-tooltip');
         if (tooltip) tooltip.classList.remove('tooltip-visible');
@@ -441,14 +447,11 @@ const DarnWortler = (function () {
     
         const triggerError = (msg) => {
             spawnFCT(msg, "error");
-            
             if (navigator.vibrate) navigator.vibrate(100);
-
             document.querySelectorAll(".row-wrapper.active-row:not(.dimmed)").forEach(row => {
                 row.classList.add("shake");
                 setTimeout(() => row.classList.remove("shake"), 400);
             });
-            
             state.currentGuess = "";
             updateGuessDisplay();
         };
@@ -467,12 +470,10 @@ const DarnWortler = (function () {
         manageStreak();
         
         pool.foundWords.push(guess);
-        const multiplier = pool.rows.length; 
-        const points = Math.round(1000 / pool.validWords.length) * multiplier;
-        state.scores.base += points;
+        state.scores.base += pool.pointsPerWord;
 
         const isObscure = !state.bonusBarrierSet.has(guess); 
-        spawnFCT(`+${points}`, "base");
+        spawnFCT(`+${pool.pointsPerWord}`, "base");
         
         if (isObscure) {
             state.scores.bonus += 50; 
@@ -485,7 +486,12 @@ const DarnWortler = (function () {
         }
 
         updateScoreUI();
-        document.getElementById(`counter-row-${pool.rows[0]}`).textContent = `${pool.foundWords.length}/${pool.validWords.length}`;
+        
+        // Target dynamic UI component
+        const countDisplay = document.getElementById(`found-count-${pool.rows[0]}`);
+        if (countDisplay) {
+            countDisplay.textContent = pool.foundWords.length;
+        }
 
         renderInlineCard(guess, pool, isObscure);
         triggerCascadeReveal(guess);
@@ -499,8 +505,8 @@ const DarnWortler = (function () {
         hints.forEach(h => h.remove());
     
         const html = `<div class="inline-word-card ${pool.baseColorClass} ${isObscure ? 'obscure-word' : ''}">${guess}${isObscure ? ' ✨' : ''}</div>`;
-        
         const container = document.getElementById(`inline-words-${pool.rows[0]}`);
+        
         container.insertAdjacentHTML('afterbegin', html);
         
         try {
@@ -591,10 +597,7 @@ const DarnWortler = (function () {
         ui["start-screen"].close(); 
         ui["game-container"].classList.remove("hidden");
         
-        // Generate blank board
         generateBoard();
-        
-        // Lock inputs and run the intro sequence
         state.active = false;
         
         runIntroAnimation(() => {
@@ -602,7 +605,6 @@ const DarnWortler = (function () {
             state.active = true;
             updateGuessDisplay();
 
-            // The Onboarding Nudge (Triggers after 4 seconds of inactivity)
             state.onboardTimer = setTimeout(() => {
                 if (state.currentGuess.length === 0 && state.scores.total === 0) {
                     showOnboardingTooltip();
