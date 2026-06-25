@@ -2,43 +2,51 @@
    1. GLOBAL VARIABLES & BASE RESET
    ========================================================================== */
 :root {
-    /* Brand Palette - WCAG AA compliant */
-    --col1: #3a6a7a; 
-    --col2: #b35a2d; 
-    --col3: #4a7050; 
-    --col4: #75586e; 
-    --col5: #963838; 
+    /* STRUCTURAL PALETTE (Game Board & Logo) */
+    --board-col1: #4A6FA5; 
+    --board-col2: #7C61A6; 
+    --board-col3: #3E8E7E; 
+    --board-col4: #A46578; 
+    --board-col5: #2D4263; 
     
+    /* SEMANTIC PALETTE (Difficulty & Data) */
+    --semantic-easy: #16A34A;   
+    --semantic-medium: #D97706; 
+    --semantic-hard: #C53030;   
+    --semantic-bonus: #0F172A;  /* Slate 900 / Onyx */
+
     /* UI Colors */
-    --color-bg-primary: #FAFAFA;
+    --color-bg-primary: #F8FAFC;
     --color-surface: #FFFFFF;
-    --color-text-primary: #2C2C2C;
-    --color-text-secondary: #6B6B6B;
-    --color-border: #E0E0E0;
-    --color-chip-bg: #F0F0F0; 
-    --color-input-focus: #4A90E2;
-    --color-error: #D0021B;
-    --color-hint: #8A8D91; 
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #64748B;
+    --color-border: #CBD5E1;
+    --color-chip-bg: #F1F5F9; 
+    --color-input-focus: #3B82F6;
+    --color-error: #EF4444;
+    --color-hint: #94A3B8; 
     
     /* Shadows & Elevations */
+    --shadow-tactile: 0 4px 0 rgba(0, 0, 0, 0.15);
+    --shadow-tactile-sm: 0 2px 0 rgba(0, 0, 0, 0.1);
     --shadow-low: 0 2px 4px rgba(0, 0, 0, 0.05);
-    --shadow-high: 0 8px 16px rgba(0, 0, 0, 0.1);
-    --shadow-modal: 0 20px 40px rgba(0, 0, 0, 0.2);
-    --shadow-button: 0 4px 0 rgba(0, 0, 0, 0.15); 
+    --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     
     /* Z-Indexes */
     --z-floating-text: 100;
-    --z-tooltip: 50;
+    --z-progress-bar: 200;
+    --z-tutorial-overlay: 150;
     
-    /* Layout & Fluid Tokens */
+    /* Layout Tokens */
     --max-app-width: 500px;
     --space-xs: clamp(2px, 0.5dvh, 4px);
-    --space-sm: clamp(4px, 1.2dvh, 8px);
-    --space-md: clamp(8px, 2dvh, 16px);
-    --space-lg: clamp(12px, 3dvh, 24px);
-    --space-xl: clamp(24px, 5dvh, 48px); 
+    --space-sm: clamp(6px, 1.2dvh, 10px);
+    --space-md: clamp(12px, 2dvh, 16px);
+    --space-lg: clamp(16px, 3dvh, 24px);
+    --space-xl: clamp(24px, 5dvh, 32px); 
     --border-radius-md: 8px;
-    --border-radius-lg: 12px;
+    --border-radius-lg: 16px;
+    --border-radius-pill: 999px;
 }
 
 * { 
@@ -50,7 +58,7 @@
 body { 
     background-color: var(--color-bg-primary); 
     color: var(--color-text-primary); 
-    font-family: 'Play', Arial, sans-serif; 
+    font-family: 'Inter', system-ui, sans-serif; 
     display: flex; 
     flex-direction: column; 
     align-items: center; 
@@ -62,30 +70,26 @@ body {
 
 .hidden { display: none !important; }
 
-/* Touch Action Fix to prevent zoom on rapid tapping */
-button, .key, .tile {
+button, .key, .tile, label {
     touch-action: manipulation;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
 
-
 /* ==========================================================================
-   2. UNIFIED TACTILE UI (The "Physical" Elements)
+   2. TACTILE UI COMPONENTS
    ========================================================================== */
-/* Groups all blocks to share the exact same edge curves and drop shadows */
 .primary-btn, 
 .secondary-btn, 
 .tier-btn, 
 .key, 
 .tile, 
 .logo-tile {
-    box-shadow: var(--shadow-button);
+    box-shadow: var(--shadow-tactile);
     border-radius: var(--border-radius-md);
-    transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease, border-color 0.1s ease;
+    transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.1s ease;
 }
 
-/* Groups the physical compression effect when interactable elements are tapped */
 .primary-btn:active:not(:disabled),
 .secondary-btn:active:not(:disabled),
 .tier-btn:active,
@@ -94,17 +98,36 @@ button, .key, .tile {
     box-shadow: 0 0 0 transparent;
 }
 
-
 /* ==========================================================================
-   3. HEADER & TOP UI
+   3. HEADER & TOP PROGRESS BAR
    ========================================================================== */
+#timer-progress-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background-color: var(--color-border);
+    z-index: var(--z-progress-bar);
+}
+
+#timer-progress-bar {
+    height: 100%;
+    width: 100%;
+    background-color: var(--board-col1);
+    transform-origin: left;
+    transition: width 0.5s linear, background-color 0.3s ease;
+}
+
+#timer-progress-bar.danger { background-color: var(--color-error); }
+
 .app-header { 
     width: 100%; 
     max-width: var(--max-app-width);
     display: grid; 
     grid-template-columns: 1fr auto 1fr; 
     align-items: center; 
-    padding: var(--space-md) 0; 
+    padding: var(--space-lg) 0 var(--space-md) 0; 
     position: relative;
 }
 
@@ -113,30 +136,30 @@ button, .key, .tile {
 .header-right { justify-self: end; text-align: right; }
 
 .app-header h1 { 
-    font-size: clamp(1.1rem, 5vw, 1.8rem); 
-    letter-spacing: -1px; 
+    font-size: clamp(1.2rem, 5vw, 1.8rem); 
+    font-weight: 900;
+    letter-spacing: -0.5px; 
     line-height: 1;
 }
 
 #mode-indicator { 
-    font-size: clamp(0.6rem, 1.5dvh, 0.75rem); 
-    font-weight: bold; 
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
+    font-size: clamp(0.7rem, 1.6dvh, 0.8rem); 
+    font-weight: 700; 
     padding: 2px var(--space-sm); 
-    border-radius: 12px; 
-    margin-top: 4px; 
+    border-radius: var(--border-radius-pill); 
+    margin-top: 6px; 
     display: inline-block;
 }
 
-.mode-daily { background-color: var(--col2); color: #FFF; }
+.mode-daily { background-color: var(--board-col5); color: #FFF; }
 .mode-practice { background-color: var(--color-border); color: var(--color-text-primary); }
+.mode-tutorial { background-color: var(--board-col1); color: #FFF; }
 
 #timer { 
-    font-size: clamp(1.1rem, 5vw, 1.8rem); 
-    font-weight: bold; 
+    font-size: clamp(1.2rem, 5vw, 1.8rem); 
+    font-weight: 900; 
     color: var(--color-text-primary); 
-    letter-spacing: 1px; 
+    letter-spacing: 0.5px; 
     line-height: 1; 
     transition: color 0.3s ease;
     display: block;
@@ -147,40 +170,16 @@ button, .key, .tile {
     animation: pulse-timer 1s infinite alternate; 
 }
 
-#timer-progress-container {
-    width: 100%;
-    height: 4px;
-    background-color: var(--color-border);
-    border-radius: 2px;
-    margin-top: 4px;
-    overflow: hidden;
-}
-
-#timer-progress-bar {
-    height: 100%;
-    width: 100%;
-    background-color: var(--col3);
-    transform-origin: left;
-    transition: width 0.5s linear, background-color 0.3s ease;
-}
-
-#timer-progress-bar.danger { background-color: var(--color-error); }
-
 #score-wrapper output { display: block; }
 
 #score-total-display { 
-    font-size: clamp(0.9rem, 4vw, 1.2rem); 
-    font-weight: bold; 
-    color: var(--col3); 
-    line-height: 1.1; 
+    font-size: clamp(1rem, 4vw, 1.3rem); 
+    font-weight: 900; 
+    color: var(--board-col1); 
+    line-height: 1; 
 }
 
-#score-breakdown-display { 
-    font-size: clamp(0.6rem, 2vw, 0.75rem); 
-    font-weight: bold; 
-    color: var(--color-text-secondary); 
-}
-
+#score-breakdown-display { display: none; }
 
 /* ==========================================================================
    4. GAME BOARD & ROW LAYOUT
@@ -192,6 +191,7 @@ button, .key, .tile {
     width: 100%; 
     max-width: var(--max-app-width);
     flex-grow: 1;
+    position: relative;
 }
 
 #board-area, #keyboard-area { width: 100%; }
@@ -211,17 +211,17 @@ button, .key, .tile {
     display: flex; 
     flex-direction: column; 
     gap: 0; 
-    transition: opacity 0.2s ease, filter 0.2s ease; 
+    transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease; 
     width: 100%; 
 }
 
 .dimmed { opacity: 0.3; }
-.dead-row { opacity: 0.2; filter: grayscale(100%); pointer-events: none; }
+.dead-row { opacity: 0.25; filter: grayscale(100%); pointer-events: none; }
 
 .row-main { 
     display: grid;
     grid-template-columns: 5fr 1fr; 
-    gap: var(--space-sm);
+    gap: var(--space-md);
     align-items: center;
 }
 
@@ -231,62 +231,62 @@ button, .key, .tile {
     gap: var(--space-sm); 
 }
 
-/* Base tile rules (shadows & curves handled in Section 2) */
 .tile { 
     width: 100%; 
     aspect-ratio: 1; 
-    border: 2px solid var(--color-border); 
     display: flex; 
     justify-content: center; 
     align-items: center; 
     font-size: clamp(1.2rem, 6vmin, 1.8rem);
-    font-weight: bold; 
+    font-weight: 900; 
     text-transform: uppercase; 
-    background-color: transparent; 
+    background-color: var(--color-surface); 
+    border: 2px solid var(--color-border); 
     overflow: hidden;
 }
 
-/* Updated Row Counter with Bounty Badge styling */
 .row-counter { 
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     justify-content: center;
-    gap: 2px;
+    gap: 4px;
     width: 100%; 
 }
 
 .found-count {
-    font-size: clamp(1rem, 4vw, 1.3rem); 
+    font-size: clamp(1.1rem, 4.5vw, 1.4rem); 
     font-weight: 900; 
     color: var(--color-text-primary);
     line-height: 1;
+    min-height: 1.4rem; /* Prevents layout shifting when empty */
 }
 
 .point-badge {
-    font-size: clamp(0.65rem, 2vw, 0.75rem);
-    font-weight: bold;
-    text-transform: uppercase;
+    font-size: clamp(0.7rem, 2.2vw, 0.8rem);
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: var(--border-radius-pill);
     background-color: var(--color-chip-bg);
-    padding: 2px 6px;
-    border-radius: 12px;
-    border: 1px solid var(--color-border);
-    letter-spacing: 0.5px;
+    border: none;
     line-height: 1;
-    white-space: nowrap; /* Prevents text from breaking into two lines */
+    white-space: nowrap;
 }
 
-.dead-row .point-badge {
-    opacity: 0; 
-}
+.point-badge-low { color: var(--semantic-easy); }
+.point-badge-medium { color: var(--semantic-medium); }
+.point-badge-high { color: var(--semantic-hard); }
+.point-badge-bonus { color: #FFF; background-color: var(--semantic-bonus); }
+
+.dead-row .point-badge { opacity: 0; }
 
 .inline-words { 
     display: flex; 
     flex-wrap: nowrap; 
     overflow-x: auto; 
     gap: var(--space-sm); 
-    padding: 2px; 
-    min-height: clamp(24px, 3.5dvh, 28px); 
+    padding: 4px 2px; 
+    min-height: clamp(28px, 4dvh, 32px); 
     scrollbar-width: none; 
     -webkit-overflow-scrolling: touch; 
     scroll-snap-type: x mandatory;
@@ -296,10 +296,10 @@ button, .key, .tile {
 
 .inline-word-card { 
     flex-shrink: 0; 
-    font-size: clamp(0.65rem, 1.8dvh, 0.75rem); 
-    font-weight: bold; 
+    font-size: clamp(0.7rem, 2dvh, 0.8rem); 
+    font-weight: 700; 
     text-transform: uppercase; 
-    padding: 2px 6px; 
+    padding: 2px 8px; 
     border-radius: 4px; 
     background-color: transparent;
     border: 1px solid currentColor; 
@@ -309,7 +309,6 @@ button, .key, .tile {
     scroll-snap-align: start; 
 }
 
-
 /* ==========================================================================
    5. VIRTUAL KEYBOARD
    ========================================================================== */
@@ -318,7 +317,7 @@ button, .key, .tile {
 #virtual-keyboard {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     margin-bottom: var(--space-md);
 }
 
@@ -328,23 +327,22 @@ button, .key, .tile {
     gap: 6px; 
 }
 
-/* Base key rules (shadows, curves, active compress handled in Section 2) */
 .key {
     flex: 1;
     min-height: 48px; 
-    height: clamp(48px, 7dvh, 60px); 
+    height: clamp(52px, 7dvh, 60px); 
     border: none;
     background-color: var(--color-border); 
     color: var(--color-text-primary);
     font-size: clamp(1.1rem, 4vw, 1.3rem);
-    font-weight: bold;
+    font-weight: 700;
+    text-transform: uppercase;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-/* Overrides Section 2 active logic for specific color pop */
 .key:active { 
     background-color: var(--color-text-secondary); 
     color: #fff; 
@@ -353,9 +351,8 @@ button, .key, .tile {
 .action-key { 
     flex: 1.5; 
     font-size: clamp(0.85rem, 3vw, 1rem); 
-    background-color: #CFCFCF; 
+    background-color: #E2E8F0; 
 }
-
 
 /* ==========================================================================
    6. NATIVE DIALOG MODALS & START SCREEN
@@ -375,19 +372,18 @@ dialog {
 }
 
 dialog::backdrop {
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(3px);
+    background-color: rgba(15, 23, 42, 0.7); 
+    backdrop-filter: blur(4px);
 }
 
 .modal-content {
-    padding: var(--space-lg);
+    padding: var(--space-xl) var(--space-lg);
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
 }
 
-/* Brand Logo Layout (Base physical properties in Section 2) */
 .logo-heading {
     display: flex;
     align-items: center;
@@ -404,88 +400,75 @@ dialog::backdrop {
     width: 1.2em;
     height: 1.2em;
     color: #FFF;
-    border: 2px solid rgba(0,0,0,0.1);
+    border: none;
 }
 
 .logo-text {
-    font-size: 0.5em; 
+    font-size: 0.45em; 
     color: var(--color-text-secondary);
-    font-weight: bold;
+    font-weight: 900;
     padding: 0 4px;
 }
 
 .tagline {
     text-align: center;
     color: var(--color-text-secondary);
-    font-size: clamp(0.75rem, 2dvh, 0.9rem);
+    font-weight: 500;
+    font-size: clamp(0.85rem, 2dvh, 0.95rem);
     margin: 0 auto var(--space-xl) auto; 
     max-width: 90%;
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
-.tagline strong {
-    display: block;
-    color: var(--color-text-primary);
-    margin-top: 4px;
-    font-size: 1.1em;
-}
-
-/* Instructions Content Box */
 .instructions-card {
-    background-color: var(--color-surface); /* Changed to pure white */
-    border: 2px solid var(--color-border);
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--border-radius-lg);
-    padding: var(--space-md) var(--space-lg);
+    padding: var(--space-lg);
     width: 100%;
-    margin-bottom: var(--space-lg);
+    margin-bottom: var(--space-xl);
+    box-shadow: var(--shadow-low);
 }
 
 .step-group-title { 
     font-weight: 900; 
-    color: var(--col1); 
+    color: var(--board-col1); 
     margin: 0 0 var(--space-md) 0; 
-    text-transform: uppercase; 
-    letter-spacing: 1px; 
-    font-size: clamp(0.85rem, 2.5dvh, 0.95rem);
-    border-bottom: 2px solid rgba(0,0,0,0.05); 
+    font-size: clamp(0.95rem, 2.6dvh, 1.1rem);
+    border-bottom: 2px solid var(--color-chip-bg); 
     padding-bottom: 8px;
 }
 
-.step-group-title.header-mt { margin-top: var(--space-md); }
+.step-group-title.header-mt { margin-top: var(--space-lg); }
 
 .step { 
     display: flex; 
     gap: var(--space-sm); 
     margin-bottom: var(--space-sm); 
     align-items: flex-start; 
-    font-size: clamp(0.85rem, 2.2dvh, 0.95rem); 
-    line-height: 1.4;
+    font-size: clamp(0.9rem, 2.2dvh, 1rem); 
+    line-height: 1.5;
 }
 
-/* NEW: Creates a strict, uniform left column for ALL icons and badges */
 .step > :first-child {
-    flex: 0 0 70px; /* Forces exactly 70px of width */
+    flex: 0 0 60px; 
     display: flex;
-    justify-content: center; /* Centers the emoji or badge inside the column */
+    justify-content: center; 
     margin-top: 2px;
 }
 
-/* Cleaned up icon class (margin and shrink handled by the rule above) */
-.step-icon { 
-    font-size: clamp(1.2rem, 3.5dvh, 1.4rem); 
-}
+.step-icon { font-size: clamp(1.2rem, 3.5dvh, 1.4rem); }
 
 #start-action-area { width: 100%; text-align: center; }
 
 .manual-link {
     display: inline-block; 
     margin-top: var(--space-lg); 
-    font-size: clamp(0.85rem, 2.5dvh, 0.95rem); 
-    color: var(--col1); 
+    font-size: clamp(0.9rem, 2.5dvh, 1rem); 
+    color: var(--board-col1); 
     text-decoration: underline; 
-    font-weight: bold;
+    font-weight: 700;
 }
-
 
 /* ==========================================================================
    7. GAME OVER SCREEN
@@ -493,64 +476,74 @@ dialog::backdrop {
 #game-over-modal { text-align: center; }
 
 #final-score { 
-    font-size: clamp(1.5rem, 5dvh, 2rem); 
-    color: var(--col3); 
-    margin: var(--space-md) 0 var(--space-sm) 0; 
-    font-weight: bold;
+    font-size: clamp(2rem, 6dvh, 2.5rem); 
+    color: var(--board-col1); 
+    margin: var(--space-md) 0 var(--space-xs) 0; 
+    font-weight: 900;
+    line-height: 1;
 }
 
 #final-score-breakdown { 
     color: var(--color-text-secondary); 
-    font-size: clamp(0.9rem, 2.5dvh, 1rem); 
+    font-size: clamp(0.95rem, 2.5dvh, 1.05rem); 
+    font-weight: 500;
+    margin-bottom: var(--space-xl);
 }
 
 .game-over-prompt {
-    font-size: clamp(1rem, 3dvh, 1.2rem);
+    font-size: clamp(1.05rem, 3dvh, 1.2rem);
     color: var(--color-text-primary);
-    margin-top: var(--space-xl); 
-    margin-bottom: var(--space-md);
     border-bottom: none;
+    margin-bottom: var(--space-md);
 }
 
 #practice-tier-group { margin-bottom: var(--space-xl); }
+
+#all-solutions-area {
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 2px solid var(--color-chip-bg);
+}
+
+#all-solutions-area h4 { margin-bottom: 4px; font-size: 1rem; }
+
+.legend { 
+    font-size: 0.8rem; 
+    color: var(--color-text-secondary); 
+    font-weight: 500;
+    margin-bottom: var(--space-md); 
+}
 
 #all-solutions-list { 
     display: flex; 
     flex-wrap: wrap; 
     gap: var(--space-sm); 
     justify-content: center; 
-    margin-top: var(--space-md);
 }
 
-
 /* ==========================================================================
-   8. BUTTON STANDARDIZATION
+   8. BUTTONS & SEGMENTED CONTROLS
    ========================================================================== */
-/* Base button layout (Shadows/Curves handled in Section 2) */
 .primary-btn, .secondary-btn, .tier-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px;
+    min-height: 52px;
     font-family: inherit;
-    font-weight: bold;
-    font-size: clamp(0.9rem, 2.5dvh, 1.1rem);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-weight: 700;
+    font-size: clamp(1rem, 2.6dvh, 1.15rem);
     cursor: pointer; 
     border: none;
+    width: 100%;
 }
 
 .primary-btn { 
-    padding: clamp(0.8rem, 2.5dvh, 1rem) clamp(1rem, 4vw, 2rem); 
-    background-color: var(--col3); 
+    background-color: var(--board-col1); 
     color: #FFF; 
 }
 
 .primary-btn:hover:not(:disabled) { 
-    background-color: #3b5c40; 
-    transform: translateY(-2px); 
-    box-shadow: 0 6px 0 rgba(0,0,0,0.15); 
+    background-color: #3b5982; 
 }
 
 .primary-btn:disabled { 
@@ -562,18 +555,13 @@ dialog::backdrop {
 }
 
 .secondary-btn {
-    padding: clamp(0.8rem, 2.5dvh, 1rem) clamp(1rem, 4vw, 2rem); 
     background-color: var(--color-surface); 
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
     border: 2px solid var(--color-border); 
-    width: 100%;
 }
 
 .secondary-btn:hover:not(:disabled) { 
     background-color: var(--color-chip-bg); 
-    color: var(--color-text-primary); 
-    transform: translateY(-2px); 
-    box-shadow: 0 6px 0 rgba(0,0,0,0.15);
 }
 
 .practice-tier-container {
@@ -581,92 +569,124 @@ dialog::backdrop {
     justify-content: center;
     gap: var(--space-md);
     width: 100%;
-    max-width: var(--max-app-width);
-    margin: 0 auto;
 }
 
-.tier-btn {
+.tier-btn { flex: 1; color: #FFF; }
+
+.easy-btn { background-color: var(--semantic-easy); }
+.medium-btn { background-color: var(--semantic-medium); } 
+.hard-btn { background-color: var(--semantic-hard); }
+
+#start-daily-btn { margin-bottom: var(--space-lg); }
+
+.segmented-control {
+    display: flex;
+    position: relative;
+    background-color: var(--color-chip-bg);
+    border-radius: var(--border-radius-pill);
+    padding: 4px;
+    margin-bottom: var(--space-md);
+    width: 100%;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.segmented-control input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.segmented-control label {
     flex: 1;
-    padding: var(--space-sm);
-    color: #FFF;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: clamp(0.9rem, 2.5dvh, 1rem);
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 2;
+    color: var(--color-text-secondary);
+    transition: color 0.3s ease;
 }
 
-.easy-btn { background-color: var(--col3); }
-.medium-btn { background-color: var(--col2); } 
-.hard-btn { background-color: var(--col5); }
-
-.tier-btn:hover { 
-    filter: brightness(1.1); 
-    transform: translateY(-2px); 
-    box-shadow: 0 6px 0 rgba(0,0,0,0.15); 
+.segmented-control input[type="radio"]:checked + label {
+    color: var(--board-col1);
 }
 
-#start-daily-btn {
-    width: auto;
-    min-width: 280px; 
-    margin: 0 auto var(--space-md) auto;
+.segmented-slider {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: calc(50% - 4px);
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-pill);
+    box-shadow: var(--shadow-low);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 1;
 }
 
+.segmented-control input[type="radio"]:nth-of-type(2):checked ~ .segmented-slider {
+    transform: translateX(100%);
+}
 
 /* ==========================================================================
    9. DYNAMIC COLOR STATES & UTILITY CLASSES
    ========================================================================== */
-.bg-col1 { background-color: var(--col1); color: #FFF; border-color: var(--col1); } 
-.bg-col2 { background-color: var(--col2); color: #FFF; border-color: var(--col2); } 
-.bg-col3 { background-color: var(--col3); color: #FFF; border-color: var(--col3); } 
-.bg-col4 { background-color: var(--col4); color: #FFF; border-color: var(--col4); } 
-.bg-col5 { background-color: var(--col5); color: #FFF; border-color: var(--col5); } 
-.bg-gray { background-color: var(--color-border); color: var(--color-text-secondary); border-color: var(--color-border); }
-
-.text-col1 { color: var(--col1); } 
-.text-col2 { color: var(--col2); } 
-.text-col3 { color: var(--col3); } 
-.text-col4 { color: var(--col4); } 
-.text-col5 { color: var(--col5); }
+.bg-col1 { background-color: var(--board-col1); color: #FFF; border: none; } 
+.bg-col2 { background-color: var(--board-col2); color: #FFF; border: none; } 
+.bg-col3 { background-color: var(--board-col3); color: #FFF; border: none; } 
+.bg-col4 { background-color: var(--board-col4); color: #FFF; border: none; } 
+.bg-col5 { background-color: var(--board-col5); color: #FFF; border: none; } 
+.bg-gray { background-color: var(--color-border); color: var(--color-text-secondary); border: none; }
 
 .word-card { 
     padding: var(--space-sm) var(--space-md); 
     border-radius: var(--border-radius-md); 
-    font-weight: bold; 
-    font-size: clamp(0.85rem, 2.5dvh, 1rem); 
+    font-weight: 700; 
+    font-size: clamp(0.9rem, 2.5dvh, 1.05rem); 
     text-transform: uppercase; 
     background-color: var(--color-chip-bg); 
     color: var(--color-text-primary);
     border: none;
 }
 
+/* Onyx Black Diamond Styling */
 .obscure-word { 
-    background-color: rgba(212, 175, 55, 0.15); 
-    color: #B8860B !important; 
-    font-style: italic; 
+    background-color: var(--semantic-bonus); 
+    color: #FFF !important; 
+    font-style: normal; 
+}
+
+.obscure-row .tile.left-col-tile,
+.obscure-row .tile.right-col-tile {
+    background-color: var(--semantic-bonus);
+    color: #FFF;
+    border: none;
 }
 
 .strikethrough { text-decoration: line-through; opacity: 0.5; }
 
 .tile.ghost-hint {
     color: var(--color-hint); 
-    font-weight: normal; 
+    font-weight: 500; 
     font-style: italic; 
     animation: fade-in 0.4s ease-in-out forwards; 
 }
 
-/* Direct Board Typing States */
 .tile.active-typing {
     border-color: var(--color-input-focus);
     background-color: var(--color-surface);
     color: var(--color-text-primary);
     font-style: normal;
-    font-weight: bold;
+    font-weight: 900;
     transform: scale(1.05);
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), var(--shadow-tactile);
 }
 
 .streak-active .tile.active-typing {
-    border-color: var(--col2);
-    box-shadow: 0 0 0 3px rgba(179, 90, 45, 0.2);
+    border-color: var(--semantic-medium);
+    box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2), var(--shadow-tactile);
 }
 
-/* Intro Animation States */
 .tile-hidden {
     opacity: 0;
     transform: scale(0.5);
@@ -676,9 +696,70 @@ dialog::backdrop {
     animation: tile-pop-anim 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
+/* ==========================================================================
+   10. TUTORIAL UI & SPOTLIGHT LOGIC
+   ========================================================================== */
+#tutorial-panel {
+    position: absolute;
+    bottom: max(90px, 15dvh);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 450px;
+    z-index: var(--z-tutorial-overlay);
+    pointer-events: none; 
+}
+
+.tutorial-content {
+    background-color: var(--board-col1);
+    color: #FFF;
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--border-radius-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    box-shadow: var(--shadow-modal);
+    font-weight: 700;
+    font-size: clamp(0.95rem, 2.5dvh, 1.1rem);
+    line-height: 1.4;
+    animation: slide-up-toast 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.tutorial-content .step-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin: 0;
+}
+
+@keyframes slide-up-toast {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+body.tutorial-active .row-wrapper:not(.spotlight) {
+    opacity: 0.15;
+    filter: grayscale(80%);
+    pointer-events: none;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.row-wrapper.spotlight {
+    position: relative;
+    z-index: 5;
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+    border-radius: var(--border-radius-md);
+    background-color: var(--color-surface);
+    animation: pulse-glow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(74, 111, 165, 0.3), var(--shadow-low); }
+    50% { box-shadow: 0 0 0 8px rgba(74, 111, 165, 0.6), var(--shadow-modal); }
+}
 
 /* ==========================================================================
-   10. ANIMATIONS & TOOLTIPS
+   11. ANIMATIONS & FLOATING TEXT
    ========================================================================== */
 .shake { animation: shake-animation 0.4s cubic-bezier(.36,.07,.19,.97) both; }
 
@@ -699,21 +780,20 @@ dialog::backdrop {
     100% { opacity: 1; transform: scale(1); }
 }
 
-/* Floating Center Text (Scores/Streaks) */
 .fct {
     position: absolute;
-    font-weight: bold;
+    font-weight: 900;
     z-index: var(--z-floating-text);
     pointer-events: none;
     animation: floatUp 1s ease-out forwards;
     white-space: nowrap;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    text-shadow: 0 2px 4px rgba(255,255,255,0.9);
 }
 
-.fct-error { color: var(--color-error); font-size: clamp(0.9rem, 2.5dvh, 1rem); }
-.fct-base { color: var(--col3); font-size: clamp(1rem, 3dvh, 1.2rem); }
-.fct-obscure { color: #B8860B; font-size: clamp(1rem, 3dvh, 1.2rem); }
-.fct-streak { color: var(--col2); font-size: clamp(1rem, 3dvh, 1.2rem); }
+.fct-error { color: var(--color-error); font-size: clamp(1rem, 2.5dvh, 1.15rem); }
+.fct-base { color: var(--semantic-easy); font-size: clamp(1.2rem, 3dvh, 1.4rem); }
+.fct-obscure { color: var(--semantic-bonus); font-size: clamp(1.2rem, 3dvh, 1.4rem); }
+.fct-streak { color: var(--semantic-medium); font-size: clamp(1.2rem, 3dvh, 1.4rem); }
 
 @keyframes floatUp {
     0% { opacity: 1; transform: translateY(0) scale(1); }
@@ -722,53 +802,13 @@ dialog::backdrop {
 
 @keyframes pulse-timer {
     from { opacity: 1; transform: scale(1); }
-    to { opacity: 0.8; transform: scale(1.05); }
+    to { opacity: 0.7; transform: scale(1.05); }
 }
-
-/* Contextual Onboarding Tooltip */
-#onboarding-tooltip {
-    position: absolute;
-    top: -40px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--col1);
-    color: #FFF;
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--border-radius-md);
-    font-size: clamp(0.8rem, 2.5dvh, 0.95rem);
-    font-weight: bold;
-    white-space: nowrap;
-    box-shadow: var(--shadow-high);
-    z-index: var(--z-tooltip);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-    animation: pulse-tooltip 2s infinite ease-in-out;
-}
-
-#onboarding-tooltip::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px 6px 0;
-    border-style: solid;
-    border-color: var(--col1) transparent transparent transparent;
-}
-
-.tooltip-visible { opacity: 1 !important; }
-
-@keyframes pulse-tooltip {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(-4px); }
-}
-
 
 /* ==========================================================================
-   11. PLAYER MANUAL (manual.html overrides)
+   12. PLAYER MANUAL 
    ========================================================================== */
-.manual-body { padding-top: var(--space-lg); overflow-y: auto; display: block; }
+.manual-body { padding-top: var(--space-xl); overflow-y: auto; display: block; }
 .manual-container {
     max-width: 600px;
     width: 100%;
@@ -778,23 +818,23 @@ dialog::backdrop {
 }
 .manual-container code {
     font-family: Consolas, Monaco, monospace;
-    font-size: 0.8em;
-    color: var(--col5);
+    font-size: 0.85em;
+    color: var(--semantic-hard);
     background-color: var(--color-border);
     padding: 2px 6px;
     border-radius: 4px;
 }
-.back-link { display: inline-block; margin-bottom: var(--space-md); text-decoration: none; font-weight: bold; color: var(--color-text-secondary); }
-.back-link:hover { color: var(--col3); }
-.manual-container h1 { color: var(--col3); margin-bottom: var(--space-md); text-align: center; }
-.manual-subtitle { font-size: 0.6em; color: var(--color-text-secondary); }
-.manual-container h2 { color: var(--col1); border-bottom: 2px solid var(--color-border); padding-bottom: var(--space-xs); margin: var(--space-lg) 0 var(--space-sm) 0; }
-.manual-container h3 { color: var(--col2); margin: var(--space-md) 0 var(--space-xs) 0; }
-.manual-container p, .manual-container li { font-size: clamp(0.95rem, 2.5dvh, 1.05rem); line-height: 1.6; margin-bottom: var(--space-sm); }
-.manual-container ul { padding-left: var(--space-lg); margin-bottom: var(--space-md); }
-.toc { background-color: var(--color-surface); padding: var(--space-md); border-radius: var(--border-radius-md); margin-bottom: var(--space-lg); border: 1px solid var(--color-border); box-shadow: var(--shadow-low); }
-.toc h2 { margin-top: 0; border: none; padding: 0; color: var(--col3); font-size: 1.2rem; }
+.back-link { display: inline-block; margin-bottom: var(--space-lg); text-decoration: none; font-weight: 700; color: var(--color-text-secondary); }
+.back-link:hover { color: var(--board-col1); }
+.manual-container h1 { color: var(--board-col1); margin-bottom: var(--space-md); text-align: center; font-weight: 900; }
+.manual-subtitle { font-size: 0.8em; color: var(--color-text-secondary); font-weight: 500; }
+.manual-container h2 { color: var(--board-col5); border-bottom: 2px solid var(--color-border); padding-bottom: var(--space-xs); margin: var(--space-xl) 0 var(--space-sm) 0; }
+.manual-container h3 { color: var(--board-col3); margin: var(--space-lg) 0 var(--space-xs) 0; }
+.manual-container p, .manual-container li { font-size: clamp(1rem, 2.5dvh, 1.1rem); line-height: 1.6; margin-bottom: var(--space-sm); color: var(--color-text-secondary); }
+.manual-container ul { padding-left: var(--space-lg); margin-bottom: var(--space-lg); }
+.toc { background-color: var(--color-surface); padding: var(--space-lg); border-radius: var(--border-radius-lg); margin-bottom: var(--space-xl); box-shadow: var(--shadow-low); }
+.toc h2 { margin-top: 0; border: none; padding: 0; color: var(--board-col1); font-size: 1.2rem; }
 .toc ul { list-style: none; padding-left: 0; margin-bottom: 0; }
-.toc a { color: var(--col1); text-decoration: none; font-weight: bold; }
+.toc a { color: var(--board-col1); text-decoration: none; font-weight: 700; }
 .toc a:hover { text-decoration: underline; }
-blockquote { background-color: var(--color-surface); border-left: 4px solid var(--col2); padding: var(--space-sm) var(--space-md); margin: var(--space-md) 0; font-style: italic; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; box-shadow: var(--shadow-low); }
+blockquote { background-color: var(--color-surface); border-left: 4px solid var(--board-col2); padding: var(--space-md); margin: var(--space-md) 0; font-style: italic; font-weight: 500; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; box-shadow: var(--shadow-low); }

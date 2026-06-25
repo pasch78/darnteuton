@@ -1,6 +1,5 @@
 'use strict';
 
-// Global error handler updated to use CSS variables
 window.onerror = function (msg, url, line) {
     const btn = document.getElementById("start-loading-btn");
     if (btn) {
@@ -14,7 +13,7 @@ const DarnWortler = (function () {
         fullDictURL: "./full.txt",
         expandedDictURL: "./expanded.txt",
         manifestURL: "./tier_manifest.json",
-        gameDuration: 300, // 5 minutes
+        gameDuration: 300,
         keyboardLayout: [
             ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
             ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
@@ -31,14 +30,15 @@ const DarnWortler = (function () {
         bonusBarrierSet: new Set(),
         targetPools: {},
         scores: { base: 0, bonus: 0, total: 0 },
-        timer: { interval: null, endTime: 0, duration: config.gameDuration },
+        timer: { interval: null, startTime: 0, endTime: 0, duration: config.gameDuration },
         active: false, 
-        onboardTimer: null,
         daily: {
             isMode: false,
             currentID: Math.floor(new Date().setUTCHours(0,0,0,0) / 86400000)
         },
-        streak: { count: 0, isActive: false, lastWordTime: 0 }
+        streak: { count: 0, isActive: false, lastWordTime: 0 },
+        isZenMode: false,
+        tutorial: { isActive: false, step: 0 }
     };
 
     const ui = {};
@@ -55,9 +55,10 @@ const DarnWortler = (function () {
             "start-screen", "game-container", "game-board",
             "virtual-keyboard", "end-early-btn", "timer", "timer-progress-bar", 
             "score-total-display", "score-breakdown-display", "mode-indicator", 
-            "game-over-modal", "final-score", "final-score-breakdown", 
+            "game-over-modal", "game-over-heading", "final-score", "final-score-breakdown", 
             "all-solutions-list", "practice-tier-group", "start-loading-btn", 
-            "start-buttons-group", "start-daily-btn", "start-practice-tier-group"
+            "start-buttons-group", "start-daily-btn", "start-practice-tier-group",
+            "tutorial-panel", "tutorial-message", "start-tutorial-btn"
         ];
         
         ids.forEach(id => {
@@ -92,15 +93,23 @@ const DarnWortler = (function () {
     
             state.expandedWordsList = parseWords(textExpanded);
             const fullArray = parseWords(textFull);
-    
+        
             state.validWordsSet = new Set([...state.expandedWordsList, ...fullArray]);
             state.bonusBarrierSet = new Set(state.expandedWordsList);
             state.manifest = manifestJSON;
-    
-            setupGameMode();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const needsTutorial = !localStorage.getItem("hasSeenTutorial") || urlParams.get('tutorial') === 'true';
+
             ui["mode-indicator"].classList.remove("hidden");
             ui["start-loading-btn"].classList.add("hidden");
             ui["start-buttons-group"].classList.remove("hidden");
+
+            if (needsTutorial) {
+                initTutorialMode();
+            } else {
+                setupGameMode();
+            }
             
         } catch (error) {
             console.error("Dictionary Load Failed:", error);
@@ -136,21 +145,84 @@ const DarnWortler = (function () {
     
     function initDailyMode() {
         state.daily.isMode = true;
+        state.isZenMode = false; 
         ui["mode-indicator"].textContent = "★ Daily";
         ui["mode-indicator"].className = "mode-daily";
         state.targetWord = getDailySeedWord();
         startGame();
     }
     
-    function initPracticeMode(tier) {
+    function initPracticeMode(tier, sourceMenu = 'start') {
         state.daily.isMode = false;
-        ui["mode-indicator"].textContent = `Practice: ${tier.charAt(0).toUpperCase() + tier.slice(1)}`;
+        
+        const modeRadios = document.getElementsByName(sourceMenu === 'start' ? 'practiceModeStart' : 'practiceModeEnd');
+        for (let radio of modeRadios) {
+            if (radio.checked) {
+                state.isZenMode = (radio.value === 'zen');
+                break;
+            }
+        }
+
+        const modeText = state.isZenMode ? "Zen" : "Timed";
+        ui["mode-indicator"].textContent = `${modeText}: ${tier.charAt(0).toUpperCase() + tier.slice(1)}`;
         ui["mode-indicator"].className = "mode-practice";
         
         const tierPool = state.manifest[tier];
         const masterIndex = tierPool[Math.floor(Math.random() * tierPool.length)];
         state.targetWord = state.expandedWordsList[masterIndex];
         startGame();
+    }
+
+    function initTutorialMode() {
+        state.daily.isMode = false;
+        state.isZenMode = true; 
+        state.tutorial.isActive = true;
+        state.tutorial.step = 1;
+        
+        ui["mode-indicator"].textContent = "Tutorial";
+        ui["mode-indicator"].className = "mode-tutorial";
+        
+        state.targetWord = "SHARE"; 
+        
+        startGame();
+    }
+
+    function advanceTutorial() {
+        const panel = ui["tutorial-panel"];
+        const msg = ui["tutorial-message"];
+        
+        if (state.tutorial.step === 1) {
+            panel.classList.remove("hidden");
+            document.body.classList.add("tutorial-active");
+            
+            const firstRow = document.querySelector('.row-wrapper[data-start="S"][data-end="E"]');
+            if (firstRow) firstRow.classList.add("spotlight");
+            
+            msg.textContent = "Welcome! The outer letters are locked. Type S-P-I-C-E to find a valid word.";
+            
+        } else if (state.tutorial.step === 2) {
+            const firstRow = document.querySelector('.row-wrapper[data-start="S"][data-end="E"]');
+            if (firstRow) firstRow.classList.remove("spotlight");
+            
+            const fifthRow = document.querySelector('.row-wrapper[data-start="E"][data-end="S"]');
+            if (fifthRow) fifthRow.classList.add("spotlight");
+            
+            msg.textContent = "Nice! Correct guesses reveal hints (faded letters) in other rows. Type E-P-I-C-S using the new hints.";
+            
+        } else if (state.tutorial.step === 3) {
+            document.body.classList.remove("tutorial-active");
+            const fifthRow = document.querySelector('.row-wrapper[data-start="E"][data-end="S"]');
+            if (fifthRow) fifthRow.classList.remove("spotlight");
+            
+            msg.textContent = "Great job! Row 1 now has more hints. Try guessing SPINE, SPIRE, or something new like SLATE. Finish the puzzle, or click 'End Game' below.";
+            
+            state.tutorial.isActive = false; 
+            localStorage.setItem("hasSeenTutorial", "true");
+            
+            setTimeout(() => {
+                panel.classList.add("hidden");
+            }, 12000); 
+        }
     }
 
     function buildKeyboard() {
@@ -182,30 +254,47 @@ const DarnWortler = (function () {
 
         const cachedValidWords = Array.from(state.validWordsSet);
 
-        // Calculate targets and dynamic points per row upfront
         for (let r = 0; r < 5; r++) {
             const startL = letters[r], endL = reverseLetters[r];
             const key = `${startL}${endL}`; 
             
             if (!state.targetPools[key]) {
                 const validWords = cachedValidWords.filter(w => w.startsWith(startL) && w.endsWith(endL));
+                const commonWords = validWords.filter(w => state.bonusBarrierSet.has(w));
+                
                 state.targetPools[key] = {
                     validWords: validWords,
+                    commonWords: commonWords,
                     foundWords: [], 
-                    hintedWords: {}, 
+                    foundCommonCount: 0,
                     rows: [r + 1], 
-                    baseColorClass: `text-col${r + 1}`,
-                    pointsPerWord: 0 
+                    baseColorClass: "", 
+                    pointsPerWord: 0,
+                    isObscureRow: false
                 };
             } else { 
                 state.targetPools[key].rows.push(r + 1); 
             }
         }
 
-        // Second pass: Finalize point calculations based on total occurrences (multipliers)
         Object.values(state.targetPools).forEach(pool => {
-            if (pool.validWords.length > 0) {
-                pool.pointsPerWord = Math.round(1000 / pool.validWords.length) * pool.rows.length;
+            if (pool.validWords.length === 0) return; 
+
+            let basePoints = 0;
+
+            if (pool.commonWords.length === 0) {
+                pool.isObscureRow = true;
+                const obscureWordsLength = pool.validWords.length;
+                basePoints = 300 + Math.round(250 / obscureWordsLength);
+                pool.pointsPerWord = basePoints * pool.rows.length;
+                pool.baseColorClass = "point-badge-bonus"; 
+            } else {
+                basePoints = 20 + Math.round(250 / pool.commonWords.length);
+                pool.pointsPerWord = basePoints * pool.rows.length;
+                
+                if (basePoints <= 35) pool.baseColorClass = "point-badge-low"; 
+                else if (basePoints >= 60) pool.baseColorClass = "point-badge-high"; 
+                else pool.baseColorClass = "point-badge-medium"; 
             }
         });
 
@@ -217,14 +306,16 @@ const DarnWortler = (function () {
             const isDuplicate = pool.rows[0] !== (r + 1); 
             const isDead = pool.validWords.length === 0;
             
-            // Independent color tracking for columns
+            let rowWrapperClass = "active-row";
+            if (isDead) rowWrapperClass = "dead-row";
+            else if (pool.isObscureRow) rowWrapperClass += " obscure-row";
+            
             const startStyleClass = (isDuplicate || isDead) ? "bg-gray" : `bg-col${r + 1}`;
             const endStyleClass = (isDuplicate || isDead) ? "bg-gray" : `bg-col${5 - r}`;
             
-            // Build the updated Bounty Badge UI 
             let counterHTML = "";
             if (isDead) {
-                counterHTML = `<span class="found-count">-</span>`;
+                counterHTML = `<span class="found-count"></span>`;
             } else if (isDuplicate) {
                 counterHTML = `<span class="found-count" style="font-size: 0.8em; letter-spacing: -0.5px;">🔗 R${pool.rows[0]}</span>`;
             } else {
@@ -235,7 +326,7 @@ const DarnWortler = (function () {
             }
 
             boardHTML += `
-                <div class="row-wrapper ${isDead ? 'dead-row' : 'active-row'}" data-start="${startL}" data-end="${endL}">
+                <div class="row-wrapper ${rowWrapperClass}" data-start="${startL}" data-end="${endL}">
                     <div class="row-main">
                         <div class="row-tiles" id="row-tiles-${r+1}">
                             <div class="tile ${startStyleClass} tile-hidden left-col-tile">${startL}</div>
@@ -279,23 +370,6 @@ const DarnWortler = (function () {
         });
 
         setTimeout(onComplete, delay + 200); 
-    }
-
-    function showOnboardingTooltip() {
-        const firstRow = document.querySelector('.row-wrapper.active-row');
-        if (!firstRow) return;
-
-        const startL = firstRow.dataset.start;
-        const endL = firstRow.dataset.end;
-
-        const tooltip = document.createElement('div');
-        tooltip.id = 'onboarding-tooltip';
-        tooltip.textContent = `Type a 5-letter word starting with ${startL} and ending with ${endL}`;
-        
-        firstRow.style.position = 'relative';
-        firstRow.appendChild(tooltip);
-        
-        setTimeout(() => tooltip.classList.add('tooltip-visible'), 50);
     }
 
     function updateGuessDisplay() {
@@ -424,9 +498,19 @@ const DarnWortler = (function () {
     function processInput(key) {
         if (!state.active) return;
         
-        clearTimeout(state.onboardTimer);
-        const tooltip = document.getElementById('onboarding-tooltip');
-        if (tooltip) tooltip.classList.remove('tooltip-visible');
+        if (state.tutorial.isActive) {
+            let expectedWord = "";
+            if (state.tutorial.step === 1) expectedWord = "SPICE";
+            else if (state.tutorial.step === 2) expectedWord = "EPICS";
+            
+            if (expectedWord) {
+                if (key === "ENTER") {
+                    if (state.currentGuess !== expectedWord) return; 
+                } else if (key !== "DELETE" && key !== "BACKSPACE") {
+                    if (key !== expectedWord[state.currentGuess.length]) return; 
+                }
+            }
+        }
         
         if (key === "ENTER") {
             submitGuess();
@@ -467,27 +551,30 @@ const DarnWortler = (function () {
     }
     
     function handleValidGuess(guess, pool) {
-        manageStreak();
+        if (!state.isZenMode) manageStreak();
         
         pool.foundWords.push(guess);
         state.scores.base += pool.pointsPerWord;
 
         const isObscure = !state.bonusBarrierSet.has(guess); 
+        
+        if (!isObscure) pool.foundCommonCount++;
+        
         spawnFCT(`+${pool.pointsPerWord}`, "base");
         
         if (isObscure) {
             state.scores.bonus += 50; 
-            setTimeout(() => spawnFCT("+50 ✨", "obscure"), 200); 
+            setTimeout(() => spawnFCT("+50 ✦", "obscure"), 200); 
         }
         
-        if (state.streak.isActive) {
-            state.scores.bonus += 5;
-            setTimeout(() => spawnFCT("+5 🔥", "streak"), 400);
+        if (state.streak.isActive && !state.isZenMode) {
+            state.scores.bonus += 25;
+            setTimeout(() => spawnFCT("+25 🔥", "streak"), 400);
         }
 
         updateScoreUI();
+        updateZenCompletionBar(); 
         
-        // Target dynamic UI component
         const countDisplay = document.getElementById(`found-count-${pool.rows[0]}`);
         if (countDisplay) {
             countDisplay.textContent = pool.foundWords.length;
@@ -495,6 +582,16 @@ const DarnWortler = (function () {
 
         renderInlineCard(guess, pool, isObscure);
         triggerCascadeReveal(guess);
+        
+        if (state.tutorial.isActive) {
+            if (state.tutorial.step === 1 && guess === "SPICE") {
+                state.tutorial.step = 2;
+                advanceTutorial();
+            } else if (state.tutorial.step === 2 && guess === "EPICS") {
+                state.tutorial.step = 3;
+                advanceTutorial();
+            }
+        }
     
         state.currentGuess = "";
         updateGuessDisplay();
@@ -504,7 +601,7 @@ const DarnWortler = (function () {
         const hints = document.querySelectorAll(`.hint-card[data-word="${guess}"]`);
         hints.forEach(h => h.remove());
     
-        const html = `<div class="inline-word-card ${pool.baseColorClass} ${isObscure ? 'obscure-word' : ''}">${guess}${isObscure ? ' ✨' : ''}</div>`;
+        const html = `<div class="inline-word-card ${isObscure ? 'obscure-word' : ''}">${guess}${isObscure ? ' ✦' : ''}</div>`;
         const container = document.getElementById(`inline-words-${pool.rows[0]}`);
         
         container.insertAdjacentHTML('afterbegin', html);
@@ -563,6 +660,23 @@ const DarnWortler = (function () {
         ui["score-total-display"].textContent = `Total: ${state.scores.total}`;
         ui["score-breakdown-display"].textContent = `Base: ${state.scores.base} | Bonus: ${state.scores.bonus}`;
     }
+    
+    function updateZenCompletionBar() {
+        if (!state.isZenMode || !ui["timer-progress-bar"]) return;
+        
+        let totalCommonTarget = 0;
+        let totalCommonFound = 0;
+        
+        Object.values(state.targetPools).forEach(pool => {
+            totalCommonTarget += pool.commonWords.length;
+            totalCommonFound += pool.foundCommonCount;
+        });
+        
+        if (totalCommonTarget > 0) {
+            const percentage = (totalCommonFound / totalCommonTarget) * 100;
+            ui["timer-progress-bar"].style.width = `${Math.min(percentage, 100)}%`;
+        }
+    }
 
     function attachEventListeners() {
         ui["virtual-keyboard"].addEventListener("click", (e) => {
@@ -584,13 +698,17 @@ const DarnWortler = (function () {
         
         ui["start-practice-tier-group"].addEventListener("click", (e) => {
             const tierBtn = e.target.closest('.tier-btn');
-            if (tierBtn) initPracticeMode(tierBtn.dataset.tier);
+            if (tierBtn) initPracticeMode(tierBtn.dataset.tier, 'start');
         });
     
         ui["practice-tier-group"].addEventListener("click", (e) => {
             const tierBtn = e.target.closest('.tier-btn');
             if (tierBtn) resetGame(tierBtn.dataset.tier);
         });
+        
+        if (ui["start-tutorial-btn"]) {
+            ui["start-tutorial-btn"].addEventListener("click", initTutorialMode);
+        }
     }
         
     function startGame() {
@@ -604,12 +722,10 @@ const DarnWortler = (function () {
             startTimer();
             state.active = true;
             updateGuessDisplay();
-
-            state.onboardTimer = setTimeout(() => {
-                if (state.currentGuess.length === 0 && state.scores.total === 0) {
-                    showOnboardingTooltip();
-                }
-            }, 4000);
+            
+            if (state.tutorial.isActive) {
+                advanceTutorial();
+            }
         });
     }
     
@@ -626,29 +742,39 @@ const DarnWortler = (function () {
         ui["end-early-btn"].classList.remove("hidden");
         window.scrollTo({ top: 0, behavior: 'smooth' });
     
-        initPracticeMode(selectedTier);
+        initPracticeMode(selectedTier, 'end');
     }
 
     function startTimer() {
         clearInterval(state.timer.interval);
-        state.timer.endTime = Date.now() + (config.gameDuration * 1000);
+        state.timer.startTime = Date.now();
+        state.timer.endTime = state.timer.startTime + (config.gameDuration * 1000);
         
+        if (ui["timer-progress-bar"]) {
+            ui["timer-progress-bar"].style.width = state.isZenMode ? "0%" : "100%";
+        }
+
         const tick = () => {
-            const left = Math.max(0, Math.ceil((state.timer.endTime - Date.now()) / 1000));
-            
-            ui["timer"].textContent = `${String(Math.floor(left/60)).padStart(2,'0')}:${String(left%60).padStart(2,'0')}`;
-            
-            const percentage = (left / config.gameDuration) * 100;
-            if (ui["timer-progress-bar"]) ui["timer-progress-bar"].style.width = `${percentage}%`;
+            if (state.isZenMode) {
+                const elapsedSeconds = Math.floor((Date.now() - state.timer.startTime) / 1000);
+                ui["timer"].textContent = `${String(Math.floor(elapsedSeconds/60)).padStart(2,'0')}:${String(elapsedSeconds%60).padStart(2,'0')}`;
+            } else {
+                const left = Math.max(0, Math.ceil((state.timer.endTime - Date.now()) / 1000));
+                
+                ui["timer"].textContent = `${String(Math.floor(left/60)).padStart(2,'0')}:${String(left%60).padStart(2,'0')}`;
+                
+                const percentage = (left / config.gameDuration) * 100;
+                if (ui["timer-progress-bar"]) ui["timer-progress-bar"].style.width = `${percentage}%`;
 
-            const inDanger = left <= 30 && left > 0;
-            ui["timer"].classList.toggle("danger", inDanger);
-            if (ui["timer-progress-bar"]) ui["timer-progress-bar"].classList.toggle("danger", inDanger);
-            
-            if (state.streak.isActive && Date.now() - state.streak.lastWordTime > 20000) resetStreak();
-            else if (!state.streak.isActive && state.streak.count > 0 && Date.now() - state.streak.lastWordTime > 15000) resetStreak();
+                const inDanger = left <= 30 && left > 0;
+                ui["timer"].classList.toggle("danger", inDanger);
+                if (ui["timer-progress-bar"]) ui["timer-progress-bar"].classList.toggle("danger", inDanger);
+                
+                if (state.streak.isActive && Date.now() - state.streak.lastWordTime > 20000) resetStreak();
+                else if (!state.streak.isActive && state.streak.count > 0 && Date.now() - state.streak.lastWordTime > 15000) resetStreak();
 
-            if (left <= 0) endGame();
+                if (left <= 0) endGame();
+            }
         };
         
         tick();
@@ -661,6 +787,8 @@ const DarnWortler = (function () {
         resetStreak();
         ui["end-early-btn"].classList.add("hidden");
         
+        ui["game-over-heading"].textContent = state.isZenMode ? "Session Complete!" : "Time's Up!";
+        
         if (state.daily.isMode) localStorage.setItem("darnWortlerLastDaily", state.daily.currentID);
         
         ui["final-score"].textContent = `Total Score: ${state.scores.total}`;
@@ -671,7 +799,7 @@ const DarnWortler = (function () {
             p.validWords.forEach(w => {
                 const found = p.foundWords.includes(w);
                 const obscure = !state.bonusBarrierSet.has(w);
-                html += `<div class="word-card ${p.baseColorClass} ${found ? 'strikethrough' : ''} ${obscure ? 'obscure-word' : ''}">${w}${obscure ? ' ✨' : ''}</div>`;
+                html += `<div class="word-card ${found ? 'strikethrough' : ''} ${obscure ? 'obscure-word' : ''}">${w}${obscure ? ' ✦' : ''}</div>`;
             });
         });
         ui["all-solutions-list"].innerHTML = html;

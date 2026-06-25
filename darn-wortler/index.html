@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Darn Wortler - A daily word puzzle game. Find horizontal words using outer letters.">
+    <meta name="description" content="5 in 5 in 5 - A fast-paced or untimed word puzzle game. Find horizontal words using outer letters.">
     <title>5 in 5 in 5</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="timer-progress-container" aria-hidden="true">
+        <div id="timer-progress-bar"></div>
+    </div>
+
     <header class="app-header">
         <div class="header-left">
             <time id="timer" role="timer" aria-live="off" aria-label="Time remaining">05:00</time>
-            <div id="timer-progress-container" aria-hidden="true">
-                <div id="timer-progress-bar"></div>
-            </div>
         </div>
         <div class="header-center">
             <h1>5 in 5 in 5</h1>
@@ -34,23 +35,40 @@
 
     <main id="game-container" class="hidden">
         <section id="board-area" aria-label="Game Board" role="application">
-            <div id="game-board">
-                </div> 
+            <div id="game-board"></div> 
         </section>
 
         <section id="keyboard-area" aria-label="Virtual Keyboard">
             <div id="virtual-keyboard"></div>
             <button id="end-early-btn" class="secondary-btn">End Game and Reveal Answers</button>
         </section>
+
+        <div id="tutorial-panel" class="hidden" aria-live="polite" role="alert">
+            <div class="tutorial-content">
+                <span class="step-icon">💡</span>
+                <p id="tutorial-message">Welcome to the tutorial.</p>
+            </div>
+        </div>
     </main>
 
     <dialog id="game-over-modal" aria-labelledby="game-over-heading">
         <div class="modal-content">
-            <h2 id="game-over-heading">Time's Up!</h2>
+            <h2 id="game-over-heading"></h2>
             <output id="final-score">Total Score: 0</output>
             <output id="final-score-breakdown">Base: 0 | Bonus: 0</output>
             
             <div class="step-group-title game-over-prompt">Play again? Select a practice mode:</div>
+            
+            <div class="segmented-control" role="radiogroup" aria-label="Select mode">
+                <input type="radio" id="end-mode-timed" name="practiceModeEnd" value="timed" checked>
+                <label for="end-mode-timed">Timed (5 Min)</label>
+
+                <input type="radio" id="end-mode-zen" name="practiceModeEnd" value="zen">
+                <label for="end-mode-zen">Zen (Untimed)</label>
+                
+                <div class="segmented-slider"></div>
+            </div>
+
             <div id="practice-tier-group" class="practice-tier-container">
                 <button class="tier-btn easy-btn" data-tier="easy">Easy</button>
                 <button class="tier-btn medium-btn" data-tier="medium">Medium</button>
@@ -61,7 +79,7 @@
                 <h4>All Possible Solutions:</h4>
                 <p class="legend">
                     <span class="legend-strikethrough">Strikethrough</span> = Found | 
-                    <span class="legend-obscure">✨ Italic Gold</span> = Rare Word
+                    <span class="legend-obscure">✦ Onyx</span> = Rare Word
                 </p>
                 <div id="all-solutions-list"></div>
             </div>
@@ -70,51 +88,47 @@
 
     <dialog id="start-screen" aria-labelledby="start-heading" open>
         <div class="modal-content">
-        <!-- New Logo Setup -->
-        <h2 id="start-heading" class="logo-heading">
-            <span class="logo-tile bg-col1">5</span>
-            <span class="logo-text">IN</span>
-            <span class="logo-tile bg-col2">5</span>
-            <span class="logo-text">IN</span>
-            <span class="logo-tile bg-col5">5</span>
-        </h2>
-        
-        <!-- Sleek Tagline -->
-        <p class="tagline">
-            Your daily 5-minute word sprint.
-        </p>
-        
-        <!-- Contained Instructions Card -->
-        <div class="instructions-card">
-            <div class="step-group-title">How to Play</div>
-            <div class="step">
-                <span class="step-icon" aria-hidden="true">⏱️</span>
-                <p><strong>The Game:</strong> 5 rows. 5 letters each. 5 minutes on the clock. Find as many words as you can!</p>
-            </div>
-            <div class="step">
-                <span class="step-icon" aria-hidden="true">🔠</span>
-                <p><strong>The Grid:</strong> Outer letters are locked. Guess 5-letter words starting and ending with those exact letters.</p>
-            </div>
-            <div class="step">
-                <span class="step-icon" aria-hidden="true">💡</span>
-                <p><strong>Cascade Hints:</strong> Correct guesses reveal bonus letters across the board. Use them to your advantage.</p>
-            </div>
+            <h2 id="start-heading" class="logo-heading">
+                <span class="logo-tile bg-col1">5</span>
+                <span class="logo-text">IN</span>
+                <span class="logo-tile bg-col2">5</span>
+                <span class="logo-text">IN</span>
+                <span class="logo-tile bg-col5">5</span>
+            </h2>
             
-            <div class="step-group-title header-mt">How to Score</div>
-            <div class="step">
-                <!-- Cleaned up inline styles -->
-                <span class="point-badge text-col2" style="font-size: 0.8rem; padding: 4px 6px;">+50 pts</span>
-                <p><strong>Bounty Badges:</strong> Harder rows are worth more points per valid guess.</p>
+            <p class="tagline">
+                Your daily word sprint or zen practice.
+            </p>
+            
+            <div class="instructions-card">
+                <div class="step-group-title">How to Play</div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">⏱️</span>
+                    <p><strong>The Game:</strong> 5 rows. 5 letters each. Find words before the timer runs out, or play untimed in Zen Mode.</p>
+                </div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">🔠</span>
+                    <p><strong>The Grid:</strong> Outer letters are locked. Guess 5-letter words starting and ending with those exact letters.</p>
+                </div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">💡💡</span>
+                    <p><strong>Cascade Hints:</strong> Correct guesses reveal bonus letters across the board. Use them to your advantage.</p>
+                </div>
+                
+                <div class="step-group-title header-mt">How to Score</div>
+                <div class="step">
+                    <span class="point-badge point-badge-medium" style="font-size: 0.8rem; padding: 4px 6px;">+50 pts</span>
+                    <p><strong>Bounty Badges:</strong> Harder rows are worth more points per valid guess. Green badges are easy, red are hard!</p>
+                </div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">✦</span>
+                    <p><strong>Rare Words:</strong> Bonus points for obscure vocabulary, plus massive base points in black Bonus Rows.</p>
+                </div>
+                <div class="step">
+                    <span class="step-icon" aria-hidden="true">🔥</span>
+                    <p><strong>Speed Streak:</strong> (Timed Mode Only) 3 fast answers catch fire. Keep the streak alive for bonus points.</p>
+                </div>
             </div>
-            <div class="step">
-                <span class="step-icon" aria-hidden="true">✨</span>
-                <p><strong>Rare Words:</strong> +50 bonus points for obscure vocabulary.</p>
-            </div>
-            <div class="step">
-                <span class="step-icon" aria-hidden="true">🔥</span>
-                <p><strong>Speed Streak:</strong> 3 fast answers catch fire. Keep the streak alive for bonus points.</p>
-            </div>
-        </div>
             
             <div id="start-action-area">
                 <button id="start-loading-btn" class="primary-btn" disabled aria-live="polite">Loading Dictionary...</button>
@@ -124,11 +138,23 @@
                     
                     <div class="step-group-title practice-title">Practice Mode</div>
                     
+                    <div class="segmented-control" role="radiogroup" aria-label="Select mode">
+                        <input type="radio" id="start-mode-timed" name="practiceModeStart" value="timed" checked>
+                        <label for="start-mode-timed">Timed (5 Min)</label>
+
+                        <input type="radio" id="start-mode-zen" name="practiceModeStart" value="zen">
+                        <label for="start-mode-zen">Zen (Untimed)</label>
+                        
+                        <div class="segmented-slider"></div>
+                    </div>
+
                     <div id="start-practice-tier-group" class="practice-tier-container">
                         <button class="tier-btn easy-btn" data-tier="easy">Easy</button>
                         <button class="tier-btn medium-btn" data-tier="medium">Medium</button>
                         <button class="tier-btn hard-btn" data-tier="hard">Hard</button>
                     </div>
+                    
+                    <button id="start-tutorial-btn" class="secondary-btn" style="margin-top: 16px;">Play Interactive Tutorial</button>
                 </div>
 
                 <a href="manual.html" class="manual-link">Read the Player Manual</a>
